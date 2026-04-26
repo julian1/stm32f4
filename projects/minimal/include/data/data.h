@@ -4,9 +4,9 @@
 
   - instead of injecting the controllers into one another
   - instead, pass the shared context model, into multiple controllers
-    - works the same as tcp packet handling in kernel, or packet in http server.
+    - works the same as tcp packet handling in kernel, or http/html packet
 
-  -  simpler than a polymorphic update() or handler function
+  - also simpler than a polymorphic update() or handler function
     note that the range information can be injectected separately also.
   --------
 
@@ -58,6 +58,8 @@ typedef struct data_t
   uint32_t adc_clk_count_refmux_pos;
   uint32_t adc_clk_count_refmux_neg;
   uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
+
+  double  clk_count_ratio;
 
 
   // AZ HI-LO clk count sum, weight adjusted.

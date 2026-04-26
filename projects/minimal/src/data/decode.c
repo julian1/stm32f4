@@ -118,11 +118,10 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   data->adc_clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
 
   // useful for bounds - and to correct asymetry
-  double ratio = (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
+  data->clk_count_ratio =
+      (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
       ?  (double) data->adc_clk_count_refmux_pos / data->adc_clk_count_refmux_neg
       :  - (double) data->adc_clk_count_refmux_neg / data->adc_clk_count_refmux_pos;
-  UNUSED(ratio);
-
 
 
 
