@@ -130,7 +130,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
-  if( true /* show_comparators */) {
+  if( status.sample_idx == 0 ) {
 
     printf( "zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u, ",
 
@@ -140,8 +140,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
       status.boot_ch1_ovld,
       status.boot_ch2_ovld
     );
+  } else {
 
+    printf( "                                        ");
   }
+
 
 
   if( decode->show_counts) {
