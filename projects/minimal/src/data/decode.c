@@ -124,15 +124,19 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   UNUSED(ratio);
 
 
-  if( status.first) {
 
-    // printf("\n");
-  }
+
+  printf( "{first=%u idx=%u seq_n=%u}, ",
+    status.first,
+    status.sample_idx,
+    status.sample_seq_n
+  );
 
 
   if( status.sample_idx == 0 ) {
 
-    printf( "zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u, ",
+    // for HI
+    printf( "{zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
 
       status.amp_cmpr,
       status.amp_ovld,
@@ -142,19 +146,15 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     );
   } else {
 
-    printf( "                                        ");
+    // ignore for LO
+    printf( "                                    ");
   }
 
 
 
   if( decode->show_counts) {
 
-    printf( "first=%u idx=%u seq_n=%u, ",
-      status.first,
-      status.sample_idx,
-      status.sample_seq_n
-    );
-    printf( "counts pos %7lu neg %7lu sig %7lu, ",
+    printf( "{counts pos %7lu neg %7lu sig %7lu}, ",
       data->adc_clk_count_refmux_pos,
       data->adc_clk_count_refmux_neg,
       data->adc_clk_count_sigmux
