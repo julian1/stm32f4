@@ -1,6 +1,16 @@
 
 
 /*
+  see
+  ../../lib/libopencm3/lib/cm3/assert.c
+  ../../lib/libopencm3/include/libopencm3/cm3/assert.h
+
+  should just be able to override, the weak linkage specifier.
+
+     cm3_assert_failed_verbose
+      andjjjjjjjjj
+
+  ------
 
   In C/C++: A failed assert prints an error message to stderr and then calls abort(), which terminates the program.
   so consider leave assert as is.
@@ -13,12 +23,12 @@
 */
 
 
-#include <libopencm3/stm32/gpio.h>
 
 #include <assert.h>  // assert_simple()
 #include <stdio.h>  // printf
 
 
+#include <libopencm3/stm32/gpio.h>
 
 
 /*
