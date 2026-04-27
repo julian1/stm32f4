@@ -143,10 +143,12 @@ typedef struct _4094_state_t
   /*
       no. the sequence points for state transition are known.
       either,
-        '\r' for repl statement.
-        or range-change, from AR. in response to interrupt.
+        - '\r' for repl statement.
+        - or range-change, generated AR. in response to interrupt.
+        - or in test code, that manipulates the mode directly.
       ------
-      AND if the mode has been modified. i think we always want a retrigger.
+      AND if the mode has been modified.
+      i think we always want a retrigger.
   */
   /*
     Easier way to determine change - is just to compare mode after repl processed. with a copy of the mode before hand.

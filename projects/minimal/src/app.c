@@ -729,7 +729,9 @@ static void app_console_update(app_t *app)
 
     if( ch == '\r')
     {
-      /* sequence point to apply state changes.
+      /*
+        sequence point to apply mode state changes.  in response to repl commands.
+        NOT. for auto-ranging.
 
         EXTR.  problem that have pending mode state changes from REPL before \r .
 
@@ -742,15 +744,22 @@ static void app_console_update(app_t *app)
 
         // update analog board state by calling transition_state(),
         // juncture for transition/transfering state
-        app_transition_state( app );                      // change name app_sequence_mode_transition()
+        app_transition_state( app );                      // consider change name,  app_sequence_mode_transition()
 
         /*
-          this looks wrong.
+          this looks completely wrong.
           should not have a concept of ranging here.
           and digging into it.
 
           instead use the mode to communicate that state needs to be updated.
           instead should always retrigger whenever the mode is written.
+        */
+
+        /*
+          Why not hold the trigger lo.   while we perform  the transition state?
+          Avoid spurious conversions, and interrupts.
+
+          And when do we not want to retrigger in here - in response to a repl command that modifies the mode ?
 
         */
 
