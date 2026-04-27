@@ -93,7 +93,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
   reg_sr_t  status = data->status;
 
-  assert( status.isr_adc) ;
+  assert( status.isr.adc) ;
 
 
 
@@ -235,15 +235,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   data->status = status;
 
-  assert( status.magic  == 0b1010 );
+  assert( status.isr.magic  == 0b1010 );
 
 
 
-  printf( "{isr %c%c%c%c}, ",
-    '0',
-    '0',
-    status.isr_cmpr ? '1' : '0',
-    status.isr_adc  ? '1' : '1'
+  printf( "{isr %c%c}, ",
+    status.isr.cmpr ? '1' : '0',
+    status.isr.adc  ? '1' : '1'
   );
 
 
@@ -260,13 +258,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   if( is_hi) {
 
     // for HI
-    printf( "{zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
+    printf( "{zero=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
 
-      status.amp_cmpr,
-      status.amp_ovld,
-      status.amp_unld,
-      status.boot_ch1_ovld,
-      status.boot_ch2_ovld
+      status.cmpr.amp_zero,
+      status.cmpr.amp_ovld,
+      status.cmpr.amp_unld,
+      status.cmpr.boot_ch1_ovld,
+      status.cmpr.boot_ch2_ovld
     );
   } else {
 
@@ -277,14 +275,14 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  if( status.isr_adc ) {
+  if( status.isr.adc ) {
 
     // adc conversion
     decode_update_data_conversion( decode,  data);
 
   }
 
-  else if( status.isr_cmpr) {
+  else if( status.isr.cmpr) {
 
     printf( "isr comparator");
 

@@ -138,19 +138,26 @@ typedef struct __attribute__((__packed__))
 reg_sr_t
 {
 
-  uint8_t   magic         : 4;
+
+
 
   // almost an isr
   // consider nested prefix 'isr'
-  uint8_t   isr_adc       : 1;
-  uint8_t   isr_cmpr      : 1;
-  uint8_t                 : 2;  // 8
+
+  struct {
+
+    uint8_t   magic         : 4;
+
+    uint8_t   adc           : 1;
+    uint8_t   cmpr          : 1;
+    uint8_t                 : 2;  // 8
+  } isr;
 
   // hw flags do not belong here. since constant across power cycles.
 
-#if 0
+#if 1
   struct {
-    uint8_t   amp_cmpr      : 1;      // rename zero
+    uint8_t   amp_zero      : 1;      // rename zero
     uint8_t   amp_ovld      : 1;
     uint8_t   amp_unld      : 1;
     uint8_t   boot_ch1_ovld : 1;
@@ -159,7 +166,7 @@ reg_sr_t
   } cmpr;
 #endif
 
-#if 1
+#if 0
   // comparator state
   // consider prefix  'cmpr'.  eg.  'cmpr_amp_ovld' else nested structure
   uint8_t   amp_cmpr      : 1;

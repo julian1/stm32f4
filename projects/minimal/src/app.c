@@ -817,7 +817,7 @@ void app_update( app_t *app)
       // display functions... still want to see the update...
 
     }
-    if( data.status.isr_adc) {
+    if( data.status.isr.adc) {
 
       /*
         EXTR. if it is ranging . then probably want to skip overhead of rendering.
