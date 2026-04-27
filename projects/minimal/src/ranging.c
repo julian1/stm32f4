@@ -299,7 +299,7 @@ void ranging_update_data( ranging_t *ranging,  const data_t *data)
 
   /*
     this decision-making can be delegated back to the ranging
-    functions.
+    functions, for more fine-grain control, if needed.
 
   */
 
@@ -312,6 +312,7 @@ void ranging_update_data( ranging_t *ranging,  const data_t *data)
 
   if( !status.cmpr.amp_ovld) {      // ie. active lo.
 
+    printf("\n");
     printf("got u\n");
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);

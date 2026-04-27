@@ -810,30 +810,20 @@ void app_update( app_t *app)
     // data.line_freq = app->line_freq;
     // and same for the line_freq. maybe the provisional cal.
 
-    // TODO change name decode_update_data to decode_update_data_data
     decode_update_data( app->decode, &data /* range_t *range */);
 
-    if( !data.reading_valid ) {
-      // display functions... still want to see the update...
+    buffer_update_data( app->buffer, &data);
 
-    }
+    // always delegate to ranging update
+    // in case we want to use the reading.
+    ranging_update_data( app->ranging, &data);
 
-    if( data.status.isr.adc) {
+    printf( "\n");
 
-      buffer_update_data( app->buffer, &data);
+    display_vfd_update_data( app->display_vfd, &data);
+    display_tft_update_data( app->display_tft, &data);
 
-      printf( "\n");
 
-      display_vfd_update_data( app->display_vfd, &data);
-      display_tft_update_data( app->display_tft, &data);
-    }
-
-    if( data.status.isr.cmpr) {
-
-      ranging_update_data( app->ranging, &data);
-
-      printf( "\n");
-    }
 
   }
 

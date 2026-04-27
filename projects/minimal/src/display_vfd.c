@@ -74,6 +74,10 @@ void display_vfd_update_data( display_vfd_t *display, const data_t *data)
   assert( display && display->magic == VFD_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
 
+  if( !data->status.isr.adc)
+    return;
+
+
 
   vfd_t *vfd = display->vfd;
   assert( vfd);

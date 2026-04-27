@@ -324,6 +324,9 @@ void mode_init(_mode_t *mode)
 
 void mode_reset( _mode_t *mode)
 {
+
+  printf("mode_reset\n");
+
   // same as init
   mode_init( mode);
 }

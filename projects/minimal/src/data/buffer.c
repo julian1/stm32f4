@@ -87,6 +87,9 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
   assert( data && data->magic == DATA_MAGIC );
 
 
+  if( !data->status.isr.adc)
+    return;
+
 
   if(data->status.sample.first) {
 

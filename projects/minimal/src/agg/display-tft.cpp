@@ -42,6 +42,10 @@ static void display_tft_update_data_( display_tft_t *display, const data_t *data
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
 
+  if( !data->status.isr.adc)
+    return;
+
+
 
   // ignore, if current rendered page has not been flipped to display yet
   if( display->page_ready)
