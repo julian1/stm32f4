@@ -723,15 +723,36 @@ static void app_console_update(app_t *app)
       printf("command buffer overflow!!\n");
     }
 
+
+
+
+
     if( ch == '\r')
     {
-      // apply state changes
+      /* sequence point to apply state changes.
+
+        EXTR.  problem that have pending mode state changes from REPL before \r .
+
+        BUT if there is auto-ranging change - then this is also a sequence point to apply the changes.
+
+        could have more than one mode.
+      */
 
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
         // update analog board state by calling transition_state(),
         // juncture for transition/transfering state
-        app_transition_state( app );
+        app_transition_state( app );                      // change name app_sequence_mode_transition()
+
+        /*
+          this looks wrong.
+          should not have a concept of ranging here.
+          and digging into it.
+
+          instead use the mode to communicate that state needs to be updated.
+          instead should always retrigger whenever the mode is written.
+
+        */
 
         ranging_t *ranging = app->ranging;
 

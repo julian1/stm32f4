@@ -89,7 +89,14 @@ const range_t * ranging_range_active_get( ranging_t *ranging)
 }
 
 
+/*
+  rather than return a bool here.
+  a better interface would just return the new range_idx,
+  or else negative, if no range.
 
+  more succinct, and allows more control to skip inactive/disabled ranges.
+
+*/
 
 static bool ranging_range_dir_valid( ranging_t *ranging, uint32_t range_idx, bool dir)    // 1 up. 0 down
 {

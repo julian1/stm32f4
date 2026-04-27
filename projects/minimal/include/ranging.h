@@ -34,6 +34,8 @@ typedef struct ranging_t
 
   bool          retrigger;              // used to communicate out from ranging() functions ....
                                         // not very good.
+                                        // EXTR. consider using a mode flag.
+                                        // instead as a shared state to communicate need to update.
 
 } ranging_t;
 
