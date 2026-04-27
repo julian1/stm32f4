@@ -139,7 +139,7 @@ void display_vfd_update_data( display_vfd_t *display, data_t *data)
 
 
   // wont work. until we assert valid for a ZERO.
-  uint8_t status_sample_idx = data->status.sample_idx;
+  uint8_t status_sample_idx = data->status.sample.idx;
 
 
   char star  = status_sample_idx % 2 == 1 ? '*' : ' ';

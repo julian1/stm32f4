@@ -125,7 +125,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
 
-  if( status.sample_idx == 0) {
+  if( status.sample.idx == 0) {
 
     // HI.  record counts.
     decode->adc_clk_count_refmux_pos_hi = data->adc_clk_count_refmux_pos;
@@ -134,7 +134,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // data->valid = false;
   }
 
-  else if( status.sample_idx == 1) {
+  else if( status.sample.idx == 1) {
 
     // LO
     data->count_sum =
@@ -246,14 +246,14 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
   printf( "{first=%u idx=%u seq_n=%u}, ",
-    status.first,
-    status.sample_idx,
-    status.sample_seq_n
+    status.sample.first,
+    status.sample.idx,
+    status.sample.seq_n
   );
 
 
   // by convention
-  bool is_hi =  status.sample_idx % 2 == 0;
+  bool is_hi =  status.sample.idx % 2 == 0;
 
   if( is_hi) {
 

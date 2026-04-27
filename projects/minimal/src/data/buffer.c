@@ -88,7 +88,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
 
 
 
-  if(data->status.first) {
+  if(data->status.sample.first) {
 
     assert(!data->reading_valid);
 
@@ -102,7 +102,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
 
   if(data->reading_valid) {
 
-    assert(!data->status.first);
+    assert(!data->status.sample.first);
     // push buffer.
 
     // printf("buffer i %u, count %u, ", buffer->i, buffer->count);

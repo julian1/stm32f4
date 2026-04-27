@@ -117,13 +117,15 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
     spi_read_registers( spi, &data);
     print_data( &data);
 
+    // FIXME.  after HI to LO conversion
+    assert( 0);
 
-    if(data.status.sample_idx == 0) {
+    if(data.status.sample.idx == 0) {
       // lo - record counts
       clk_count_refmux_pos_lo = data.clk_count_refmux_pos;
       clk_count_refmux_neg_lo = data.clk_count_refmux_neg;
     }
-    else if (data.status.sample_idx == 1) {
+    else if (data.status.sample.idx == 1) {
       // hi
       double v = ((double) data.clk_count_refmux_pos    - (cal_w * data.clk_count_refmux_neg))
               - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
@@ -358,13 +360,15 @@ static void test( app_t *app)
       spi_read_registers( spi, &data);
       print_data( &data);
 
+      // FIXME after LO to HI first conversion
+      assert( 0);
 
-      if(data.status.sample_idx == 0) {
+      if(data.status.sample.idx == 0) {
         // lo - record counts
         clk_count_refmux_pos_lo = data.clk_count_refmux_pos;
         clk_count_refmux_neg_lo = data.clk_count_refmux_neg;
       }
-      else if (data.status.sample_idx == 1) {
+      else if (data.status.sample.idx == 1) {
         // hi
         double v = ((double) data.clk_count_refmux_pos    - (cal_w * data.clk_count_refmux_neg))
                 - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));

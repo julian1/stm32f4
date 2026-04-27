@@ -138,9 +138,6 @@ typedef struct __attribute__((__packed__))
 reg_sr_t
 {
 
-
-
-
   // almost an isr
   // consider nested prefix 'isr'
 
@@ -155,37 +152,27 @@ reg_sr_t
 
   // hw flags do not belong here. since constant across power cycles.
 
-#if 1
   struct {
-    uint8_t   amp_zero      : 1;      // rename zero
+    uint8_t   amp_zero      : 1;      // rename zero, or zgjc
     uint8_t   amp_ovld      : 1;
     uint8_t   amp_unld      : 1;
     uint8_t   boot_ch1_ovld : 1;
     uint8_t   boot_ch2_ovld : 1;
     uint8_t                 : 3;    // 16
   } cmpr;
-#endif
 
-#if 0
-  // comparator state
-  // consider prefix  'cmpr'.  eg.  'cmpr_amp_ovld' else nested structure
-  uint8_t   amp_cmpr      : 1;
-  uint8_t   amp_ovld      : 1;
-  uint8_t   amp_unld      : 1;
-  uint8_t   boot_ch1_ovld : 1;
-  uint8_t   boot_ch2_ovld : 1;
-  uint8_t                 : 3;    // 16
-#endif
 
-  // sa
+  // sa - sample/sequence acquisition
   // prefix sample. or 'sa'
-  uint8_t   sample_idx    : 3;
-  uint8_t   first         : 1;            // rename sample_first...
-  uint8_t   sample_seq_n  : 3;
-  uint8_t                 : 1;    // 24
+  struct {
+    uint8_t   idx           : 3;
+    uint8_t   first         : 1;
+    uint8_t   seq_n         : 3;
+    uint8_t                 : 1;    // 24
+  } sample;
 
 
-  uint32_t                : 8;    // 31
+  uint8_t                   : 8;    // 31
 
 
   // uint32_t   azmux : 4;
@@ -237,7 +224,7 @@ reg_direct_t
   uint8_t   adc_cmpr_latch_o  : 1;          // 20
 
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
-  uint8_t   meas_complete_o   : 1;          // 13
+  uint8_t   meas_complete_o   : 1;          // 13     was meas_complete_o
 
 
 
