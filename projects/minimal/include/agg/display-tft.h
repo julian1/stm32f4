@@ -58,7 +58,7 @@ struct display_tft_t
     and even the repl output. and app.
     could factor into a separate interface. but not clear how useful
   */
-  void (*update_data)( display_tft_t *, data_t *data);
+  void (*update_data)( display_tft_t *, const data_t *data);
 
   // no reason to make thi
   // void (*update)( display_tft_t *);
@@ -68,7 +68,7 @@ struct display_tft_t
 
 
 // accessors
-void display_tft_update_data( display_tft_t *display_tft, data_t *data);
+void display_tft_update_data( display_tft_t *display_tft, const data_t *data);
 // no reason to make polymorphic unless clear we need
 void display_tft_update( display_tft_t *display_tft);
 void display_tft_update_500ms( display_tft_t *display_tft);

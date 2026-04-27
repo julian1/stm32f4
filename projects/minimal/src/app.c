@@ -128,13 +128,13 @@ void app_interrupt_data_rdy( app_t *app, void *arg) // runtime context
 
 
   // if flag is still active, then record we missed processing some app.
-  if(app->adc_interrupt_valid == true) {
-    app->adc_interrupt_valid_missed = true;
-    // ++app->adc_interrupt_valid_missed;     // count better? but harder to report.
+  if(app->data_interrupt_valid == true) {
+    app->data_interrupt_valid_missed = true;
+    // ++app->data_interrupt_valid_missed;     // count better? but harder to report.
   }
 
   // set flag
-  app->adc_interrupt_valid = true;
+  app->data_interrupt_valid = true;
 }
 
 
@@ -767,9 +767,9 @@ void app_update( app_t *app)
   assert(app && app->magic == APP_MAGIC);
 
   // process new adc data in priority
-  if( app->adc_interrupt_valid) {
+  if( app->data_interrupt_valid) {
 
-    app->adc_interrupt_valid = false;
+    app->data_interrupt_valid = false;
 
     /* EXTR.  we can always wrap data in an extra structure
       // if there is additional info needed
@@ -817,32 +817,33 @@ void app_update( app_t *app)
       // display functions... still want to see the update...
 
     }
+
     if( data.status.isr.adc) {
 
-      /*
-        EXTR. if it is ranging . then probably want to skip overhead of rendering.
-        and instead pass control to rendering
-      */
+      buffer_update_data( app->buffer, &data);
+
+      printf( "\n");
+
+      display_vfd_update_data( app->display_vfd, &data);
+      display_tft_update_data( app->display_tft, &data);
     }
 
+    if( data.status.isr.cmpr) {
 
-    buffer_update_data( app->buffer, &data);
+      ranging_update_data( app->ranging, &data);
 
-    printf( "\n");
-
-    // vfd and tft update_data()
-    display_vfd_update_data( app->display_vfd, &data);
-    display_tft_update_data( app->display_tft, &data);
+      printf( "\n");
+    }
 
   }
 
 
   // TODO - check - we brought the right code across in the interrupt handler also.
-  if( app->adc_interrupt_valid_missed == true) {
+  if( app->data_interrupt_valid_missed == true) {
 
     // just report for now
-    printf("missed adc interrupt\n");
-    app->adc_interrupt_valid_missed = false;
+    printf("missed data interrupt\n");
+    app->data_interrupt_valid_missed = false;
   }
 
 
@@ -1748,9 +1749,9 @@ void app_update_simple_with_data(app_t *app)
   // decode_update_data_new_reading( app->data, app->spi/*, app->verbose*/);
 
   // process new incoming data.
-  if(data->adc_interrupt_valid) {
+  if(data->data_interrupt_valid) {
 
-    data->adc_interrupt_valid = false;
+    data->data_interrupt_valid = false;
     decode_update_data_new_reading2( data, app->devices.spi_fpga0);
   }
 

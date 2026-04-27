@@ -37,7 +37,7 @@ void spi_read_registers( spi_t *spi, data_t *data)
 
 void print_data( data_t * data)
 {
-  assert( data);
+  assert( data); //  && data->magic == DATA_MAGIC);
 
 
   // printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);

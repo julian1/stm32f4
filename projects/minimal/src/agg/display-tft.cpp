@@ -32,7 +32,7 @@
 
 
 
-static void display_tft_update_data_( display_tft_t *display, data_t *data)
+static void display_tft_update_data_( display_tft_t *display, const data_t *data)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
@@ -159,7 +159,7 @@ void display_tft_update_500ms( display_tft_t *display)
 }
 
 
-void display_tft_update_data( display_tft_t *display, data_t *data)
+void display_tft_update_data( display_tft_t *display, const data_t *data)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 

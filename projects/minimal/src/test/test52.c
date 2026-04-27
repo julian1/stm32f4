@@ -107,10 +107,10 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
     printf("i %u, ", i);
 
     // wait for adc data
-    while( !app->adc_interrupt_valid )
+    while( !app->data_interrupt_valid )
       app_yield( app);
 
-    app->adc_interrupt_valid = false;
+    app->data_interrupt_valid = false;
 
     data_t   data;
     memset( &data, 0, sizeof( data));
@@ -254,10 +254,10 @@ static void test( app_t *app)
     printf("i %u, ", i);
 
     // wait for adc data
-    while( !app->adc_interrupt_valid )
+    while( !app->data_interrupt_valid )
       app_yield( app);
 
-    app->adc_interrupt_valid = false;
+    app->data_interrupt_valid = false;
 
     data_t   data;
     memset( &data, 0, sizeof( data));
@@ -350,10 +350,10 @@ static void test( app_t *app)
       printf("i %u, ", i);      // two readings per value...
 
       // wait for adc data
-      while( !app->adc_interrupt_valid )
+      while( !app->data_interrupt_valid )
         app_yield( app);
 
-      app->adc_interrupt_valid = false;
+      app->data_interrupt_valid = false;
 
       data_t   data;
       memset( &data, 0, sizeof( data));

@@ -196,10 +196,10 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
     printf("i %u, ", i);
 
     // wait for adc decode
-    while( !app->adc_interrupt_valid )
+    while( !app->data_interrupt_valid )
       app_yield( app);
 
-    app->adc_interrupt_valid = false;
+    app->data_interrupt_valid = false;
 
     data_t  data;
     data_init( &data);
@@ -237,10 +237,10 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
     printf("i %u, ", i);
 
     // wait for adc decode
-    while( !app->adc_interrupt_valid )
+    while( !app->data_interrupt_valid )
       app_yield( app);
 
-    app->adc_interrupt_valid = false;
+    app->data_interrupt_valid = false;
 
     data_t  data;
     data_init( &data);

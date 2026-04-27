@@ -80,7 +80,7 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
   so use a separate variable
 */
 
-void buffer_update_data( buffer_t *buffer, data_t *data)
+void buffer_update_data( buffer_t *buffer, const data_t *data)
 {
 
   assert(buffer && buffer->magic == BUFFER_MAGIC);

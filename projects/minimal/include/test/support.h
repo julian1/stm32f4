@@ -15,11 +15,12 @@ typedef struct spi_t spi_t ;
 /*
   lightweight data_t
   and read functions only for tests.
-  will conflict with data_t in data/data.h
+  will conflict or confusion with data_t in data/data.h
 
 */
 
 
+// potential for confusion with /data/data.h  data_t.
 
 typedef struct data_t
 {

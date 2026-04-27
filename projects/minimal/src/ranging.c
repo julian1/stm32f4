@@ -8,12 +8,16 @@
 #include <strings.h>      // strcasecmp
 
 
+
+
+
 #include <data/range.h>   // for range_t
-
+#include <data/data.h>         // for auto-ranging
 #include <ranging.h>
-
 #include <support.h>      // str_decode_uint
 #include <mode.h>
+
+
 
 
 
@@ -135,7 +139,7 @@ static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
 void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char *arg)
 {
   /*
-    for external callers.
+    support external callers
     expects and asserts that the range will exist
   */
 
@@ -158,7 +162,7 @@ void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char
 
 bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 {
-  assert(ranging && ranging->magic == RANGING_MAGIC);
+  assert( ranging && ranging->magic == RANGING_MAGIC);
 
 
 
@@ -199,6 +203,15 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
     // set retrigger to clear data buffers
     ranging->retrigger = true;
+  }
+
+
+
+  else if(strcmp(cmd, "ar") == 0) {
+    ranging->ar = true;
+  }
+  else if(strcmp(cmd, "noar") == 0) {
+    ranging->ar = false;
   }
 
 
@@ -265,8 +278,6 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     }
 
   }
-
-
   else
     return false;
 
@@ -275,6 +286,50 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
   return true;
 
 }
+
+
+
+
+void ranging_update_data( ranging_t *ranging,  const data_t *data)
+{
+  assert( ranging && ranging->magic == RANGING_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
+
+  reg_sr_t  status = data->status;
+
+  /*
+    this decision-making can be delegated back to the ranging
+    functions.
+
+  */
+
+
+  if( !status.isr.cmpr)
+    return;
+
+  if( !ranging->ar)
+    return;
+
+  if( !status.cmpr.amp_ovld) {      // ie. active lo.
+
+    printf("got u\n");
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
+    if(ret) {
+      ++ranging->range_idx;
+      ranging_range_set( ranging, ranging->range_idx);
+    }
+
+  }
+
+
+
+
+
+}
+
+
+
 
 
 

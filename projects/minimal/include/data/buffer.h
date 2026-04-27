@@ -46,7 +46,7 @@ void buffer_init( buffer_t *buffer, double *values, size_t sz);
 
 bool buffer_repl_statement( buffer_t *, const char *cmd);
 
-void buffer_update_data( buffer_t *, data_t *data);
+void buffer_update_data( buffer_t *, const data_t *data);
 
 
 

@@ -202,9 +202,10 @@ typedef struct app_t
 
 
   /*
-    hw flags should have their own register.  not SR.
-    state will persist across power cycles/init
-    and we only want to read once at startup anyway.
+    hw flags need own register.  not placed in SR.
+    hw flag state persists across power cycles/init
+    and only want to read once at startup.
+
   */
   // uint8_t   hw_flags : 4;
 
@@ -217,10 +218,14 @@ typedef struct app_t
 
   //////////////////////////////////
 
+  /* / TODO rename
+    interrupts no longer just the adc.
+    change name spi_ interrupt vali.
+    or fpga0_interrupt valid.
+  */
+  volatile bool data_interrupt_valid;
 
-  volatile bool adc_interrupt_valid;
-
-  bool          adc_interrupt_valid_missed; // could be a count
+  bool          data_interrupt_valid_missed; // could be a count
 
 
 
@@ -228,7 +233,7 @@ typedef struct app_t
 
   // line_freq is an environment property
   // does it belong in cal or data?
-  // issue is that it is needed in many places eg. tests, cal
+  // issue is that we use it in multiple places/modules - eg. tests, cal
   uint32_t      *line_freq;
 
 

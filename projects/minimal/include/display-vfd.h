@@ -44,7 +44,7 @@ void display_vfd_init( display_vfd_t *vfd, vfd_t *, buffer_t *buffer);
 
 
 void display_vfd_update( display_vfd_t *display_vfd) ;
-void display_vfd_update_data( display_vfd_t *vfd, data_t *data);
+void display_vfd_update_data( display_vfd_t *vfd, const data_t *data);
 void display_vfd_update_500ms( display_vfd_t *vfd);
 
 

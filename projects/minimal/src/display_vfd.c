@@ -69,7 +69,7 @@ void display_vfd_update_500ms( display_vfd_t *display)
 
 
 
-void display_vfd_update_data( display_vfd_t *display, data_t *data)
+void display_vfd_update_data( display_vfd_t *display, const data_t *data)
 {
   assert( display && display->magic == VFD_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
