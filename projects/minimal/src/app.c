@@ -1506,12 +1506,12 @@ static bool app_repl_range( app_t *app, const char *cmd)
     // vfd
 
 
-    fsmc_port_configure();
+    fsmc_controller_port_configure();
 
 
-    // fsmc_setup( 12 );   // slow.
+    // fsmc_controller_setup( 12 );   // slow.
     // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
-    // fsmc_setup( 1 );   // fase.
+    // fsmc_controller_setup( 1 );   // fase.
     // vfd_dev_gpio_init();
 
     // app_msleep( app, 10);

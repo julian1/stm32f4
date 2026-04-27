@@ -94,7 +94,7 @@ tft lcd init!
 (tft->fmc_ad 0000000000000000000000000000000000000000000000000000000000000000000001100000000100000000000000000000 cmd
 (tft->fmc_ad 0000000000000000000000000000000000000000000000000000000000000000000001100000000100100000000000000000 data r
 (tft->fmc_ad 0000000000000000000000000000000000000000000000000000000000000000000001100000000100100000000000000000 data w
-fsmc_setup, divider 1
+fsmc_controller_setup, divider 1
 */
 
 
@@ -132,8 +132,8 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   printf("tft_init\n");
 
   // LCD_Configuration();
-  // fsmc_port_configure();
-  fsmc_setup( 12);   // slow.
+  // fsmc_controller_port_configure();
+  fsmc_controller_setup( 12);   // slow.
 
 
   printf("pull reset lo\n");
@@ -165,7 +165,7 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
   // HERE
   // needs to be 2.  if using fpga for address demuxing using cs and addr_19.
-  fsmc_setup( 2);
+  fsmc_controller_setup( 2);
   msleep(10, system_millis);
 
   tft_write_cmd( tft, 0x01);    // software reset (JA requiredJ).

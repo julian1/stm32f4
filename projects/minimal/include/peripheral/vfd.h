@@ -31,7 +31,8 @@ typedef struct vfd_t
   uint32_t  fmc_addr;     // FMC_MY_BASE |  FMC_A18
   uint32_t  fmc_cd;       // command/data bit. FMC_A16.   change name vmc_cd_bit.  it is bit in an address not address
 
-  //
+  // consider - none of these really need to be polymorphic
+  // except allows run multiple instances.
   void (*vfd_gpio_port_configure)( vfd_t *);
   bool (*vfd_getTear)( vfd_t *);
   void (*vfd_reset)( vfd_t *, bool val );

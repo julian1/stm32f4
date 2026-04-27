@@ -338,8 +338,8 @@ static int main_f429(void)
 
 
   ///////////////////////////////
-  fsmc_port_configure();
-  fsmc_setup( 12 );       // tft will manipulate this itself.
+  fsmc_controller_port_configure();
+  fsmc_controller_setup( 12 );       // tft will manipulate this itself.
                           // TODO rename to controller_configure() to be consistent
 
   /////////////////////////////

@@ -26,6 +26,8 @@ typedef struct tft_t
   uint32_t  fmc_cd;       // command/data bit. FMC_A16.
 
 
+  // consider - none of these really need to be polymorphic
+  // except allows run multiple instances.
   void (*tft_gpio_port_configure)( tft_t *);
   bool (*tft_getTear)( tft_t *);                  // renae
   void (*tft_reset)( tft_t *, bool val );

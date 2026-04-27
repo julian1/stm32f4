@@ -16,10 +16,10 @@
 
 
 
-void fsmc_port_configure()
+void fsmc_controller_port_configure()
 {
 
-  printf("fsmc_port_configure\n");
+  printf("fsmc_controller_port_configure\n");
 /*
   // Keep pin setup separate from fsmc peripheral setup.
   because we need to call fsmc setup twice
@@ -106,11 +106,11 @@ void fsmc_port_configure()
 
 
 
-void fsmc_setup( uint8_t divider)
+void fsmc_controller_setup( uint8_t divider)
 {
   // consider rename fsmc_controller_configure() to be consistent
 
-  printf("fsmc_setup, divider %u\n", divider);
+  printf("fsmc_controller_setup, divider %u\n", divider);
 
   /*
     https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
