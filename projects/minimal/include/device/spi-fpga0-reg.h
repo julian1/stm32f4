@@ -224,11 +224,12 @@ reg_direct_t
   uint8_t   adc_cmpr_latch_o  : 1;          // 20
 
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
-  uint8_t   meas_complete_o   : 1;          // 13     was meas_complete_o
+
+  uint8_t                     : 1;          // 13     was meas_complete_o
 
 
 
-  uint8_t   dummy_bits_o      : 7;               // 25 = (32-25)  TODO. make anonymous
+  uint8_t                     : 7;               // 25 = (32-25)  TODO. make anonymous
 
   /*
   471     .out( {   dummy_bits_o,               // 25

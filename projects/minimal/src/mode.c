@@ -1020,9 +1020,6 @@ bool mode_repl_statement(
       else if(strcmp(s0, "spi_interrupt_ctl") == 0) {
         mode->reg_direct.spi_interrupt_ctl_o = u0;
       }
-      else if(strcmp(s0, "meas_complete") == 0) {
-        mode->reg_direct.meas_complete_o = u0;
-      }
 
       ////////////////////////////////////////////
       // 4094 components.
