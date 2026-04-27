@@ -140,7 +140,25 @@ typedef struct _4094_state_t
 
 
   // flag that something changed.
-  // bool retrigger ;
+  /*
+      no. the sequence points for state transition are known.
+      either,
+        '\r' for repl statement.
+        or range-change, from AR. in response to interrupt.
+      ------
+      AND if the mode has been modified. i think we always want a retrigger.
+  */
+  /*
+    Easier way to determine change - is just to compare mode after repl processed. with a copy of the mode before hand.
+    before repl command is processed.
+      - two cases.
+      - retrigger, and non retrigger.
+
+  */
+
+  // bool modified;
+
+  // bool retrigger;
 
 
 } _4094_state_t;

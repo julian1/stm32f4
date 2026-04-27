@@ -10,6 +10,7 @@ openocd -f ../../openocd.cfg
 
 mcu firmware
 reset halt ; flash write_image erase unlock /home/me/devel/stm32f4/projects/minimal/main.elf ;  reset run
+(may need sleet 1; before reset run)
 
 analog firmware
 reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/minimal/build/main.bin  0x08080000 ; reset run
