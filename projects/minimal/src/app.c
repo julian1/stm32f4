@@ -730,7 +730,7 @@ static void app_console_update(app_t *app)
     if( ch == '\r')
     {
       /*
-        sequence point to apply mode state changes.  in response to repl commands.
+        control sequence point to apply mode state changes.  in response to repl commands.
         NOT. for auto-ranging.
 
         EXTR.  problem that have pending mode state changes from REPL before \r .
@@ -742,9 +742,17 @@ static void app_console_update(app_t *app)
 
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
+        /*  if there is a case where we do not want to retrigger, then handle it exceptionally.
+            rather than making not retriggering the default behavior.
+        */
+
+        /* force a retrigger, if current trigger is active
+          else preserve an inactive trigger through a state transition - useful for tests that use the repl etc.
+        */
+        gpio_write( app->gpio_trigger, 0 );
+
         // update analog board state by calling transition_state(),
-        // juncture for transition/transfering state
-        app_transition_state( app );                      // consider change name,  app_sequence_mode_transition()
+        app_transition_state( app );
 
         /*
           this looks completely wrong.
@@ -762,7 +770,7 @@ static void app_console_update(app_t *app)
           And when do we not want to retrigger in here - in response to a repl command that modifies the mode ?
 
         */
-
+/*
         ranging_t *ranging = app->ranging;
 
         if( ranging->retrigger) {
@@ -776,8 +784,9 @@ static void app_console_update(app_t *app)
           // set trigger low
           gpio_write( app->gpio_trigger, 0);
         }
+*/
 
-
+        // re-apply trigger state
         gpio_write( app->gpio_trigger, app->repl_trigger_val);
       }
 
@@ -846,7 +855,22 @@ void app_update( app_t *app)
 
     // always delegate to ranging update
     // in case we want to use the reading.
-    ranging_update_data( app->ranging, &data);
+    bool result = ranging_update_data( app->ranging, &data);
+    if(result) {
+
+        // force a retrigger, if current trigger is active
+        gpio_write( app->gpio_trigger, 0 );
+
+        app_transition_state( app );
+
+        // re-apply trigger state
+        // not clear that trigger could/would be inactive when AR active.
+        gpio_write( app->gpio_trigger, app->repl_trigger_val);
+
+        // avoid doing more work - such as display rendering,
+        // to improve response in the case need a following range change
+        return;
+    }
 
     printf( "\n");
 

@@ -32,7 +32,7 @@ typedef struct ranging_t
 
   bool          ar;                     // autoranging
 
-  bool          retrigger;              // used to communicate out from ranging() functions ....
+  // bool          retrigger;              // for manual rangning functions ....
                                         // not very good.
                                         // EXTR. consider using a mode flag.
                                         // instead as a shared state to communicate need to update.
@@ -68,7 +68,10 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd);
   only need reg_sr_t from data..
   but do not want to include <device/spi-fpga0-reg.h>  here
   so use data_t
+  ------
+
+  just return a bool.  indicating if we have to sequence.
 */
 
-void ranging_update_data( ranging_t *ranging,  const data_t *data );
+bool ranging_update_data( ranging_t *ranging,  const data_t *data );
 

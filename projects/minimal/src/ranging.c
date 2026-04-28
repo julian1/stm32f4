@@ -138,7 +138,9 @@ static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
     cleared by app_t after state transistion.  which is messy.
     consider record flag against the mode...
   */
-  ranging->retrigger = true;
+
+  // why not just always retrigger?
+  // ranging->retrigger = true;
 }
 
 
@@ -161,8 +163,32 @@ void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char
 
 
 
+#if 0
+
+// consider something like this...
+
+static bool ranging_maybe_change( ranging_t *ranging, bool dir)
+{
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, dir);
+    if(ret) {
+
+      if( dir)
+        ++ranging->range_idx;
+      else
+        --ranging->range_idx;
 
 
+      ranging_range_set( ranging, ranging->range_idx);
+
+      return true;
+    }
+
+
+  return false;
+}
+
+#endif
 
 
 
@@ -208,8 +234,11 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     // which may modify the mode
     ranging_range_set( ranging, ranging->range_idx);
 
+
+    // state will be transferred at repl '\r'
+
     // set retrigger to clear data buffers
-    ranging->retrigger = true;
+    // ranging->retrigger = true;
   }
 
 
@@ -233,6 +262,8 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
       ++ranging->range_idx;
       ranging_range_set( ranging, ranging->range_idx);
     }
+
+    // state will be transferred at repl '\r'
   }
   // 'd' down in range
   else if(strcmp(cmd, "d") == 0) {
@@ -297,7 +328,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
 
 
-void ranging_update_data( ranging_t *ranging,  const data_t *data)
+bool ranging_update_data( ranging_t *ranging, const data_t *data)
 {
   assert( ranging && ranging->magic == RANGING_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
@@ -312,10 +343,10 @@ void ranging_update_data( ranging_t *ranging,  const data_t *data)
 
 
   if( !status.isr.cmpr)
-    return;
+    return false;
 
   if( !ranging->ar)
-    return;
+    return false;
 
   if( !status.cmpr.amp_ovld) {      // ie. active lo.
 
@@ -326,6 +357,8 @@ void ranging_update_data( ranging_t *ranging,  const data_t *data)
     if(ret) {
       ++ranging->range_idx;
       ranging_range_set( ranging, ranging->range_idx);
+
+      return  true;
     }
 
   }
@@ -333,6 +366,7 @@ void ranging_update_data( ranging_t *ranging,  const data_t *data)
 
 
 
+  return false;
 
 }
 
