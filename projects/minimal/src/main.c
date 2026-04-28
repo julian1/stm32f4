@@ -349,6 +349,8 @@ static int main_f429(void)
   mode_init( &mode);
 
 
+  // _mode_t       mode_last_written;
+  // mode_zero( &mode);
 
 
   // structure just references state in app.

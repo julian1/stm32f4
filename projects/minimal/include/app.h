@@ -216,6 +216,15 @@ typedef struct app_t
   _mode_t       *mode;
 
 
+  /*
+  At the moment, all board state updates pulse the relays with required state - which takes around 10ms.
+    - an optimization could first compare needed state with the last written board state - to identify if any relay state differences
+    - if not then a faster board update is possible.
+    - eg. for a range change where only the amplifier gain changes.
+  */
+  // _mode_t       *mode_last_written;   // copy of the last written mode, at app_state_transition()
+
+
   //////////////////////////////////
 
   /* / TODO rename
