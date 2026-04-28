@@ -202,9 +202,9 @@ typedef struct app_t
 
 
   /*
-    hw flags need own register.  not placed in SR.
+    hw flags should get own register.  not placed in SR.
     hw flag state persists across power cycles/init
-    and only want to read once at startup.
+    so need to read once at startup.
 
   */
   // uint8_t   hw_flags : 4;
@@ -217,10 +217,11 @@ typedef struct app_t
 
 
   /*
-  At the moment, all board state updates pulse the relays with required state - which takes around 10ms.
-    - an optimization could first compare needed state with the last written board state - to identify if any relay state differences
-    - if not then a faster board update is possible.
-    - eg. for a range change where only the amplifier gain changes.
+  At the moment, all board state updates pulse the relays - which takes around 10ms.
+    - an optimization could compare the needed mode/state with the last written board state - to see if any relay state has changed.
+    - then a fast board state update is possible - without pulsing the relays.
+
+    - eg. 10V and lower ranges.  versus above 10V.
   */
   // _mode_t       *mode_last_written;   // copy of the last written mode, at app_state_transition()
 
