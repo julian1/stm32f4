@@ -13,7 +13,25 @@
   consider a better way to context pointers for callbacks/handlers.
   a single global table.
 
-    void *glb_nvic_ctx_table[ NVIC_IRQ_COUNT ];
+  *** use a struct.
+    - use one array for the external interrupts .
+    and another array for the internal - (which are negative coded)
+    in order not to conflict.
+
+  like this,
+
+
+  struct int_ctx_table {
+
+    // or irq_ctx.
+    void *nvic[ NVIC_IRQ_COUNT];
+
+    // Internal Interrupts (System Exceptions) are the specific events
+    void *events[ 10];   // for sys_tick_isr. etc.
+  };
+
+
+  -----------
 
   to register,
 
