@@ -241,7 +241,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   printf( "{isr %c%c}, ",
     status.isr.cmpr ? '1' : '0',
-    status.isr.adc  ? '1' : '1'
+    status.isr.adc  ? '1' : '0'
   );
 
 

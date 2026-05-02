@@ -116,7 +116,7 @@ static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
 {
   assert(ranging && ranging->magic == RANGING_MAGIC);
 
-  printf("here2 range idx %lu\n", range_idx);
+  printf("\ncurrent range idx %lu\n", range_idx);
 
   // range_idx is unsigned and expected to be valid
   assert( range_idx < ranging->ranges_sz );
@@ -342,10 +342,18 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   */
 
 
+/*
+    not correct.
+    - should always change range - based on the flags.
+    - whether because of a new reading.
+    - BUT. we probably want a way to s:w
+
+*/
+/*
   // do nothing, status is *not* an interrupt
   if( !status.isr.cmpr)
     return false;
-
+*/
   // do nothing if not ar.
   if( !ranging->ar)
     return false;
@@ -353,34 +361,42 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
 
   if( !status.cmpr.amp_ovld) {      // ie. active lo. above abs max threshold.
 
-    printf("\n");
-    printf("got u\n");
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
     if(ret) {
+
+      printf(", ovld and have valid u range");
+
       ++ranging->range_idx;
       ranging_range_set( ranging, ranging->range_idx);
 
       return  true;
+    }
+    else {
+
+      printf(", ovld and no valid u range - ignore");
     }
   }
 
 
   else if( status.cmpr.amp_unld) {      // gone dip below abs min threshold.
 
-    printf("\n");
-    printf("got d\n");
-/*
-    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
     if(ret) {
-      ++ranging->range_idx;
+
+      printf(", unld and have valid d range");
+      --ranging->range_idx;
       ranging_range_set( ranging, ranging->range_idx);
 
       return  true;
     }
-*/
-  }
+    else  {
 
+      printf(", unld and no valid d range - ignore");
+    }
+
+  }
 
 
 

@@ -869,7 +869,7 @@ void app_update( app_t *app)
 
         // avoid doing more work - such as display rendering,
         // to improve response in the case need a following range change
-        return;
+        // return;
     }
 
     printf( "\n");
