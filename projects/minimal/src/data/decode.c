@@ -160,12 +160,13 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     */
     // const range_t *range  = &decode->ranges[ *decode->range_idx];
-    const range_t *range = ranging_range_active_get( decode->ranging);
-    assert(range && range->magic == RANGE_MAGIC);
+    // const range_t *range = ranging_range_active_get( decode->ranging);
+    // assert(range && range->magic == RANGE_MAGIC);
+    // data->range     = range;
 
 
-    assert( range);
-    data->range     = range;
+
+
     data->cal       = cal;
     data->line_freq = *decode->line_freq;
 
@@ -180,6 +181,12 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // printf("cal->w %lf\n", cal->w);
 
     // calculate reading for current range
+
+
+    // range should already be set.
+    const range_t *range = data->range;
+    assert(range);
+
     data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
     // data->valid     = true;
 
@@ -188,7 +195,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     if(decode->show_reading) {
 
-      printf( "%s-%s, ", range->name, range->arg );
+//      printf( "%s-%s, ", range->name, range->arg );
       printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
       // printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
@@ -273,6 +280,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
+  const range_t *range = ranging_range_active_get( decode->ranging);
+  assert(range && range->magic == RANGE_MAGIC);
+  data->range  = range;
+
+  printf( "%s-%s, ", range->name, range->arg );
 
 
   if( status.isr.adc ) {
