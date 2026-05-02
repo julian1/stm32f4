@@ -342,13 +342,16 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   */
 
 
+  // do nothing, status is *not* an interrupt
   if( !status.isr.cmpr)
     return false;
 
+  // do nothing if not ar.
   if( !ranging->ar)
     return false;
 
-  if( !status.cmpr.amp_ovld) {      // ie. active lo.
+
+  if( !status.cmpr.amp_ovld) {      // ie. active lo. above abs max threshold.
 
     printf("\n");
     printf("got u\n");
@@ -360,7 +363,22 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
 
       return  true;
     }
+  }
 
+
+  else if( status.cmpr.amp_unld) {      // gone dip below abs min threshold.
+
+    printf("\n");
+    printf("got d\n");
+/*
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
+    if(ret) {
+      ++ranging->range_idx;
+      ranging_range_set( ranging, ranging->range_idx);
+
+      return  true;
+    }
+*/
   }
 
 
