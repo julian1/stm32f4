@@ -51,6 +51,14 @@ typedef struct data_t
 
   reg_sr_t status;
 
+  // set the environmental fields first.
+  // range used - could hard-copy if non const.
+  const range_t   *range;
+
+  bool          is_hi;
+
+
+
   /*
     data_t is more high-level structure
     only reason to record the counts here is to support cal w
@@ -80,14 +88,13 @@ typedef struct data_t
     if we decide to stamp. in app_update().
   */
 
-  // range used - could hard-copy if non const.
-  const range_t   *range;
 
   // record cal used.
   // provisional.  for cal->w ?
   // TODO review. does not correct. should come from the  range_t
   const cal_t     *cal;
 
+  // TODO move to start.
   uint32_t  line_freq;
 
 } data_t;

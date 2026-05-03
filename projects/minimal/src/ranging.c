@@ -342,26 +342,17 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   */
 
 
-/*
-    not correct.
-    - should always change range - based on the flags.
-    - whether because of a new reading.
-    - BUT. we probably want a way to s:w
 
-*/
-/*
-  // do nothing, status is *not* an interrupt
-  if( !status.isr.cmpr)
-    return false;
-*/
+
   // do nothing if not ar.
   if( !ranging->ar)
     return false;
 
-
-  bool is_hi =  status.sample.idx % 2 == 0;
-  if(!is_hi)
+  // don't care about a comparator if not a HI.
+  if( !data->is_hi)
     return false;
+
+
 
   if( !status.cmpr.amp_ovld) {      // ie. active lo. above abs max threshold.
 

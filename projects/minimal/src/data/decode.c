@@ -260,9 +260,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
   // by convention
-  bool is_hi =  status.sample.idx % 2 == 0;
+  data->is_hi =  status.sample.idx % 2 == 0;
 
-  if( is_hi) {
+  // data->is_hi =
+
+  if( data->is_hi) {
 
     // for HI
     printf( "{zero=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
@@ -284,6 +286,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   assert(range && range->magic == RANGE_MAGIC);
   data->range  = range;
 
+  printf( "%c ", data->is_hi ? 'H' : 'L');
   printf( "%s-%s, ", range->name, range->arg );
 
 
