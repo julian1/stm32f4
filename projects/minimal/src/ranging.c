@@ -359,6 +359,10 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
     return false;
 
 
+  bool is_hi =  status.sample.idx % 2 == 0;
+  if(!is_hi)
+    return false;
+
   if( !status.cmpr.amp_ovld) {      // ie. active lo. above abs max threshold.
 
 
