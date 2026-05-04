@@ -125,6 +125,7 @@ reg_sr_t
     uint8_t   magic         : 4;
 
     uint8_t   adc           : 1;
+    // consider no longer use
     uint8_t   cmpr          : 1;
     uint8_t                 : 2;  // 8
   } isr;
@@ -134,6 +135,32 @@ reg_sr_t
   // comparator flags
   struct {
     uint8_t   amp_zero      : 1;
+
+
+
+  /*
+
+	consider issue with copying the cmpr state into the sr, if raise interrupt in the same clk cycle.
+	the way to handle this is make the interrupt conditional on the clk-delayed state field rather than the direct field.
+	like this,
+
+	@always clk
+	  if cmpr == 0;   cmpr_state[0] = 1;
+	  if cmpr == 1;   cmpr_state[1] = 1;
+
+	  if cmpr_state[1]						// eg. do not watch cmpr directly
+		//  copy all fields into the status register.
+		raise interrupt.
+
+
+  BUT we probably don't even care about the interupt.
+  ALSO, it should be possible to make everything work.
+  with a two bit cmpr field.
+
+  remember - AC component. may also include rare amp-oscillation case.
+  */
+
+
     uint8_t   amp_ovld      : 1;
     uint8_t   amp_unld      : 1;
     uint8_t   boot_ch1_ovld : 1;
