@@ -58,6 +58,8 @@ typedef struct data_t
 
   uint32_t        line_freq;
 
+
+  // TODO move. below status.
   bool            is_hi;
 
 
