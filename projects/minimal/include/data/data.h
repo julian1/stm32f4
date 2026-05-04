@@ -33,7 +33,7 @@ typedef struct cal_t cal_t;
 
 
 /*
-  consider.  that data_t  should record everything needed for forther processing / display, after decode.
+  consider.  that data_t  should record everything for subsequent processing / reporting / display, after decode.
   it is almost like a command.
 
   - eg. do not want display_vfd  needing to reference the mode. to determine/figure out the 10Meg. setting.
@@ -50,34 +50,41 @@ typedef struct data_t
   // uint32_t     timestamp;
 
 
-  // set the environmental fields first.
-
+  // set/stamp environment fields first.
   const range_t   *range;
-
   const cal_t     *cal;
-
   uint32_t        line_freq;
 
-
-  // TODO move. below status.
-  bool            is_hi;
+  // need 10Meg.
 
 
   ////////////////
+  // acquisition/adc related fields
 
-  reg_sr_t status;
+  reg_sr_t        status;
+
+  // better name  is_input or not_zero?
+  bool            is_hi;
+
+  // better name. to distinguish fast ranging reading
+
+  // OOB_reading. used for ranging .
+  // need to compare the sigmux with the mode aperture
+  // is_mode_aperture
+  bool            is_oob;
+
 
   /*
-    data_t is more high-level structure
-    only reason to record the counts here is to support cal w
+    data_t is more high-level structure,
+    but record low-level counts to ease calibration of cal w
   */
   uint32_t adc_clk_count_refmux_pos;
   uint32_t adc_clk_count_refmux_neg;
   uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
 
-  double  clk_count_ratio;
+  double   clk_count_ratio;
 
-
+  // TODO consider prefix  fields with adc_
   // AZ HI-LO clk count sum, weight adjusted.
   double  count_sum;
 

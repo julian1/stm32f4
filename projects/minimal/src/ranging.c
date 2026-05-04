@@ -348,7 +348,7 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   if( !ranging->ar)
     return false;
 
-  // don't care about a comparator if not a HI.
+  // do nothing if not a INPUT/HI.
   if( !data->is_hi)
     return false;
 

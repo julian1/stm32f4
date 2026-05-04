@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 /*
-  fpga specific structure -  for comms
+  fpga specific registers and structure
 
 */
 
@@ -20,7 +20,7 @@
 
 
 
-// put OE in separate register, not _CR_ combined register.
+// keep 4094 OE in separate register, not _CR_ combined register.
 // because only used once at config time
 
 #define REG_4094_OE                       9
@@ -79,50 +79,27 @@
 
 
 
-/*
-  Feb. 2026
-  - more important than the seq. idx.   we should return the azmux value and may be pc value that was used.
-      can then test this against S1, S2. etc   to know if the value is a hi or lo value
-
-    ie. for n==2
-    S1,S3 == hi
-    S5,S6,S7 == lo.
-
-    no.
-
-        just use the idx knowing the first value is always a zero.
-        and the first and third are zero for ratiometric when seq_n = 4;
-
-    if n == 2.  and idx == 0 then value is a zero.
-                 idx == 1 then hi.
-      if n == 4 ratiometric then as above.
-          and 2 is lo, and 3 is hi.
-
-    EXTR. can use first to clear buffer. after a trigger.
-
-*/
-
-
 
 typedef struct __attribute__((__packed__))
 reg_cr_t
 {
 
-  // fpga mode. 3 bits
-  uint8_t   mode        : 3;
+  // fpga operating mode. 3 bits
+  uint8_t     mode          : 3;
 
 
   // adc - whether to switch the input sigmux
-  uint8_t   adc_p_active_sigmux : 1;
+  // used for weighting
+  uint8_t     adc_p_active_sigmux : 1;
 
-  // sa - no az mode
-  uint8_t   sa_p_noaz : 1;
+  // for az mode
+  uint8_t     sa_p_noaz     : 1;
 
 
- // input           p_use_slow_rundown,
- // input           p_use_fast_rundown,
+ // input     p_use_slow_rundown,
+ // input     p_use_fast_rundown,
 
-  uint32_t  dummy_bits_o : 27;
+  uint32_t    dummy_bits_o  : 27;
 
 } reg_cr_t;
 
@@ -141,6 +118,8 @@ reg_sr_t
   // almost an isr
   // consider nested prefix 'isr'
 
+
+  // interrupt source
   struct {
 
     uint8_t   magic         : 4;
@@ -152,8 +131,9 @@ reg_sr_t
 
   // hw flags do not belong here. since constant across power cycles.
 
+  // comparator flags
   struct {
-    uint8_t   amp_zero      : 1;      // rename zero, or zgjc
+    uint8_t   amp_zero      : 1;
     uint8_t   amp_ovld      : 1;
     uint8_t   amp_unld      : 1;
     uint8_t   boot_ch1_ovld : 1;
@@ -162,8 +142,7 @@ reg_sr_t
   } cmpr;
 
 
-  // sa - sample/sequence acquisition
-  // prefix sample. or 'sa'
+  // sample/sequence acquisition
   struct {
     uint8_t   idx           : 3;
     uint8_t   first         : 1;
@@ -230,19 +209,6 @@ reg_direct_t
 
 
   uint8_t                     : 7;               // 25 = (32-25)  TODO. make anonymous
-
-  /*
-  471     .out( {   dummy_bits_o,               // 25
-  472               meas_complete_o,          // 24+1     // interrupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
-  473               spi_interrupt_ctl_o,      // 23+1     todo rename. drop the 'ctl'.
-  474               adc_cmpr_latch_o,         // 22+1
-  475               adc_refmux_o,             // 18+4     // better name adc_refmux   adc_cmpr_latch
-  476               azmux_o,                  // 14+4
-  477               sig_pc_ch_o,              // 12+2
-  478               monitor_o,                // 4+8
-  479               leds_o                    // 0+4
-
-  */
 } reg_direct_t;
 
 _Static_assert (sizeof(reg_direct_t ) == 4, "bad typedef size");
@@ -268,5 +234,48 @@ _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
 
 
 
+#if 0
 
 
+
+  /*
+  471     .out( {   dummy_bits_o,               // 25
+  472               meas_complete_o,          // 24+1     // interrupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
+  473               spi_interrupt_ctl_o,      // 23+1     todo rename. drop the 'ctl'.
+  474               adc_cmpr_latch_o,         // 22+1
+  475               adc_refmux_o,             // 18+4     // better name adc_refmux   adc_cmpr_latch
+  476               azmux_o,                  // 14+4
+  477               sig_pc_ch_o,              // 12+2
+  478               monitor_o,                // 4+8
+  479               leds_o                    // 0+4
+
+  */
+
+
+/*
+  Feb. 2026
+  - more important than the seq. n.
+
+      consider return azmux value used and perhaps be pc value that was used.
+      can then test this against S1, S2. etc   to know if the value is a hi or lo value
+
+    ie. for n==2
+    S1,S3 == hi
+    S5,S6,S7 == lo.
+
+    no.
+
+        just use the idx knowing the first value is always a zero.
+        and the first and third are zero for ratiometric when seq_n = 4;
+
+    if n == 2.  and idx == 0 then value is a zero.
+                 idx == 1 then hi.
+      if n == 4 ratiometric then as above.
+          and 2 is lo, and 3 is hi.
+
+    EXTR. can use first to clear buffer. after a trigger.
+
+*/
+
+
+#endif
