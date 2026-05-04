@@ -87,14 +87,13 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   spi_t *spi = decode->spi;
   assert( spi);
 
-  cal_t *cal = decode->cal;
-  assert( cal && cal->magic == CAL_MAGIC);
-
 
   reg_sr_t  status = data->status;
 
   assert( status.isr.adc) ;
 
+  const cal_t *cal = data->cal;
+  assert( cal && cal->magic == CAL_MAGIC);
 
 
   // record for current part of reading
@@ -136,6 +135,8 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
   else if( status.sample.idx == 1) {
 
+
+
     // LO
     data->count_sum =
         ((double) decode->adc_clk_count_refmux_pos_hi - (cal->w * decode->adc_clk_count_refmux_neg_hi))
@@ -165,10 +166,6 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // data->range     = range;
 
 
-
-
-    data->cal       = cal;
-    data->line_freq = *decode->line_freq;
 
 
     if(decode->show_counts)
@@ -232,6 +229,22 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   spi_t *spi = decode->spi;
   assert( spi);
 
+  /////////////////
+
+  // copy environment fields first
+
+  const cal_t *cal = decode->cal;
+  assert( cal && cal->magic == CAL_MAGIC);
+
+  const range_t *range = ranging_range_active_get( decode->ranging);
+  assert(range && range->magic == RANGE_MAGIC);
+
+  data->range     = range;
+  data->cal       = cal;
+  data->line_freq = *decode->line_freq;
+
+
+  /////////////////
 
   uint32_t status_  = spi_ice40_reg_read32( spi, REG_STATUS);
 
@@ -243,7 +256,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   data->status = status;
 
   assert( status.isr.magic  == 0b1010 );
-
 
 
   printf( "{isr %c%c}, ",
@@ -282,9 +294,9 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
-  const range_t *range = ranging_range_active_get( decode->ranging);
-  assert(range && range->magic == RANGE_MAGIC);
-  data->range  = range;
+
+
+
 
   printf( "%c ", data->is_hi ? 'H' : 'L');
   printf( "%s-%s, ", range->name, range->arg );

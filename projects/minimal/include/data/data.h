@@ -45,19 +45,25 @@ typedef struct cal_t cal_t;
 typedef struct data_t
 {
 
-  uint32_t  magic;
+  uint32_t        magic;
 
-  // uint32_t  timestamp;
+  // uint32_t     timestamp;
 
-  reg_sr_t status;
 
   // set the environmental fields first.
-  // range used - could hard-copy if non const.
+
   const range_t   *range;
 
-  bool          is_hi;
+  const cal_t     *cal;
+
+  uint32_t        line_freq;
+
+  bool            is_hi;
 
 
+  ////////////////
+
+  reg_sr_t status;
 
   /*
     data_t is more high-level structure
@@ -89,13 +95,6 @@ typedef struct data_t
   */
 
 
-  // record cal used.
-  // provisional.  for cal->w ?
-  // TODO review. does not correct. should come from the  range_t
-  const cal_t     *cal;
-
-  // TODO move to start.
-  uint32_t  line_freq;
 
 } data_t;
 
