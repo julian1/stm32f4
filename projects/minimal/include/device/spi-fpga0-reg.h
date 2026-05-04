@@ -28,8 +28,8 @@
 #define REG_DIRECT                        14
 
 
-// consider rename SR ?
-#define REG_STATUS                        17
+// status
+#define REG_SR                            17
 
 
 // operation modes

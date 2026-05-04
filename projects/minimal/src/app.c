@@ -1041,7 +1041,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
     // TODO consider decode.
     // don't bother because not that useful.
     // since registed is updated too quickly
-    spi_print_register( spi, REG_STATUS);
+    spi_print_register( spi, REG_SR);
 
   }
 
@@ -1846,12 +1846,12 @@ void app_update_simple_with_data(app_t *app)
   if( spi_ice40_cdone( app->spi_fpga1)) {
 
 
-    // spi_print_register( app->spi_fpga1, REG_STATUS );    // show fan speed.
+    // spi_print_register( app->spi_fpga1, REG_SR );    // show fan speed.
 
     spi_controller_configure( app->spi_fpga1 );
 
     // perhaps should put on a separate register.
-    uint8_t reg = REG_STATUS;
+    uint8_t reg = REG_SR;
     uint32_t ret = spi_ice40_reg_read32( app->spi_fpga1, reg );
 
     uint32_t speed = ret & 0xffff;

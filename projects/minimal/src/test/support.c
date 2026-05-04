@@ -17,7 +17,7 @@
 void spi_read_registers( spi_t *spi, data_t *data)
 {
 
-  uint32_t status_              = spi_ice40_reg_read32( spi, REG_STATUS );
+  uint32_t status_              = spi_ice40_reg_read32( spi, REG_SR );
 
    _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
   memcpy( &data->status, &status_,  sizeof( status_));
