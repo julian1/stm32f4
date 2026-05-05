@@ -302,7 +302,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   } else {
 
     // ignore for LO
-    printf( "                                    ");
+    printf( "                                       ");
   }
 
 
