@@ -180,6 +180,10 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // calculate reading for current range
 
 
+    // for ranging
+    data->adc_reading_nominal = cal->b * data->adc_count_sum_norm;
+
+
     // range should already be set.
     const range_t *range = data->range;
     assert(range);

@@ -90,11 +90,16 @@ typedef struct data_t
   // count normalized by aperture/sigmux
   double adc_count_sum_norm;
 
-  // reading valid for this conversion/iteration
-  // or should use NaN
+  // wehter reading valid for this conversion/iteration
+  // or use NaN?
   bool   reading_valid;
 
-  // reading adjusted by cal
+  // for ranging
+  // for amp-out
+  double adc_reading_nominal;
+
+
+  // reading adjusted by cal, and range
   double  reading;
 
 
