@@ -82,14 +82,13 @@ typedef struct data_t
   uint32_t adc_clk_count_refmux_neg;
   uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
 
-  double   clk_count_ratio;
+  double   adc_clock_count_ratio;
 
-  // TODO consider prefix  fields with adc_
-  // AZ HI-LO clk count sum, weight adjusted.
-  double  count_sum;
+  // clk count sum, with weighting
+  double  adc_count_sum;
 
   // count normalized by aperture/sigmux
-  double count_sum_norm;
+  double adc_count_sum_norm;
 
   // reading valid for this conversion/iteration
   bool   reading_valid;

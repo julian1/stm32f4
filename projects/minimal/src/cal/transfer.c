@@ -208,7 +208,7 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
     decode_update_data( decode, &data);
     if( data.reading_valid) {
 
-      values[ i] = data.count_sum_norm;
+      values[ i] = data.adc_count_sum_norm;
       ++i;
     }
 

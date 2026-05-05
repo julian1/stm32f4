@@ -100,7 +100,7 @@ struct range_t
   // TODO. renam the range_reading value to count_norm.
 
   // convert normalized count to a reading according to calibration
-  double (*range_reading_convert)( const range_t *range, const cal_t *, double count_sum_norm);
+  double (*range_reading_convert)( const range_t *range, const cal_t *, double adc_count_sum_norm);
 
 
   // convert value to string

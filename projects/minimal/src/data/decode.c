@@ -104,7 +104,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
   // useful for bounds - and to correct asymetry
-  data->clk_count_ratio =
+  data->adc_clock_count_ratio =
       (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
       ?  (double) data->adc_clk_count_refmux_pos / data->adc_clk_count_refmux_neg
       :  - (double) data->adc_clk_count_refmux_neg / data->adc_clk_count_refmux_pos;
@@ -138,7 +138,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
     // LO
-    data->count_sum =
+    data->adc_count_sum =
         ((double) decode->adc_clk_count_refmux_pos_hi - (cal->w * decode->adc_clk_count_refmux_neg_hi))
       - ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg));
 
@@ -169,10 +169,10 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
     if(decode->show_counts)
-      printf("sum %.2f, ", data->count_sum);
+      printf("sum %.2f, ", data->adc_count_sum);
 
     // normalized count
-    data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
+    data->adc_count_sum_norm = data->adc_count_sum  / data->adc_clk_count_sigmux;
 
     // printf("cal %p\n", cal);
     // printf("cal->w %lf\n", cal->w);
@@ -184,7 +184,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     const range_t *range = data->range;
     assert(range);
 
-    data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
+    data->reading = range->range_reading_convert( range, cal, data->adc_count_sum_norm);
     // data->valid     = true;
 
 
