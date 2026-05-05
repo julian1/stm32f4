@@ -91,16 +91,11 @@ typedef struct data_t
   double adc_count_sum_norm;
 
   // reading valid for this conversion/iteration
+  // or should use NaN
   bool   reading_valid;
 
   // reading adjusted by cal
   double  reading;
-  // bool reading_valid or use NaN
-
-  /*
-    move range_t, line_freq  to the top of this structure
-    if we decide to stamp. in app_update().
-  */
 
 
 
