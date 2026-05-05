@@ -216,6 +216,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
 
+#define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
 
 void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
@@ -257,11 +258,16 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   assert( status.isr.magic  == 0b1010 );
 
-
+/*
   printf( "{isr %c%c}, ",
-    status.isr.cmpr ? '1' : '0',
-    status.isr.adc  ? '1' : '0'
+    BIT_TO_CHAR( status.isr.cmpr),
+    BIT_TO_CHAR( status.isr.adc)
   );
+*/
+
+
+  // adc now the only source
+  assert( status.isr.adc );
 
 
   printf( "{first=%u idx=%u seq_n=%u}, ",
@@ -279,13 +285,19 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   if( data->is_hi) {
 
     // for HI
-    printf( "{zero=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
+    printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c ch2=%c}, ",
 
-      status.cmpr.amp_zero,
-      status.cmpr.amp_ovld,
-      status.cmpr.amp_unld,
-      status.cmpr.boot_ch1_ovld,
-      status.cmpr.boot_ch2_ovld
+      BIT_TO_CHAR( status.cmpr.amp_zero_lt),
+      BIT_TO_CHAR( status.cmpr.amp_zero_gt),
+
+      BIT_TO_CHAR( status.cmpr.amp_ovld_lt),
+      BIT_TO_CHAR( status.cmpr.amp_ovld_gt),
+
+      BIT_TO_CHAR( status.cmpr.amp_unld_lt),
+      BIT_TO_CHAR( status.cmpr.amp_unld_gt),
+
+      BIT_TO_CHAR( status.cmpr.boot_ch1_ovld),
+      BIT_TO_CHAR( status.cmpr.boot_ch2_ovld)
     );
   } else {
 

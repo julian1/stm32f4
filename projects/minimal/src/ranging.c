@@ -354,7 +354,7 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
 
 
 
-  if( !status.cmpr.amp_ovld) {      // ie. active lo. above abs max threshold.
+  if( status.cmpr.amp_ovld_gt ) {      // second bit of flag indicating went above threshold
 
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
@@ -374,7 +374,7 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   }
 
 
-  else if( status.cmpr.amp_unld) {      // gone dip below abs min threshold.
+  else if( status.cmpr.amp_unld_lt) {      // first bit of flag indicating went below  threshold
 
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
