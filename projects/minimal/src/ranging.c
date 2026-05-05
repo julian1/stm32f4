@@ -326,7 +326,10 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 }
 
 
+/*
+  TODO - consider making this a function. to be easy to change strategy.
 
+*/
 
 bool ranging_update_data( ranging_t *ranging, const data_t *data)
 {
@@ -342,19 +345,17 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   */
 
 
-
-
-  // do nothing if not ar.
+  // not ar, then dont care.
   if( !ranging->ar)
     return false;
 
-  // do nothing if not a INPUT/HI.
+  // not a INPUT/HI, dont care.
   if( !data->is_hi)
     return false;
 
 
 
-  if( status.cmpr.amp_ovld_gt ) {      // second bit of flag indicating went above threshold
+  if( status.cmpr.amp_ovld_gt ) {      // second bit indicates above threshold
 
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
@@ -374,7 +375,9 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   }
 
 
-  else if( status.cmpr.amp_unld_lt) {      // first bit of flag indicating went below  threshold
+  else if( status.cmpr.amp_unld_lt    // first bit indicates below  threshold
+      && ! status.cmpr.amp_unld_gt
+  ) {
 
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
