@@ -349,7 +349,9 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   if( !ranging->ar)
     return false;
 
-  // not a INPUT/HI, dont care.
+  /* not a INPUT/HI, dont care. comparators will not be valid
+    although we can use the reading
+  */
   if( !data->is_hi)
     return false;
 

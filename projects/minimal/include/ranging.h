@@ -12,8 +12,9 @@ typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 
 
+typedef struct ranging_t ranging_t;
 
-typedef struct ranging_t
+struct ranging_t
 {
   uint32_t      magic;
 
@@ -22,13 +23,13 @@ typedef struct ranging_t
   _mode_t       *mode;
 
 
-  const         range_t *ranges;      // including cal co-efficients
-  const size_t  ranges_sz;                  // not sizeof() should be const
+  const         range_t *ranges;        // including cal co-efficients
+  const size_t  ranges_sz;              // not sizeof() should be const
 
   size_t        range_idx;
 
 
-  bool          range_10Meg ;
+  bool          range_10Meg ;           // auto 10Meg.
 
   bool          ar;                     // autoranging
 
@@ -37,7 +38,12 @@ typedef struct ranging_t
                                         // EXTR. consider using a mode flag.
                                         // instead as a shared state to communicate need to update.
 
-} ranging_t;
+#if 0
+  // strategy
+  bool (*ranging_update_data)( ranging_t *ranging,  const data_t *data );
+#endif
+
+};
 
 
 
@@ -47,8 +53,8 @@ typedef struct ranging_t
 void ranging_init(
   ranging_t     *ranging,
   _mode_t       *mode,
-  const range_t *ranges,      // including cal co-efficients
-  const size_t  ranges_sz                  // not sizeof() should be const
+  const range_t *ranges,
+  const size_t  ranges_sz
 );
 
 
@@ -63,15 +69,9 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd);
 
 
 
-
-/*
-  only need reg_sr_t from data..
-  but do not want to include <device/spi-fpga0-reg.h>  here
-  so use data_t
-  ------
-
-  just return a bool.  indicating if we have to sequence.
-*/
-
 bool ranging_update_data( ranging_t *ranging,  const data_t *data );
+
+
+
+
 
