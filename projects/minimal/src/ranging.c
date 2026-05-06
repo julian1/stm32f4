@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <string.h>
 #include <strings.h>      // strcasecmp
+#include <math.h>         // fabs
 
 
 
@@ -18,7 +19,7 @@
 #include <mode.h>
 
 
-
+#define UNUSED(x) ((void)(x))
 
 
 #define RANGING_MAGIC  92379348
@@ -327,9 +328,96 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
 
 /*
-  TODO - consider making this a function. to be easy to change strategy.
+  TODO - consider using strategy.
+    field function pointer.
+    to change change strategy.
 
 */
+
+
+
+bool ranging_update_data( ranging_t *ranging, const data_t *data)
+{
+  assert( ranging && ranging->magic == RANGING_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
+
+  reg_sr_t  status = data->status;
+
+  UNUSED( status);
+
+  /*
+    this decision-making can be delegated back to the ranging
+    functions, for more fine-grain control, if needed.
+
+  */
+
+
+  // not ar, then dont care.
+  if( !ranging->ar)
+    return false;
+
+
+  /*
+      must have full AZ cycle value
+  */
+  if( !data->reading_valid)
+    return false;
+
+
+
+  if( fabs( data->adc_reading_nominal) > 11.0 ) {      // second bit indicates above threshold
+
+    // 11 -> 1.1
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
+    if(ret) {
+
+      printf("\nnominal %f\n", data->adc_reading_nominal);
+      printf(", ovld and have valid u range");
+
+      ++ranging->range_idx;
+      ranging_range_set( ranging, ranging->range_idx);
+
+      /*
+        the range - can set the second aperture.
+        for fast ranging measurement.
+        Or just hardcode.
+      */
+      return  true;
+    }
+    else {
+
+      // printf(", ovld and no valid u range - ignore");
+    }
+  }
+
+
+  else if( fabs( data->adc_reading_nominal) <= 1.0 ) {
+
+    // 1.0 -> 10.0
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
+    if(ret) {
+
+      printf("\nnominal %f\n", data->adc_reading_nominal);
+      printf(", unld and have valid d range");
+      --ranging->range_idx;
+      ranging_range_set( ranging, ranging->range_idx);
+
+      return  true;
+    }
+    else  {
+
+      // printf(", unld and no valid d range - ignore");
+    }
+
+  }
+
+  return false;
+}
+
+
+#if 0
 
 bool ranging_update_data( ranging_t *ranging, const data_t *data)
 {
@@ -399,12 +487,10 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   }
 
 
-
   return false;
-
 }
 
-
+#endif
 
 
 

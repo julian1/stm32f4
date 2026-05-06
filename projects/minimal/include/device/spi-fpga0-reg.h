@@ -58,6 +58,8 @@
 #define REG_ADC_P_CLK_COUNT_APERTURE      30
 #define REG_ADC_P_CLK_COUNT_RESET         31
 
+// oob aperture reading
+// #define REG_ADC_P_CLK_COUNT_APERTURE2     32
 
 
 // adc reading counts
