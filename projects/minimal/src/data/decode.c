@@ -293,7 +293,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   // by convention
   // bool is_hi =  status.sample.idx % 2 == 0;
 
-  // data->is_hi =
 
   if( status.sample.hi ) {
 
@@ -319,7 +318,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
-  // is_even
 
   printf( "%s-%s, ", range->name, range->arg );
 
@@ -334,24 +332,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   // adc conversion
   decode_update_data_conversion( decode,  data);
 
-#if 0
-  if( status.isr.adc ) {
-
-    // adc conversion
-    decode_update_data_conversion( decode,  data);
-
-  }
-
-  else if( status.isr.cmpr) {
-
-    printf( "isr comparator");
-
-  }
-  else {
-
-    printf( "unknown");
-  }
-#endif
 
 }
 
