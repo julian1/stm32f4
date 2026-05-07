@@ -153,18 +153,12 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
   if( data->reading_valid) {
-    //
+
     /*
       only place/juncture where ranging active range . is
       used to stamp the data_t.
 
     */
-    // const range_t *range  = &decode->ranges[ *decode->range_idx];
-    // const range_t *range = ranging_range_active_get( decode->ranging);
-    // assert(range && range->magic == RANGE_MAGIC);
-    // data->range     = range;
-
-
 
 
     if(decode->show_counts)
@@ -187,10 +181,9 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     // range should already be set.
     const range_t *range = data->range;
-    assert(range);
+    assert(range && range->magic == RANGE_MAGIC);
 
     data->reading = range->range_reading_convert( range, cal, data->adc_count_sum_norm);
-    // data->valid     = true;
 
 
     char buf[100 + 1];
