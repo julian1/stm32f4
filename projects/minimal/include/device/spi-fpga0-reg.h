@@ -158,11 +158,11 @@ reg_sr_t
     uint8_t   amp_zero_lt   : 1;
     uint8_t   amp_zero_gt   : 1;
 
-    uint8_t   amp_ovld_lt   : 1;      // first bit
-    uint8_t   amp_ovld_gt   : 1;      // first bit
+    uint8_t   amp_ovld_lt   : 1;
+    uint8_t   amp_ovld_gt   : 1;
 
-    uint8_t   amp_unld_lt   : 1;      // second bit
-    uint8_t   amp_unld_gt   : 1;      // second bit
+    uint8_t   amp_unld_lt   : 1;
+    uint8_t   amp_unld_gt   : 1;
 
     uint8_t   boot_ch1_ovld : 1;
     uint8_t   boot_ch2_ovld : 1;
@@ -176,6 +176,15 @@ reg_sr_t
     uint8_t   first         : 1;
     uint8_t   seq_n         : 3;
     uint8_t                 : 1;    // 24
+
+
+    uint8_t   oob           : 1;      // dynamic
+    uint8_t   hi            : 1;      // dynamic
+    uint8_t   noaz          : 1;      // from cr
+    uint8_t   active_sigmux : 1;      // from cr
+
+    uint8_t   : 4;                  // 31
+
   } sample;
 
 
@@ -194,8 +203,6 @@ reg_sr_t
     uint8_t                   : 2;    // 31
   } cr;
 */
-
-  uint8_t                   : 8;    // 31
 
   /*
     rather than copy the cr.

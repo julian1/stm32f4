@@ -291,11 +291,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
   // by convention
-  bool is_hi =  status.sample.idx % 2 == 0;
+  // bool is_hi =  status.sample.idx % 2 == 0;
 
   // data->is_hi =
 
-  if( is_hi) {
+  if( status.sample.hi ) {
 
     // for HI
     printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c ch2=%c}, ",
@@ -319,14 +319,22 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
+  // is_even
 
-
-
-
-  printf( "%c ", is_hi ? 'H' : 'L');
   printf( "%s-%s, ", range->name, range->arg );
 
+  printf( "%c ", status.sample.hi ? 'H' : 'L');
 
+  printf( status.sample.oob ? "oob " : "    " );
+
+
+  assert( status.isr.adc );
+  assert( !status.isr.cmpr );
+
+  // adc conversion
+  decode_update_data_conversion( decode,  data);
+
+#if 0
   if( status.isr.adc ) {
 
     // adc conversion
@@ -343,7 +351,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
     printf( "unknown");
   }
-
+#endif
 
 }
 
