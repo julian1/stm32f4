@@ -27,7 +27,7 @@ char * str_format_float(char *s, size_t sz, int digits, double value);
 char * str_format_float_with_commas(char *s, size_t sz, int digits, double value);
 
 char * str_format_bits(char *buf, size_t width, uint32_t value);
-
+char * str_format_bits64(char *buf, size_t width, uint64_t value);
 
 #ifdef __cplusplus
 }

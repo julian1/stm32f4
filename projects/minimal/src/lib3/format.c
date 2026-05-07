@@ -164,6 +164,21 @@ char * str_format_bits(char *buf, size_t width, uint32_t value)
 
 
 
+char * str_format_bits64(char *buf, size_t width, uint64_t value)
+{
+  // 64 bit version.
+  // more expensive
+
+  char *s = buf;
+
+  for(int i = width - 1; i >= 0; --i) {
+    *s++ = value & (1ULL << i) ? '1' : '0';             // watch out for operand
+  }
+
+  *s = 0;
+  return buf;
+}
+
 
 
 
