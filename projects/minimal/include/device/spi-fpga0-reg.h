@@ -57,9 +57,7 @@
 // adc control parameters
 #define REG_ADC_P_CLK_COUNT_APERTURE      30
 #define REG_ADC_P_CLK_COUNT_RESET         31
-
-// oob aperture reading
-// #define REG_ADC_P_CLK_COUNT_APERTURE2     32
+#define REG_ADC_P_CLK_COUNT_APERTURE_OOB  32
 
 
 // adc reading counts
@@ -98,10 +96,12 @@ reg_cr_t
   uint8_t     sa_p_noaz     : 1;
 
 
+  uint8_t     sa_p_use_second_aperture : 1;
+
  // input     p_use_slow_rundown,
  // input     p_use_fast_rundown,
 
-  uint32_t    dummy_bits_o  : 27;
+  uint32_t    dummy_bits_o  : 26;
 
 } reg_cr_t;
 
@@ -183,8 +183,20 @@ reg_sr_t
   } sample;
 
 
-  uint8_t                   : 8;    // 31
+  // uint8_t                   : 8;    // 31
 
+
+  /* same fields and order as ref_cr_t.
+    cannot use c99. anon composition. because file is read by c++ also.
+    also we only have 8 bits here. while cr may need more bits.
+  */
+  struct {
+    uint8_t     mode          : 3;
+    uint8_t     adc_p_active_sigmux : 1;
+    uint8_t     sa_p_noaz     : 1;
+    uint8_t     sa_p_use_second_aperture : 1;
+    uint8_t                   : 2;    // 31
+  } cr;
 
   // uint32_t   azmux : 4;
   // uint32_t   pc : 2;

@@ -218,8 +218,10 @@ typedef struct adc_state_t
   // consider prefix with cc. clock_count
 
   uint32_t  p_aperture;     // p_cc_aperture
+
   uint32_t  p_reset;        // p_cc_reset
 
+  uint32_t  p_aperture_oob;
 
 } adc_state_t;
 

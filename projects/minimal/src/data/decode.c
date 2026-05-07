@@ -125,6 +125,10 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   printf(" sigmux %lu ", data->adc_clk_count_sigmux);
 
 
+  printf(" mode %u ", status.cr.mode  );
+
+
+
   if( status.sample.idx == 0) {
 
     // HI.  record counts.

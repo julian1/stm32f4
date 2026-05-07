@@ -310,7 +310,7 @@ void mode_init(_mode_t *mode)
     .adc.p_aperture   = CLK_FREQ * 0.2,             // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
     .adc.p_reset      = CLK_FREQ * 500e-6,          // 500us.
 
-
+    .adc.p_aperture_oob = CLK_FREQ * 0.04,             // 1nplc
 
     .reg_cr.mode      = 0,
 

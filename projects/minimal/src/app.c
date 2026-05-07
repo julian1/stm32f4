@@ -351,6 +351,7 @@ void app_transition_state( app_t  *app)
   // printf("writing adc params - aperture %lu\n" ,   mode->adc.p_aperture  );
   spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.p_aperture );
   spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
+  spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE_OOB,  mode->adc.p_aperture_oob );
 
 
   // write the mcu board trigger source,
