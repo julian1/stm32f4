@@ -91,9 +91,12 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     return;
 
 
-  if(data->status.sample.first) {
+  if( data->status.sample.first) {
 
-    assert(!data->reading_valid);
+    // first reading may now be valid...
+    // although perhaps out of band
+
+    // assert(!data->reading_valid);
 
     // could clear data
     // memset( buffer->values, 0, sizeof(double) * buffer->max_sz );
@@ -103,9 +106,9 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     buffer->count = 0;
   }
 
-  if(data->reading_valid) {
+  if( data->reading_valid) {
 
-    assert(!data->status.sample.first);
+    // assert(!data->status.sample.first);
     // push buffer.
 
     // printf("buffer i %u, count %u, ", buffer->i, buffer->count);

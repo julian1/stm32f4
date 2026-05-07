@@ -122,6 +122,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // printf( "ratio %.2f, ", ratio);
   }
 
+  printf(" sigmux %lu ", data->adc_clk_count_sigmux);
 
 
   if( status.sample.idx == 0) {
@@ -148,9 +149,12 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
   else {
 
+    printf(" idx %u ", status.sample.idx);
     assert(0);
 
   }
+
+
 
 
   if( data->reading_valid) {
@@ -170,6 +174,8 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     if(decode->show_counts)
       printf("sum %.2f, ", data->adc_count_sum);
+
+
 
     // normalized count
     data->adc_count_sum_norm = data->adc_count_sum  / data->adc_clk_count_sigmux;
