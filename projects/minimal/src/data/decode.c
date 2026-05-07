@@ -128,7 +128,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
 
-  if( status.sample.idx == 0) {
+  if( status.sample.hi) {
 
     // HI.  record counts.
     decode->adc_clk_count_refmux_pos_hi = data->adc_clk_count_refmux_pos;
@@ -137,8 +137,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // data->valid = false;
   }
 
-  else if( status.sample.idx == 1) {
-
+  else {
 
 
     // LO
@@ -148,13 +147,6 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     // change reading_valid. meaning the HI-LO
     data->reading_valid     = true;
-  }
-
-  else {
-
-    printf(" idx %u ", status.sample.idx);
-    assert(0);
-
   }
 
 
