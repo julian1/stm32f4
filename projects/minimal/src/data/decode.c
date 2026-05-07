@@ -125,7 +125,6 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   printf(" sigmux %lu ", data->adc_clk_count_sigmux);
 
 
-  printf(" mode %u ", status.cr.mode  );
 
 
 
@@ -266,9 +265,14 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   _Static_assert ( sizeof( status) == 4);
   spi_ice40_reg_read_n( spi, REG_SR, &status, sizeof( data->status));
 
+  assert( status.isr.magic  == 0b1010 );
+
+  // adc now the only interrupt source
+  assert( status.isr.adc );
+
+
   data->status = status;
 
-  assert( status.isr.magic  == 0b1010 );
 
 /*
   printf( "{isr %c%c}, ",
@@ -277,9 +281,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   );
 */
 
-
-  // adc now the only source
-  assert( status.isr.adc );
 
 
   printf( "{first=%u idx=%u seq_n=%u}, ",

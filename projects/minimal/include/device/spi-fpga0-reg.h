@@ -22,13 +22,9 @@
 
 // keep 4094 OE in separate register, not _CR_ combined register.
 // because only used once at config time
-
 #define REG_4094_OE                       9
 #define REG_CR                            12
 #define REG_DIRECT                        14
-
-
-// status
 #define REG_SR                            17
 
 
@@ -96,7 +92,7 @@ reg_cr_t
   uint8_t     sa_p_noaz     : 1;
 
 
-  uint8_t     sa_p_use_second_aperture : 1;
+  uint8_t     sa_p_use_aperture_oob : 1;
 
  // input     p_use_slow_rundown,
  // input     p_use_fast_rundown,
@@ -183,20 +179,31 @@ reg_sr_t
   } sample;
 
 
-  // uint8_t                   : 8;    // 31
 
 
   /* same fields and order as ref_cr_t.
     cannot use c99. anon composition. because file is read by c++ also.
     also we only have 8 bits here. while cr may need more bits.
   */
+/*
   struct {
     uint8_t     mode          : 3;
     uint8_t     adc_p_active_sigmux : 1;
     uint8_t     sa_p_noaz     : 1;
-    uint8_t     sa_p_use_second_aperture : 1;
+    uint8_t     sa_p_use_aperture_oob : 1;
     uint8_t                   : 2;    // 31
   } cr;
+*/
+
+  uint8_t                   : 8;    // 31
+
+  /*
+    rather than copy the cr.
+
+    oob is dynamic field.
+    whether applied depends on if first conversion sequence
+  */
+
 
   // uint32_t   azmux : 4;
   // uint32_t   pc : 2;
