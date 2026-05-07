@@ -63,15 +63,15 @@ typedef struct data_t
 
   reg_sr_t        status;
 
-  // better name  is_input or not_zero?
-  bool            is_hi;
+  /*
+    can we get rid of this
+    don't think we need this. downstream modules should use reading_valid.
+  */
+  // bool            is_hi;
 
-  // better name. to distinguish fast ranging reading
 
-  // OOB_reading. used for ranging .
-  // need to compare the sigmux with the mode aperture
-  // is_mode_aperture
-  bool            is_oob;
+  // should be recorded in SR. and passed from sample acquisition
+  // bool            is_oob;
 
 
   /*
@@ -84,7 +84,7 @@ typedef struct data_t
 
   double   adc_clock_count_ratio;
 
-  // clk count sum, with weighting
+  // clk count sum, with ref weighting
   double  adc_count_sum;
 
   // count normalized by aperture/sigmux
