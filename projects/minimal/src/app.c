@@ -314,17 +314,13 @@ void app_transition_state( app_t  *app)
   /////////////////////////////
 
   ///////////////
-
   // registers
 
-  // spi_ice40_reg_write32( app->spi_fpga0, REG_CR, mode->reg_mode );
   _Static_assert ( sizeof( mode->reg_cr) == 4);
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_CR,    &mode->reg_cr,  sizeof( mode->reg_cr));
 
-  // reg_direct for outputs under fpga control
   _Static_assert ( sizeof( mode->reg_direct) == 4);
-  // TODO. review - why use write_n() rather than write32() here?
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT, &mode->reg_direct,  sizeof( mode->reg_direct));
 
 
   ///////////////

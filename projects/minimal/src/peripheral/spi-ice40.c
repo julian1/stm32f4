@@ -20,6 +20,7 @@
 */
 
 #include <assert.h>
+#include <string.h>
 
 
 #include <libopencm3/stm32/spi.h>
@@ -81,18 +82,28 @@ uint32_t spi_ice40_reg_read32(  spi_t *spi, uint8_t reg)
 }
 
 
-uint32_t spi_ice40_reg_write_n( spi_t *spi, uint8_t reg, const void *s, size_t n )
+
+void spi_ice40_reg_write_n( spi_t *spi, uint8_t reg, const void *s, size_t n)
 {
-  // helper function when passing structs.
-  // for cast.
-  assert(n == 4); // only 32bit supported atm.
+  // convenience for structs.
+  // only 32bit supported atm.
+  assert(n == 4);
 
-
-  return spi_ice40_reg_write32(spi, reg, *(uint32_t *)s );
+  /*return */
+  spi_ice40_reg_write32( spi, reg, *(uint32_t *)s );
 }
 
 
+void spi_ice40_reg_read_n( spi_t *spi, uint8_t reg, void *s, size_t n)
+{
+  // convenience for structs.
+  // only 32bit supported atm.
+  assert(n == 4);
 
+  uint32_t val = spi_ice40_reg_read32( spi, reg);
+
+  memcpy( s, &val, n);
+}
 
 
 

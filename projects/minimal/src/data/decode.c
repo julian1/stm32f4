@@ -261,12 +261,10 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   /////////////////
   // now sa/adc
 
-  uint32_t status_  = spi_ice40_reg_read32( spi, REG_SR);
-
   reg_sr_t  status;
-   _Static_assert( sizeof(status) == sizeof(status_), "bad typedef size");
 
-  memcpy( &status, &status_,  sizeof( status_));
+  _Static_assert ( sizeof( status) == 4);
+  spi_ice40_reg_read_n( spi, REG_SR, &status, sizeof( data->status));
 
   data->status = status;
 
