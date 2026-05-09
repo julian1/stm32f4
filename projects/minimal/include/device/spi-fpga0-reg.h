@@ -71,6 +71,9 @@
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
 
 
+#define REG_TEST1                         60
+#define REG_TEST2                         61
+
 
 
 

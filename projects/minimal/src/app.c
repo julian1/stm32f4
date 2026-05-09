@@ -388,6 +388,21 @@ void app_configure( app_t *app )
 
   printf("app_configure()\n");
 
+  char buf[ 100];
+  uint32_t val;
+
+  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
+  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 0b00001111000011110000111100001111 );
+
+  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST2);
+  printf("reg_test2 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 0b11110000111100001111000011110000);
+
+
+  //assert( 0);
+
+
   // assert( app->cdone_fpga0 );
   assert( spi_ice40_cdone( app->spi_fpga0_pc));
 
