@@ -391,23 +391,43 @@ void app_configure( app_t *app )
   char buf[ 100];
   uint32_t val;
 
+
+  // ensure fpga cdone asserted
+  assert( spi_ice40_cdone( app->spi_fpga0_pc));
+
+
+  ///////////
+  // check comms ok
+
   val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
   printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
-  assert( val == 0b00001111000011110000111100001111 );
+  assert( val == 0b00001111000011110000111100001111);
 
   val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST2);
   printf("reg_test2 %s\n",  str_format_bits( buf, 32, val));
   assert( val == 0b11110000111100001111000011110000);
 
+  // spacing these out, and adding printf statements - reduce spi issues?
 
-  //assert( 0);
+  // write hi bit of test register
+  spi_ice40_reg_write32( app->spi_fpga0, REG_TEST1, 1u << 31 );
+  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
+  // if get default back , then addr likely is not seen correctly
+  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 1u << 31);
+
+  // clear hi bit, and write 2nd highest bit
+  spi_ice40_reg_write32( app->spi_fpga0, REG_TEST1, 1u << 30 );
+  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
+  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 1u << 30);
 
 
-  // assert( app->cdone_fpga0 );
-  assert( spi_ice40_cdone( app->spi_fpga0_pc));
+  // check 4094 OE is not asserted
+  val = spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE);
+  printf("oe %s\n",  str_format_bits( buf, 32, val));
+  assert( !val);
 
-  // check/verify 4094 OE is not asserted
-  assert( !spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE));
 
   // reset the mode.
   mode_init( app->mode);
