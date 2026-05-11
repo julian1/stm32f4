@@ -419,20 +419,6 @@ static void spi_check_comms2( spi_t *spi)
   uint32_t val;
 
 
-  uint32_t test_vals[] = { 1u << 31, 1u << 30, 1u << 29 }  ;
-
-  for(unsigned i = 0; i < ARRAY_SIZE(test_vals); ++i ) {
-
-    uint32_t test_val = test_vals[ i ];
-
-    spi_ice40_reg_write32( spi, REG_TEST1, test_val );
-    val = spi_ice40_reg_read32( spi, REG_TEST1);
-
-    // if get default back , then likely addr is not seen correctly
-    printf("val %s\n",  str_format_bits( buf, 32, val));
-    // assert( val == test_val );
-  }
-
   ////////
 
   printf("\n");
@@ -441,10 +427,18 @@ static void spi_check_comms2( spi_t *spi)
     spi_ice40_reg_write32( spi, i , i );
   }
 
+  printf("\n");
 
   for(unsigned i = 0; i < 10; ++i ) {
     val = spi_ice40_reg_read32( spi, i);
-    printf("val %s\n",  str_format_bits( buf, 32, val));
+    printf("val %s (%lu)\n",  str_format_bits( buf, 32, val),  val);
+  }
+
+  printf("\n");
+
+  for(unsigned i = 0; i < 10; ++i ) {
+    val = spi_ice40_reg_read32( spi, i);
+    printf("val %s (%lu)\n",  str_format_bits( buf, 32, val),  val);
   }
 
 
