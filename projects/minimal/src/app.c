@@ -364,6 +364,99 @@ void app_transition_state( app_t  *app)
 
 
 
+
+
+
+static void spi_check_comms( spi_t *spi)
+{
+
+  char buf[ 100];
+  uint32_t val;
+
+
+  val = spi_ice40_reg_read32( spi, REG_TEST1);
+  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 0b00001111000011110000111100001111);
+
+  val = spi_ice40_reg_read32( spi, REG_TEST2);
+  printf("reg_test2 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 0b11110000111100001111000011110000);
+
+  // spacing these out, and adding printf statements - reduce spi issues?
+
+
+  uint32_t test_vals[] = { 1u << 31, 1u << 30, 1u << 29 }  ;
+
+  for(unsigned i = 0; i < ARRAY_SIZE(test_vals); ++i ) {
+
+    uint32_t test_val = test_vals[ i ];
+
+    spi_ice40_reg_write32( spi, REG_TEST1, test_val );
+    val = spi_ice40_reg_read32( spi, REG_TEST1);
+
+    // if get default back , then likely addr is not seen correctly
+    printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+    assert( val == test_val );
+
+  }
+
+/*
+  // clear hi bit, and write 2nd highest bit
+  spi_ice40_reg_write32( spi, REG_TEST1, 1u << 30 );
+  val = spi_ice40_reg_read32( spi, REG_TEST1);
+  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+  assert( val == 1u << 30);
+*/
+}
+
+
+
+
+static void spi_check_comms2( spi_t *spi)
+{
+
+  char buf[ 100];
+  uint32_t val;
+
+
+  uint32_t test_vals[] = { 1u << 31, 1u << 30, 1u << 29 }  ;
+
+  for(unsigned i = 0; i < ARRAY_SIZE(test_vals); ++i ) {
+
+    uint32_t test_val = test_vals[ i ];
+
+    spi_ice40_reg_write32( spi, REG_TEST1, test_val );
+    val = spi_ice40_reg_read32( spi, REG_TEST1);
+
+    // if get default back , then likely addr is not seen correctly
+    printf("val %s\n",  str_format_bits( buf, 32, val));
+    // assert( val == test_val );
+  }
+
+  ////////
+
+  printf("\n");
+
+  for(unsigned i = 0; i < 10; ++i ) {
+    spi_ice40_reg_write32( spi, i , i );
+  }
+
+
+  for(unsigned i = 0; i < 10; ++i ) {
+    val = spi_ice40_reg_read32( spi, i);
+    printf("val %s\n",  str_format_bits( buf, 32, val));
+  }
+
+
+
+}
+
+
+
+
+
+
+
 void app_configure( app_t *app )
 {
 
@@ -399,28 +492,11 @@ void app_configure( app_t *app )
   ///////////
   // check comms ok
 
-  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
-  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
-  assert( val == 0b00001111000011110000111100001111);
+  spi_check_comms2( app->spi_fpga0);
+  assert( 0);
 
-  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST2);
-  printf("reg_test2 %s\n",  str_format_bits( buf, 32, val));
-  assert( val == 0b11110000111100001111000011110000);
 
-  // spacing these out, and adding printf statements - reduce spi issues?
-
-  // write hi bit of test register
-  spi_ice40_reg_write32( app->spi_fpga0, REG_TEST1, 1u << 31 );
-  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
-  // if get default back , then addr likely is not seen correctly
-  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
-  assert( val == 1u << 31);
-
-  // clear hi bit, and write 2nd highest bit
-  spi_ice40_reg_write32( app->spi_fpga0, REG_TEST1, 1u << 30 );
-  val = spi_ice40_reg_read32( app->spi_fpga0, REG_TEST1);
-  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
-  assert( val == 1u << 30);
+  // spi_check_comms(  app->spi_fpga0);
 
 
   // check 4094 OE is not asserted
