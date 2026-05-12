@@ -179,9 +179,13 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 
+/*
+  apr 2026
+  reg_direct can be removed.
+  instead use the az-sequencer with a separate state pattern - that holds the azmux,pc,leds,montior
+  in order to use for tests/ etc.
 
-
-
+*/
 
 typedef struct  __attribute__((__packed__))
 reg_direct_t
@@ -206,26 +210,26 @@ reg_direct_t
 */
 
   // should be the same as seq_elt_t
-  uint8_t   pc_o : 2;                       // 14
-  // uint8_t   pc_ch1_o       : 1;                 // 14
-  // uint8_t   pc_ch2_o       : 1;                 // 15
+  uint8_t   pc_o              : 2;                // 14
+  // uint8_t   pc_ch1_o       : 1;                // 14
+  // uint8_t   pc_ch2_o       : 1;                // 15
 
 
-  uint8_t   azmux_o           : 4 ;                 // 16
+  uint8_t   azmux_o           : 4 ;               // 16
 
-  uint8_t   adc_refmux_o      : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
-  uint8_t   adc_cmpr_latch_o  : 1;          // 20
+  uint8_t   adc_refmux_o      : 4;                // 21     // better name adc_refmux   adc_cmpr_latch
+  uint8_t   adc_cmpr_latch_o  : 1;                // 20
 
-  uint8_t   spi_interrupt_ctl_o : 1;      // 12
+  uint8_t   spi_interrupt_ctl_o : 1;              // 12
 
-  uint8_t                     : 1;          // 13     was meas_complete_o
+  uint8_t                     : 1;                // 13     was meas_complete_o
 
 
 
-  uint8_t                     : 7;               // 25 = (32-25)  TODO. make anonymous
+  uint8_t                     : 7;                // 25 = (32-25)  TODO. make anonymous
 } reg_direct_t;
 
-_Static_assert (sizeof(reg_direct_t ) == 4, "bad typedef size");
+_Static_assert (sizeof(reg_direct_t) == 4, "bad typedef size");
 
 
 
@@ -237,6 +241,25 @@ typedef struct seq_elt_t
 {
   uint32_t    azmux : 4;
   uint32_t    pc    : 2;
+
+  /*
+    apr 2026
+
+    consider - flags returned in SR register. to decode
+    or some user bits - passed blindly from az sequencer into the SR.
+    is_hi
+    is_oob
+    convert_on_receive
+    ----
+
+    can even encode monitor, or leds here.
+    for use when az-sequencer is in holding pattern
+
+    it makes sense - because the az-sequencer is the driver of most of these of these fields.
+    in normal operation
+
+  */
+
 
   uint32_t          : 26;
 } seq_elt_t;
