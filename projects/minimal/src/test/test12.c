@@ -56,7 +56,11 @@ static void test (app_t *app)     // should be passing the continuation.
 
   // use direct mode - for soak/charge of accum cap.
   // mode->reg_mode =  MODE_DIRECT;
-  cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+
+
+  // may 2026
+  // cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  assert( 0);
 
   mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 
@@ -117,7 +121,9 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 3. observe, take measurement etc
 
-  assert( mode->reg_cr.mode == MODE_DIRECT );
+  // may 2026
+  // assert( mode->reg_cr.mode == MODE_DIRECT );
+  assert( 0);
 
   mode->reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.

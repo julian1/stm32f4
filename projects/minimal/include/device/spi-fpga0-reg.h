@@ -27,13 +27,14 @@
 #define REG_DIRECT                        14
 #define REG_SR                            17
 
-
+/*
 // operation modes
 #define MODE_DIRECT                       0     // mcu can control outputs directly by writing the direct register
 #define MODE_ADC_MUX_REF_TEST             5     // test integrator, refmux switching
 #define MODE_SA_MOCK_ADC                  6     // sample acquisition, but adc is mocked
 #define MODE_SA_ADC                       7     // normal operation. with sa and adc
 
+*/
 
 
 ///////////////////////
@@ -84,7 +85,8 @@ reg_cr_t
 {
 
   // fpga operating mode. 3 bits
-  uint8_t     mode          : 3;
+  // uint8_t     mode          : 3;
+  uint8_t                   : 3;
 
 
   // adc - whether to switch the input sigmux

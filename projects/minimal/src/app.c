@@ -492,9 +492,10 @@ void app_configure( app_t *app )
 
   ///////////
   // check comms ok
-
+/*
   spi_check_ram( app->spi_fpga0);
   assert( 0);
+*/
 
   spi_check_comms( app->spi_fpga0);
 

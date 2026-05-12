@@ -37,6 +37,7 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
 }
 
 
+/*
 
 void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 {
@@ -48,7 +49,7 @@ void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
   reg_cr->mode = u0;
 }
-
+*/
 
 
 #if 0
@@ -312,7 +313,7 @@ void mode_init(_mode_t *mode)
 
     .adc.p_aperture_oob = CLK_FREQ * 0.04,             // 1nplc
 
-    .reg_cr.mode      = 0,
+    // .reg_cr.mode      = 0,
 
     // eg sigmux should be on during normal integration.
     .reg_cr.adc_p_active_sigmux  = true
@@ -981,12 +982,13 @@ bool mode_repl_statement(
         mode->sa.p_seq_n = u0;
       }
 
-
+/*
       // control register mode
       else if(strcmp(s0, "mode") == 0) {
 
         cr_mode_set( &mode->reg_cr, u0);
       }
+*/
 
       else if(strcmp(s0, "direct") == 0) {
 

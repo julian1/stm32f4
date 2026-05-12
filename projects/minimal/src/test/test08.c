@@ -37,7 +37,9 @@ bool app_test08( app_t *app , const char *cmd)
     mode_reset( mode);
 
 
-    cr_mode_set( &mode->reg_cr, MODE_ADC_MUX_REF_TEST);
+    // may 2026
+    // cr_mode_set( &mode->reg_cr, MODE_ADC_MUX_REF_TEST);
+    assert( 0);
 
     app_transition_state( app);
 
