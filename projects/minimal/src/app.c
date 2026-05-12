@@ -385,6 +385,20 @@ static void spi_check_comms( spi_t *spi)
   // spacing these out, and adding printf statements - reduce spi issues?
 
 
+  for(unsigned i = 0; i < 32; ++i ) {
+
+    uint32_t test_val = 1u << i;
+
+    spi_ice40_reg_write32( spi, REG_TEST1, test_val);
+    val = spi_ice40_reg_read32( spi, REG_TEST1);
+
+    // if get default back , then likely addr is not seen correctly
+    printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+    assert( val == test_val);
+  }
+
+
+/*
   uint32_t test_vals[] = { 1u << 31, 1u << 30, 1u << 29 }  ;
 
   for(unsigned i = 0; i < ARRAY_SIZE(test_vals); ++i ) {
@@ -397,22 +411,15 @@ static void spi_check_comms( spi_t *spi)
     // if get default back , then likely addr is not seen correctly
     printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
     assert( val == test_val );
-
   }
-
-/*
-  // clear hi bit, and write 2nd highest bit
-  spi_ice40_reg_write32( spi, REG_TEST1, 1u << 30 );
-  val = spi_ice40_reg_read32( spi, REG_TEST1);
-  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
-  assert( val == 1u << 30);
 */
+
 }
 
 
 
 
-static void spi_check_comms2( spi_t *spi)
+static void spi_check_ram( spi_t *spi)
 {
 
   char buf[ 100];
@@ -486,11 +493,10 @@ void app_configure( app_t *app )
   ///////////
   // check comms ok
 
-  spi_check_comms2( app->spi_fpga0);
-  assert( 0);
+  // spi_check_ram( app->spi_fpga0);
+  // assert( 0);
 
-
-  // spi_check_comms(  app->spi_fpga0);
+  spi_check_comms( app->spi_fpga0);
 
 
   // check 4094 OE is not asserted
