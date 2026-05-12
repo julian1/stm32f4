@@ -606,6 +606,17 @@ void app_beep( app_t * app, uint32_t n)
 
 #if 0
 
+/*
+  after removing reg_direct
+  can support this - but it would by making the sequence acquisition module
+  drive the the  led state.
+  according to a pattern.
+  could also just output the value of a register.
+
+  it would be a more limited reg_direct. however.
+    the azmux,pc,moonitor, leds
+*/
+
 void app_led_dance( app_t * app )
 {
   /* function should not really be typed on app_t. since only requires app_msleep()
