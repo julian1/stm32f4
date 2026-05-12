@@ -318,10 +318,10 @@ void app_transition_state( app_t  *app)
 
   _Static_assert ( sizeof( mode->reg_cr) == 4);
   spi_ice40_reg_write_n( app->spi_fpga0, REG_CR,    &mode->reg_cr,  sizeof( mode->reg_cr));
-
+/*
   _Static_assert ( sizeof( mode->reg_direct) == 4);
   spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT, &mode->reg_direct,  sizeof( mode->reg_direct));
-
+*/
 
   ///////////////
 
@@ -580,9 +580,13 @@ void app_beep( app_t * app, uint32_t n)
 
     // double beep ok.
   uint32_t d = 70;
+  UNUSED( d);
+  UNUSED( n);
 
   printf("app_beep configure port\n");
   spi_controller_configure( app->spi_fpga1 );
+
+#if 0
 
   for(unsigned i = 0; i < n; ++i)  {
     printf("on\n");
@@ -595,9 +599,12 @@ void app_beep( app_t * app, uint32_t n)
     spi_print_register( app->spi_fpga1, REG_DIRECT );
     app_msleep( app, d);
   }
+
+#endif
 }
 
 
+#if 0
 
 void app_led_dance( app_t * app )
 {
@@ -641,7 +648,7 @@ void app_led_dance( app_t * app )
   spi_ice40_reg_write32( app->spi_fpga0, REG_DIRECT, 0 );
 }
 
-
+#endif
 
 
 
@@ -1132,10 +1139,12 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
     spi_print_register( spi, REG_CR);
   }
+/*
   else if( strcmp( cmd, "direct?") == 0) {
 
     spi_print_register( spi, REG_DIRECT);
   }
+*/
   else if( strcmp( cmd, "precharge?") == 0) {
 
     spi_print_register( spi, REG_SA_P_CLK_COUNT_PRECHARGE);

@@ -301,7 +301,7 @@ void app_msleep( app_t *app, uint32_t delay);
 
 
 void app_beep( app_t * app, uint32_t n);
-void app_led_dance( app_t * app );
+// void app_led_dance( app_t * app );
 
 
 void app_configure( app_t *app );

@@ -24,7 +24,7 @@
 // because only used once at config time
 #define REG_4094_OE                       9
 #define REG_CR                            12
-#define REG_DIRECT                        14
+// #define REG_DIRECT                        14      // TO REMOVE.  use REF_SA_P_SEQ0 instead.
 #define REG_SR                            17
 
 /*

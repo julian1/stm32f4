@@ -38,7 +38,9 @@ bool app_test01( app_t *app , const char *cmd)
 
   if( strcmp(cmd, "test01") == 0) {
 
-    app_led_dance( app);
+    // may 2026
+    // app_led_dance( app);
+    assert( 0);
 
     return 1;
   }
