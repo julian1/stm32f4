@@ -326,7 +326,9 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     uint16_t    oob     : 1;        // oob.   set by control of aperture.
 */
 
-  // Hmmmm. would be really nice to use the seq_elt_t
+  /* Hmmmm. would be really nice to use the seq_elt_t
+    so we can properly dereference back to sample.
+  */
 
   printf( "{");
   printf( "azmux %u, ",     status.sample.azmux );
