@@ -79,7 +79,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // mode->reg_mode     =  MODE_DIRECT;
 
   // may 2026
-  // cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
   assert( 0);
 
 
@@ -115,7 +115,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // mode->reg_mode = MODE_SA_MOCK_ADC;
 
   // may 2026
-  // cr_mode_set( &mode->reg_cr, MODE_SA_MOCK_ADC);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_MOCK_ADC);
 
   assert(0);  // dec 2024. review
 /*
@@ -161,7 +161,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // mode->reg_mode = MODE_DIRECT;
 
   // may 2026
-  // cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
   assert( 0);
 
   mode->reg_direct.leds_o = 0b0100;

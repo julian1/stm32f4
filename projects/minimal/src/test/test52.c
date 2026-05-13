@@ -194,7 +194,7 @@ static void test( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  // cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // special sample acquisition mode - for adc running standalone.  // REVIEW ME
   sa_set( &mode->sa, "0" );
@@ -415,7 +415,7 @@ static void test( app_t *app)
     // switch back to direct mode operation
 
     // may 2026
-    // cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+    // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
     assert( 0);
 
     app_transition_state( app);

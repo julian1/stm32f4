@@ -57,7 +57,7 @@ static void test(app_t *app)
 
   // set up fpga - with direct mode - for soak/charge of accum cap.
   // may 2026
-  // cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
   assert( 0);
 
   /*
@@ -97,7 +97,7 @@ static void test(app_t *app)
 
   // mode->reg_mode = MODE_SA_MOCK_ADC;
   // may 2026
-  // cr_mode_set( &mode->reg_cr, MODE_SA_MOCK_ADC);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_MOCK_ADC);
   assert( 0);
 
   // july 2024 - note that this is all default.
@@ -139,7 +139,7 @@ static void test(app_t *app)
 
   // mode->reg_mode = MODE_DIRECT;
   // may 2026
-  // cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
   assert( 0);
 
   mode->reg_direct.leds_o = 0b0100;

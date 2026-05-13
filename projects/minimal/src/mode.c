@@ -37,19 +37,17 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
 }
 
 
-/*
 
-void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
+
+void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 {
+  // now the sequencer mode
 
-  // ease setting.
-  // change name of access to mode_cr_mode_set() ... or similar...
+  assert( u0 <=  0b111);
 
-  assert(u0 < 1<<3);
-
-  reg_cr->mode = u0;
+  reg_cr->sa_mode = u0;
 }
-*/
+
 
 
 #if 0
@@ -982,13 +980,13 @@ bool mode_repl_statement(
         mode->sa.p_seq_n = u0;
       }
 
-/*
+
       // control register mode
       else if(strcmp(s0, "mode") == 0) {
 
-        cr_mode_set( &mode->reg_cr, u0);
+        cr_sa_mode_set( &mode->reg_cr, u0);
       }
-*/
+
 
       else if(strcmp(s0, "direct") == 0) {
 
@@ -998,27 +996,21 @@ bool mode_repl_statement(
         memcpy( &mode->reg_direct, &u0, sizeof(mode->reg_direct));
       }
 
+
+/*
       // set led field
       else if(strcmp(s0, "leds") == 0) {
         mode->reg_direct.leds_o = u0;
       }
+
       // by field
       else if(strcmp(s0, "monitor") == 0) {
         mode->reg_direct.monitor_o = u0;
       }
-
-      else if(strcmp(s0, "pc") == 0) {
-        mode->reg_direct.pc_o = u0;
-      }
-
-
-
-
-
-
       else if(strcmp(s0, "adc_refmux") == 0) {
         mode->reg_direct.adc_refmux_o = u0;
       }
+
       else if(strcmp(s0, "adc_cmpr_latch") == 0) {
         mode->reg_direct.adc_cmpr_latch_o = u0;
       }
@@ -1026,6 +1018,7 @@ bool mode_repl_statement(
         mode->reg_direct.spi_interrupt_ctl_o = u0;
       }
 
+*/
       ////////////////////////////////////////////
       // 4094 components.
       // perhaps rename serial. _4094_serial etc.

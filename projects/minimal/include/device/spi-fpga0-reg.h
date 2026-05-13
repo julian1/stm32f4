@@ -85,8 +85,8 @@ reg_cr_t
 {
 
   // fpga operating mode. 3 bits
-  // uint8_t     mode          : 3;
-  uint8_t                   : 3;
+  uint8_t     sa_mode          : 3;
+  // uint8_t                   : 3;
 
 
   // adc - whether to switch the input sigmux
@@ -180,7 +180,7 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 
-
+#if 1
 /*
   apr 2026
   reg_direct can be removed.
@@ -232,6 +232,80 @@ reg_direct_t
 } reg_direct_t;
 
 _Static_assert (sizeof(reg_direct_t) == 4, "bad typedef size");
+#endif
+
+
+
+
+
+#if 0
+/*
+  output reg [ 2-1:0]  pc_sw_o,
+  output reg [ 4-1:0]  azmux_o,
+  output reg  [3-1: 0] sample_idx_o,
+  output reg           sample_first_o,
+
+  the difficulty with controlling the outputs directly
+  is to be able to get a converstion from adc.
+  and get the two samples to construct a reading.
+
+  -
+  Think that using the sequence[ 0 ]  register
+  to control pc,azmux directly
+  would be better here.
+
+  do we really need control over sample_idx???
+
+  -------------
+
+  just toggle sample_idx_o...  directly so the decoder can work it out.
+  OR.  toggle the HI,LO, COMPUTE flags. associated with each sample
+  it may make sense... to do a LO-first. and then measure the output.
+
+  - it is not even clear  that using direct is the best way to do this.
+
+    could still use the sequence registers...
+*/
+
+
+typedef struct __attribute__((__packed__))
+reg_direct_t
+{
+
+  uint8_t pc_sw_o           : 2;
+
+  uint8_t azmux_o           : 4;
+
+  uint8_t sample_idx_o,     : 3;
+
+  /* really looks wrong. remove
+  // aperture should be controlled directly by sequencer
+  // and flagged.
+  */
+  uint8_t sample_first_o    : 1;    // 10
+
+
+  // something very strange here...
+  // uint32_t    dummy_bits_o  : 13 ;    // fails
+  uint32_t                  : 12 ;    //  12 + 10 == 22 bits.  anything more overflows? OK
+
+} reg_direct_t;
+
+_Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
