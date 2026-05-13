@@ -268,16 +268,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  printf( "{first=%u idx=%u seq_n=%u}, ",
-    status.sample.first,
-    status.sample.idx,
-    status.sample.seq_n
-  );
+
 
 
   // by convention
   // bool is_hi =  status.sample.idx % 2 == 0;
 
+/*
 
   if( status.sample.hi ) {
 
@@ -302,13 +299,47 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     printf( "                                       ");
   }
 
-
+*/
 
   printf( "%s-%s, ", range->name, range->arg );
 
-  printf( "%c ", status.sample.hi ? 'H' : 'L');
+  ////////////////
 
-  printf( status.sample.oob ? "oob " : "    " );
+  printf( "{first=%u idx=%u}, ",
+    status.sample.first,
+    status.sample.idx
+    // status.sample.seq_n
+  );
+
+/*
+    uint16_t    azmux   : 4;
+    uint16_t    pc      : 2;
+
+
+    uint16_t    next_idx : 3;   // 9
+
+
+    // flags for decode
+
+    uint16_t    hi      : 1;        // hi or zero
+    uint16_t    convert : 1;        // convert on this input .  pass through flag.
+    uint16_t    oob     : 1;        // oob.   set by control of aperture.
+*/
+
+  // Hmmmm. would be really nice to use the seq_elt_t
+
+  printf( "{");
+  printf( "azmux %u, ",     status.sample.azmux );
+  printf( "pc %u, ",        status.sample.pc );
+  printf( "next-idx %u, ",  status.sample.next_idx );
+  printf( "hi %u ",         status.sample.hi);
+  printf( "convert %u ",    status.sample.convert);
+  printf( "oob %u ",        status.sample.oob);
+  printf( "}, ");
+
+  // printf( "%c ", status.sample.hi ? 'H' : 'L');
+
+  // printf( status.sample.oob ? "oob " : "    " );
 
 
   assert( status.isr.adc );

@@ -151,6 +151,42 @@ reg_sr_t
   } cmpr;
 
 
+
+  /////////////////////
+
+  struct {
+
+    uint8_t   idx           : 3;
+
+    /* we need first...
+      to know to clear the buffers... after retrigger
+    */
+    uint16_t  first         : 1;
+
+
+    //////////////////////
+
+    uint16_t    azmux   : 4;
+    uint16_t    pc      : 2;
+
+
+    /* encoding next_idx like a linked list
+      allows removal of two registers - the seq_n terminal, and the new wrap around idx.
+      - also noaz, where have to return to the same idx.
+    */
+    uint16_t    next_idx : 3;   // 9
+
+
+    // flags for decode
+
+    uint16_t    hi      : 1;        // hi or zero
+    uint16_t    convert : 1;        // convert on this input .  pass through flag.
+    uint16_t    oob     : 1;        // oob.   set by control of aperture.
+
+
+  } sample;
+
+/*
   // sample/sequence acquisition
   struct {
     uint8_t   idx           : 3;
@@ -166,8 +202,9 @@ reg_sr_t
 
     uint8_t   : 4;                  // 31
 
-  } sample;
 
+  } sample;
+*/
 
 
   // uint32_t   azmux : 4;
@@ -316,15 +353,25 @@ _Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
 
 typedef struct seq_elt_t
 {
-  uint32_t    azmux : 4;
-  uint32_t    pc    : 2;
+  uint32_t    azmux   : 4;
+  uint32_t    pc      : 2;
 
 
   /* encoding next_idx like a linked list
     allows removal of two registers - the seq_n terminal, and the new wrap around idx.
     - also noaz, where have to return to the same idx.
   */
-  uint32_t    next_idx : 3;
+  uint32_t    next_idx : 3;   // 9
+
+
+  // flags for decode
+
+  uint32_t    hi      : 1;        // hi or zero
+  uint32_t    convert : 1;        // convert on this input .  pass through flag.
+  uint32_t    oob     : 1;        // oob.   set by control of aperture.
+
+                              // 12 bits.
+
 
   /*
     apr 2026
@@ -345,16 +392,8 @@ typedef struct seq_elt_t
   */
 
 
-    /*
-        .oob   = 1,         // flag for decode - oob.   set by control of aperture.
-        .convert = 1,       // flag for decode. convert on this input .  pass through flag.
-        .hi    = 1          // flag for decode.
 
-        .next_idx
-    */
-
-
-  uint32_t          : 23;
+  uint32_t          : 20;
 } seq_elt_t;
 
 _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");

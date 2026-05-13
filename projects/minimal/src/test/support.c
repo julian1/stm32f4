@@ -44,10 +44,10 @@ void print_data( data_t * data)
 
   reg_sr_t  status = data->status;
 
-  printf( "{first=%u idx=%u seq_n=%u}, ",
+  printf( "{first=%u idx=%u}, ",
     status.sample.first,
-    status.sample.idx,
-    status.sample.seq_n
+    status.sample.idx
+    // status.sample.seq_n
   );
 
 
