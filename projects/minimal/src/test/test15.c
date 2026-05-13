@@ -102,8 +102,9 @@ static void test(app_t *app)
 
   // july 2024 - note that this is all default.
   // need to review. make sure that pc switches serial, then azmux.
-  mode->sa.p_seq_n = 2,
 
+  // may 2026
+  // mode->sa.p_seq_n = 2,
   assert(0); // dec 2024. review
 
 #if 0

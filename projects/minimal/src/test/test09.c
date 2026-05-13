@@ -60,7 +60,10 @@ bool app_test09( app_t *app , const char *cmd)
 */
 
     sa_state_t *sa = &mode->sa;
-    sa->p_seq_n = 2;
+  
+    // may 2026
+    // sa->p_seq_n = 2;
+    assert( 0);
     sa->p_seq_elt[ 0].azmux = S1;
     sa->p_seq_elt[ 0].pc = 0b01;
 

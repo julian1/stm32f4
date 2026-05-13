@@ -322,6 +322,7 @@ typedef struct seq_elt_t
 
   /* encoding next_idx like a linked list
     allows removal of two registers - the seq_n terminal, and the new wrap around idx.
+    - also noaz, where have to return to the same idx.
   */
   uint32_t    next_idx : 3;
 

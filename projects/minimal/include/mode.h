@@ -189,7 +189,7 @@ typedef struct sa_state_t
 
   // number of phases
   // consider rename - opportunity for confusion, since suffix of _n in verilog indicates  inverted signal.
-  uint32_t p_seq_n;
+  // uint32_t p_seq_n;
 
   seq_elt_t p_seq_elt [ 4] ;
 

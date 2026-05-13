@@ -330,7 +330,7 @@ void app_transition_state( app_t  *app)
   spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE,  mode->sa.p_precharge);
 
 
-  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
+  // spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
 
   // use write_n to work around strict aliasing
   // consider - consolidate to a single register
