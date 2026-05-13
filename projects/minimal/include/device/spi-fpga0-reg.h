@@ -320,6 +320,9 @@ typedef struct seq_elt_t
   uint32_t    pc    : 2;
 
 
+  /* encoding next_idx like a linked list
+    allows removal of two registers - the seq_n terminal, and the new wrap around idx.
+  */
   uint32_t    next_idx : 3;
 
   /*
