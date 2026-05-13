@@ -310,13 +310,17 @@ _Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
 
 
 
-
-
+/*
+  these fields  - should copy into the CR. on return from the sequencer
+*/
 
 typedef struct seq_elt_t
 {
   uint32_t    azmux : 4;
   uint32_t    pc    : 2;
+
+
+  uint32_t    next_idx : 3;
 
   /*
     apr 2026
@@ -337,7 +341,16 @@ typedef struct seq_elt_t
   */
 
 
-  uint32_t          : 26;
+    /*
+        .oob   = 1,         // flag for decode - oob.   set by control of aperture.
+        .convert = 1,       // flag for decode. convert on this input .  pass through flag.
+        .hi    = 1          // flag for decode.
+
+        .next_idx
+    */
+
+
+  uint32_t          : 23;
 } seq_elt_t;
 
 _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");

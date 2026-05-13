@@ -9,6 +9,7 @@
 #include <support.h> // str_decode_uint
 
 
+#include <lib3/format.h>      // str_format_bits()
 
 #include <mode.h>
 
@@ -153,17 +154,19 @@ void sa_set( sa_state_t *sa, const char *s)
 
   else if(strcmp(s, "ch2") == 0 ) {
 
+    assert( 0);
+
     // az mode
     // signal on S3, S7
     sa->p_seq_n = 2;
 
-    // val
 
-
+    // hi/val/input
     sa->p_seq_elt[ 0] = (const seq_elt_t ) {
 
-        .azmux = S3,       // PC-CH2-OUT
-        .pc    = 0b10,     // pc2 active
+        .azmux      = S3,       // PC-CH2-OUT
+        .pc         = 0b10,     // pc2 active
+        .next_idx   = 1,
     /*
         .oob   = 1,         // flag for decode - oob.   set by control of aperture.
         .convert = 1,       // flag for decode. convert on this input .  pass through flag.
@@ -171,11 +174,19 @@ void sa_set( sa_state_t *sa, const char *s)
     */
     };
 
+    char buf[ 100];
+    uint32_t  val;
+    memcpy( &val, &sa->p_seq_elt[ 0], sizeof(val));
+    printf("p_seq_elt[0] %s\n",  str_format_bits( buf, 32, val));
+    assert(0);
 
+    // lo/zero
+    sa->p_seq_elt[ 1] = (const seq_elt_t) {
 
-    // zero
-    sa->p_seq_elt[ 1].azmux = S7;    // CH2-LO
-    sa->p_seq_elt[ 1].pc    = 0b00;
+        .azmux      = S7,    // CH2-LO
+        .pc         = 0b00,
+        .next_idx   = 0,
+    };
 
   }
 
@@ -186,12 +197,18 @@ void sa_set( sa_state_t *sa, const char *s)
     sa->p_seq_n = 2;
 
     // val
-    sa->p_seq_elt[ 0].azmux = S1;    // PC-CH1-OUT
-    sa->p_seq_elt[ 0].pc    = 0b01;  // pc1 active
+    sa->p_seq_elt[ 0] = (const seq_elt_t ) {
+      .azmux        = S1,    // PC-CH1-OUT
+      .pc           = 0b01,  // pc1 active
+      .next_idx     = 1,
+    };
 
     // zero
-    sa->p_seq_elt[ 1].azmux = S5;    // COM-LC
-    sa->p_seq_elt[ 1].pc    = 0b00;
+    sa->p_seq_elt[ 1]  = (const seq_elt_t ) {
+      .azmux        = S5,    // COM-LC
+      .pc           = 0b00,
+      .next_idx     = 0,
+    };
 
   }
 
