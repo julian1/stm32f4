@@ -154,7 +154,7 @@ void sa_set( sa_state_t *sa, const char *s)
     // could set a catcher handler/closure here
   }
 
-  else if(strcmp(s, "ch2") == 0 ) {
+  else if( strcmp(s, "ch2") == 0) {
 
     // assert( 0);
 
@@ -195,14 +195,12 @@ void sa_set( sa_state_t *sa, const char *s)
 
   }
 
-  else if(strcmp(s, "ch1") == 0 ) {
+  else if( strcmp(s, "ch1") == 0) {
 
     // az mode
     // signal on S3, S7
-    // sa->p_seq_n = 2;
 
-    // val
-    sa->p_seq_elt[ 0] = (const seq_elt_t ) {
+   const seq_elt_t hi =  {
       .azmux        = S1,    // PC-CH1-OUT
       .pc           = 0b01,  // pc1 active
       .next_idx     = 1,
@@ -210,14 +208,28 @@ void sa_set( sa_state_t *sa, const char *s)
       .convert      = false
     };
 
+
     // zero
-    sa->p_seq_elt[ 1]  = (const seq_elt_t ) {
+   const seq_elt_t lo =  {
       .azmux        = S5,    // COM-LC
       .pc           = 0b00,
       .next_idx     = 0,
       .hi           = false,
       .convert      = true          // convert on the lo.
     };
+
+
+    /* if( oob) if( noaz) etc.
+
+    */
+
+    // val
+    sa->p_seq_elt[ 0] = hi;
+    sa->p_seq_elt[ 1] = lo;
+    // sa->p_seq_elt[ 1].next_idx = 2;
+
+    // can easily encode. the oob entries.  by just overriding the index.
+
 
   }
 

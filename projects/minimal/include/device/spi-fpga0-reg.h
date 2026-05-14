@@ -353,6 +353,26 @@ _Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
 
 typedef struct seq_elt_t
 {
+
+  // should put next_idx first.
+  // then subsequent fields can be interpreted as needed with union.
+  // may be add an id field.
+/*
+    extr. instead of always having a next_id.
+    can have two types.
+    use enum.
+
+    - to distinguish a normal sample. with all the fields
+    - and a jmp/goto  with a next_idx
+
+    - the initial phase of the sequencer .
+
+    For example, the r32v opcode is only 7 bits.
+    note. rv32 op/code only bits 0-6
+
+*/
+
+
   uint32_t    azmux   : 4;
   uint32_t    pc      : 2;
 
@@ -372,6 +392,9 @@ typedef struct seq_elt_t
 
                               // 12 bits.
 
+
+  uint32_t    dither_cm_dac : 1;
+  uint32_t    dither_runup  : 1;
 
   /*
     apr 2026
@@ -393,7 +416,7 @@ typedef struct seq_elt_t
 
 
 
-  uint32_t          : 20;
+  uint32_t          : 18;
 } seq_elt_t;
 
 _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");

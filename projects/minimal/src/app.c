@@ -375,15 +375,16 @@ static void spi_check_comms( spi_t *spi)
 
 
   val = spi_ice40_reg_read32( spi, REG_TEST1);
-  printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+  printf("reg_test1 %s (%lu)\n",  str_format_bits( buf, 32, val),  val);
   assert( val == 0b00001111000011110000111100001111);
 
   val = spi_ice40_reg_read32( spi, REG_TEST2);
-  printf("reg_test2 %s\n",  str_format_bits( buf, 32, val));
+  printf("reg_test2 %s (%lu)\n",  str_format_bits( buf, 32, val),  val);
   assert( val == 0b11110000111100001111000011110000);
 
   // spacing these out, and adding printf statements - reduce spi issues?
 
+  printf("\n");
 
   for(unsigned i = 0; i < 32; ++i ) {
 
@@ -393,7 +394,7 @@ static void spi_check_comms( spi_t *spi)
     val = spi_ice40_reg_read32( spi, REG_TEST1);
 
     // if get default back , then likely addr is not seen correctly
-    printf("reg_test1 %s\n",  str_format_bits( buf, 32, val));
+    printf("reg_test1 %s (%lu)\n",  str_format_bits( buf, 32, val),  val);
     assert( val == test_val);
   }
 
