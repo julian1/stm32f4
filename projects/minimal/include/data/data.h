@@ -47,6 +47,7 @@ typedef struct data_t
 
   uint32_t        magic;
 
+
   // uint32_t     timestamp;
 
 
@@ -62,6 +63,10 @@ typedef struct data_t
   // acquisition/adc related fields
 
   reg_sr_t        status;
+
+  // decoded using returned idx.
+  // seq_elt_t       sample;
+
 
   /*
     can we get rid of this

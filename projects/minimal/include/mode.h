@@ -180,10 +180,14 @@ void _4094_state_clear_relays(_4094_state_t *state);
 
 
 
-// sample/sequence acquisition
+/* sample/sequence acquisition
+  better name.  sa_p_state_t  or p_sa_t ;
+*/
 
 typedef struct sa_state_t
 {
+
+
   uint32_t p_trig_delay;
   uint32_t p_precharge;
 
