@@ -318,12 +318,12 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   char buf[100];
 
   printf( "{");
-  printf( "azmux %u (%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
+  printf( "azmux %u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
   printf( "pc %u, ",          seq_elt.pc );
   printf( "next-idx %u, ",    seq_elt.next_idx );
   printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
   printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
-  printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob));
+  printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob_aperture));
   printf( "}, ");
 
   /* other ways to format

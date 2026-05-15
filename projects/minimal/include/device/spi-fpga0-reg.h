@@ -98,12 +98,12 @@ reg_cr_t
   uint8_t     sa_p_noaz     : 1;
 
 
-  uint8_t     sa_p_use_aperture_oob : 1;
+  // uint8_t     sa_p_use_aperture_oob : 1;
 
  // input     p_use_slow_rundown,
  // input     p_use_fast_rundown,
 
-  uint32_t    dummy_bits_o  : 26;
+  uint32_t    dummy_bits_o  : 27;
 
 } reg_cr_t;
 
@@ -214,7 +214,8 @@ seq_elt_t
 
   uint32_t    hi      : 1;        // hi or zero
   uint32_t    convert : 1;        // convert to reading on this input
-  uint32_t    oob     : 1;        // oob.   use oob aperture.
+  uint32_t    oob_aperture  : 1;        // oob.   use oob aperture.
+  // uint32_t    oob_modulo : 1;        // only on modulo count.
 
                               // 12 bits.
 
