@@ -64,19 +64,8 @@ typedef struct data_t
 
   reg_sr_t        status;
 
-  // decoded using returned idx.
-  // seq_elt_t       sample;
+  seq_elt_t       seq_elt;
 
-
-  /*
-    can we get rid of this
-    don't think we need this. downstream modules should use reading_valid.
-  */
-  // bool            is_hi;
-
-
-  // should be recorded in SR. and passed from sample acquisition
-  // bool            is_oob;
 
 
   /*

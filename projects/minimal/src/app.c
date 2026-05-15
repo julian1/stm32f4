@@ -1116,7 +1116,8 @@ static void spi_print_seq_register( spi_t *spi, uint32_t reg )
 
   printf("r %lu   pc:%s   azmux:%s\n",  reg,
       str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
-      mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
+      // mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
+      str_from_mux( buf2, 100, ret & 0b1111   )    // azmux value
     );
 }
 

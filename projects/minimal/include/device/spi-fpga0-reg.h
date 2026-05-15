@@ -48,6 +48,7 @@
 #define REG_SA_P_SEQ2                     24
 #define REG_SA_P_SEQ3                     25
 
+#define REG_SA_SEQ_ELT                    26
 
 
 ///////////////////////
@@ -163,52 +164,11 @@ reg_sr_t
     */
     uint16_t  first         : 1;
 
-
-    //////////////////////
-
-    uint16_t    azmux   : 4;
-    uint16_t    pc      : 2;
-
-
-    /* encoding next_idx like a linked list
-      allows removal of two registers - the seq_n terminal, and the new wrap around idx.
-      - also noaz, where have to return to the same idx.
-    */
-    uint16_t    next_idx : 3;   // 9
-
-
-    // flags for decode
-
-    uint16_t    hi      : 1;        // hi or zero
-    uint16_t    convert : 1;        // convert on this input .  pass through flag.
-    uint16_t    oob     : 1;        // oob.   set by control of aperture.
+    uint16_t                : 12;     // 32
 
 
   } sample;
 
-/*
-  // sample/sequence acquisition
-  struct {
-    uint8_t   idx           : 3;
-    uint8_t   first         : 1;
-    uint8_t   seq_n         : 3;
-    uint8_t                 : 1;    // 24
-
-
-    uint8_t   oob           : 1;      // dynamic
-    uint8_t   hi            : 1;      // dynamic
-    uint8_t   noaz          : 1;      // from cr
-    uint8_t   active_sigmux : 1;      // from cr
-
-    uint8_t   : 4;                  // 31
-
-
-  } sample;
-*/
-
-
-  // uint32_t   azmux : 4;
-  // uint32_t   pc : 2;
 
 } reg_sr_t;
 
@@ -217,7 +177,100 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 
-#if 1
+
+typedef struct __attribute__((__packed__))
+seq_elt_t
+{
+
+/*
+
+  // then subsequent fields can be interpreted as needed with union.
+  // may be add an id field.
+
+
+    extr. instead of always having a next_id.
+    consider code
+      and union.
+
+    - to distinguish a normal sample. with all the fields
+    - and a jmp/goto  with a next_idx
+
+    - the initial phase of the sequencer .
+
+    For example, the r32v opcode is only 7 bits.
+    note. rv32 op/code only bits 0-6
+
+*/
+
+  // uint32_t    code    : 4;
+
+  uint32_t    azmux   : 4;
+  uint32_t    pc      : 2;
+
+
+  /* encoding next_idx like a linked list
+    allows removal of two registers - the seq_n terminal, and the new wrap around idx.
+    - also noaz, where have to return to the same idx.
+  */
+  uint32_t    next_idx : 3;   // 9
+
+
+  // flags for decode
+
+  uint32_t    hi      : 1;        // hi or zero
+  uint32_t    convert : 1;        // convert to reading on this input
+  uint32_t    oob     : 1;        // oob.   use oob aperture.
+
+                              // 12 bits.
+
+
+  uint32_t    dither_cm_dac : 1;
+  uint32_t    dither_runup  : 1;
+
+
+  /* encoding leds here... not silly
+    although sample_idx. may be good enough
+  */
+  // uint32_t    leds    : 4;          // 18
+
+
+
+
+
+  uint32_t          : 18;
+} seq_elt_t;
+
+_Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
+
+
+
+
+
+
+
+
+  /*
+    apr 2026
+
+    consider - flags returned in SR register. to decode
+    or some user bits - passed blindly from az sequencer into the SR.
+    is_hi
+    is_oob
+    convert_on_receive
+    ----
+
+    can even encode monitor, or leds here.
+    for use when az-sequencer is in holding pattern
+
+    it makes sense - because the az-sequencer is the driver of most of these of these fields.
+    in normal operation
+
+  */
+
+
+
+
+#if 0
 /*
   apr 2026
   reg_direct can be removed.
@@ -341,85 +394,6 @@ _Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
 
 
 
-
-
-
-
-
-
-/*
-  these fields  - should copy into the CR. on return from the sequencer
-*/
-
-typedef struct seq_elt_t
-{
-
-  // should put next_idx first.
-  // then subsequent fields can be interpreted as needed with union.
-  // may be add an id field.
-/*
-    extr. instead of always having a next_id.
-    can have two types.
-    use enum.
-
-    - to distinguish a normal sample. with all the fields
-    - and a jmp/goto  with a next_idx
-
-    - the initial phase of the sequencer .
-
-    For example, the r32v opcode is only 7 bits.
-    note. rv32 op/code only bits 0-6
-
-*/
-
-
-  uint32_t    azmux   : 4;
-  uint32_t    pc      : 2;
-
-
-  /* encoding next_idx like a linked list
-    allows removal of two registers - the seq_n terminal, and the new wrap around idx.
-    - also noaz, where have to return to the same idx.
-  */
-  uint32_t    next_idx : 3;   // 9
-
-
-  // flags for decode
-
-  uint32_t    hi      : 1;        // hi or zero
-  uint32_t    convert : 1;        // convert on this input .  pass through flag.
-  uint32_t    oob     : 1;        // oob.   set by control of aperture.
-
-                              // 12 bits.
-
-
-  uint32_t    dither_cm_dac : 1;
-  uint32_t    dither_runup  : 1;
-
-  /*
-    apr 2026
-
-    consider - flags returned in SR register. to decode
-    or some user bits - passed blindly from az sequencer into the SR.
-    is_hi
-    is_oob
-    convert_on_receive
-    ----
-
-    can even encode monitor, or leds here.
-    for use when az-sequencer is in holding pattern
-
-    it makes sense - because the az-sequencer is the driver of most of these of these fields.
-    in normal operation
-
-  */
-
-
-
-  uint32_t          : 18;
-} seq_elt_t;
-
-_Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
 
 
 

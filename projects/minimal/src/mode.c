@@ -1019,11 +1019,11 @@ bool mode_repl_statement(
       // printf("set %s %lu\n", s0, u0);
 
 
-
+/*
       if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
-
       }
+*/
 
 /*
       else if(strcmp(s0, "seqn") == 0) {
@@ -1032,12 +1032,12 @@ bool mode_repl_statement(
 */
 
       // control register mode
-      else if(strcmp(s0, "mode") == 0) {
+      if(strcmp(s0, "mode") == 0) {      // sa mode unused. may 2026.
 
         cr_sa_mode_set( &mode->reg_cr, u0);
       }
 
-
+/*
       else if(strcmp(s0, "direct") == 0) {
 
         _Static_assert( sizeof(mode->reg_direct) == 4);
@@ -1045,6 +1045,7 @@ bool mode_repl_statement(
 
         memcpy( &mode->reg_direct, &u0, sizeof(mode->reg_direct));
       }
+*/
 
 
 /*

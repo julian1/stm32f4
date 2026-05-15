@@ -267,7 +267,7 @@ typedef struct _mode_t
   reg_cr_t      reg_cr;
 
   // control output in mode 0
-  reg_direct_t  reg_direct;
+  // reg_direct_t  reg_direct;
 
 
   sa_state_t    sa;

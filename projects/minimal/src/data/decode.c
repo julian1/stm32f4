@@ -30,6 +30,7 @@
 
 #include <data/decode.h>
 
+#include <support.h>  // char * str_from_mux( char *buf, size_t n, unsigned val);
 
 
 void decode_init(
@@ -128,7 +129,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
 
-  if( status.sample.hi) {
+  if( data->seq_elt.hi) {
 
     // HI.  record counts.
     decode->adc_clk_count_refmux_pos_hi = data->adc_clk_count_refmux_pos;
@@ -245,18 +246,26 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   /////////////////
   // now sa/adc
 
-  reg_sr_t  status;
 
-  _Static_assert ( sizeof( status) == 4);
-  spi_ice40_reg_read_n( spi, REG_SR, &status, sizeof( data->status));
+  // TODO should read into data->status first.
+  // then copy
+  _Static_assert ( sizeof( data->status) == 4);
+  spi_ice40_reg_read_n( spi, REG_SR, &data->status, sizeof( data->status));
 
+
+  // ease syntax
+  const reg_sr_t  status = data->status;
   assert( status.isr.magic  == 0b1010 );
+  assert( status.isr.adc );  // adc now the only interrupt source
+  assert( !status.isr.cmpr );
 
-  // adc now the only interrupt source
-  assert( status.isr.adc );
 
+  _Static_assert ( sizeof( data->seq_elt) == 4);
+  spi_ice40_reg_read_n( spi, REG_SA_SEQ_ELT, &data->seq_elt, sizeof( data->seq_elt));
 
-  data->status = status;
+  // east syntax
+  const seq_elt_t       seq_elt = data->seq_elt;
+
 
 
 /*
@@ -305,47 +314,33 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   ////////////////
 
-  printf( "{first=%u idx=%u}, ",
-    status.sample.first,
-    status.sample.idx
-    // status.sample.seq_n
+  printf( "{idx=%u, first=%u}, ",
+    status.sample.idx,
+    status.sample.first
   );
 
-/*
-    uint16_t    azmux   : 4;
-    uint16_t    pc      : 2;
 
 
-    uint16_t    next_idx : 3;   // 9
 
-
-    // flags for decode
-
-    uint16_t    hi      : 1;        // hi or zero
-    uint16_t    convert : 1;        // convert on this input .  pass through flag.
-    uint16_t    oob     : 1;        // oob.   set by control of aperture.
-*/
 
   /* Hmmmm. would be really nice to use the seq_elt_t
     so we can properly dereference back to sample.
   */
+  char buf[100];
 
   printf( "{");
-  printf( "azmux %u, ",     status.sample.azmux );
-  printf( "pc %u, ",        status.sample.pc );
-  printf( "next-idx %u, ",  status.sample.next_idx );
-  printf( "hi %u ",         status.sample.hi);
-  printf( "convert %u ",    status.sample.convert);
-  printf( "oob %u ",        status.sample.oob);
+  printf( "azmux %u (%s), ",seq_elt.azmux , str_from_mux( buf, 100, seq_elt.azmux));
+  printf( "pc %u, ",        seq_elt.pc );
+  printf( "next-idx %u, ",  seq_elt.next_idx );
+  printf( "hi %c ",         BIT_TO_CHAR( seq_elt.hi));
+  printf( "convert %c ",    BIT_TO_CHAR( seq_elt.convert));
+  printf( "oob %c ",        BIT_TO_CHAR( seq_elt.oob));
   printf( "}, ");
 
-  // printf( "%c ", status.sample.hi ? 'H' : 'L');
+  // printf( "%c ", seq_elt.hi ? 'H' : 'L');
 
   // printf( status.sample.oob ? "oob " : "    " );
 
-
-  assert( status.isr.adc );
-  assert( !status.isr.cmpr );
 
   // adc conversion
   decode_update_data_conversion( decode,  data);

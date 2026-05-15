@@ -26,11 +26,12 @@
 #include <test/test.h>
 
 
+#define UNUSED(x) (void)(x)
 
 
 static void test(app_t *app)
 {
-  // assert( 0 ); // FIXME
+  UNUSED( app);
 
   printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
 
@@ -39,6 +40,11 @@ static void test(app_t *app)
     we could verify with some checks.  */
 
   assert( 0);
+
+#if 0   // may 2026
+
+
+
   _mode_t *mode = app->mode;
   mode_reset( mode);
 
@@ -149,6 +155,8 @@ static void test(app_t *app)
   app_transition_state( app);
   // msleep(2 * 1000,  &app->system_millis);
   app_msleep( app, 2 * 1000);
+
+#endif
 
 }
 

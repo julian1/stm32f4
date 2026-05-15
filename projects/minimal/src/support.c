@@ -83,7 +83,15 @@ void aperture_print( /* FILE */ uint32_t aperture,  uint32_t line_freq)
 
 
 
-char * mux_to_str( unsigned val,  char *buf, unsigned n  )
+/*
+  interface is wrong
+
+*/
+
+// char * mux_to_str( unsigned val,  char *buf, unsigned n  )
+// char * str_from_mux( char *buf, unsigned n, unsigned val )
+
+char * str_from_mux( char *buf, size_t n, unsigned val)
 {
   // change name mux_to_str() at least.
   // this is 1ofN mux.

@@ -26,11 +26,12 @@
 #include <test/test.h>
 
 
-
+#define UNUSED(x) (void)(x)
 
 
 static void test (app_t *app)     // should be passing the continuation.
 {
+  UNUSED( app);
 
   printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage at boot node\n");
 
@@ -40,6 +41,9 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
   assert(0);
+
+#if 0   // may 2026
+
   _mode_t *mode = app->mode;
   mode_reset( mode);
 
@@ -133,6 +137,9 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
   app_msleep( app, 2 * 1000);
+
+
+#endif
 
 }
 
