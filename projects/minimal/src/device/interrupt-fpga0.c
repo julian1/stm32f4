@@ -19,30 +19,8 @@
 
 
 
-/*
-  consider a better way to context pointers for callbacks/handlers.
-  a single global table.
-
-    void *glb_nvic_ctx_table[ NVIC_IRQ_COUNT ];
-
-  to register,
-
-    glb_nvic_ctx_table[  NVIC_EXTI3_IRQ ] = (void *) this;
-
-  and index lookup,
-
-    void *ctx = glb_nvic_ctx_tabl[ NVIC_EXTI3_IRQ ];
 
 
-  But note, negative value/index for systick.
-  So would need something different.
-
-  #define NVIC_SYSTICK_IRQ    -1
-
-    The NVIC_SYSTICK_IRQ is defined as a negative number because it represents a
-    processor core exception (internal interrupt) rather than a device-specific
-    (external) interrupt, according to ARM CMSIS standards.
-*/
 
 static interrupt_t   *x = NULL;
 
@@ -87,7 +65,7 @@ static void port_configure( interrupt_t *i)
 }
 
 
-void interrupt_fpga0_init( interrupt_t *i /* nvic_ctx_table * */ )
+void interrupt_fpga0_init( interrupt_t *i /* cb_table_t * */ )
 {
   assert(i);
   memset(i, 0, sizeof(interrupt_t));

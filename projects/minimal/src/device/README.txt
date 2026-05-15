@@ -1,4 +1,4 @@
 
-all device specific hardware code goes here
-and generic hardware specific in peripheral
+all specific hardware devices go here
+ie. only place that where specific PINS/PORTS used by devices are defined
 

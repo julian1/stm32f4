@@ -17,6 +17,7 @@
 #include <libopencm3/stm32/rcc.h>   // mcu clock initialization
 #include <libopencm3/stm32/gpio.h>    // assert_critical_error_led_setup()
 
+#include <libopencm3/cm3/nvic.h>      // NVIC_IRQ_COUNT
 
 #include <libopencm3/stm32/usart.h>   // TODO should try to remove
 
@@ -270,6 +271,18 @@ static int main_f429(void)
 
 
   spi2_port_configure();
+
+
+/*
+  // lib/libopencm3/include/libopencm3/stm32/f4/nvic.h
+  cb_table_t    cb_table[ NVIC_IRQ_COUNT];
+
+  // lib/libopencm3/include/libopencm3/cm3/nvic.h
+  cb_table_t    cb_table_system[ - (NVIC_NMI_IRQ) + 1 ];    // 15.
+
+  UNUSED( cb_table);
+  UNUSED( cb_table_system);
+*/
 
 
 
