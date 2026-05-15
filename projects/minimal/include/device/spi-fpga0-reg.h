@@ -126,7 +126,7 @@ reg_sr_t
   // almost an isr
   struct {
 
-    uint8_t   magic         : 4;
+    uint8_t   magic         : 4;      // TODO, change back to 8 bits. and move out of isr.
 
     uint8_t   adc           : 1;
     // consider no longer use
@@ -147,8 +147,8 @@ reg_sr_t
     uint8_t   amp_unld_gt   : 1;
 
     uint8_t   boot_ch1_ovld : 1;
-    uint8_t   boot_ch2_ovld : 1;
-    // uint8_t                 : 3;    // 16
+    uint8_t   boot_ch2_ovld : 1;    // 16
+
   } cmpr;
 
 
@@ -184,22 +184,17 @@ seq_elt_t
 
 /*
 
-  // then subsequent fields can be interpreted as needed with union.
-  // may be add an id field.
-
-
     extr. instead of always having a next_id.
-    consider code
-      and union.
+    consider
+      add type code
+      and use union.
 
-    - to distinguish a normal sample. with all the fields
-    - and a jmp/goto  with a next_idx
+    - to distinguish a seq_elt from another insn
+    like jmp/goto  with a pc or idx
 
-    - the initial phase of the sequencer .
 
     For example, the r32v opcode is only 7 bits.
     note. rv32 op/code only bits 0-6
-
 */
 
   // uint32_t    code    : 4;
