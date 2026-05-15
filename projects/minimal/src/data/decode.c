@@ -247,8 +247,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   // now sa/adc
 
 
-  // TODO should read into data->status first.
-  // then copy
+  // read the status, read into data->status
   _Static_assert ( sizeof( data->status) == 4);
   spi_ice40_reg_read_n( spi, REG_SR, &data->status, sizeof( data->status));
 
@@ -260,12 +259,12 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   assert( !status.isr.cmpr );
 
 
+  // read the seq-elt
   _Static_assert ( sizeof( data->seq_elt) == 4);
   spi_ice40_reg_read_n( spi, REG_SA_SEQ_ELT, &data->seq_elt, sizeof( data->seq_elt));
 
   // east syntax
   const seq_elt_t       seq_elt = data->seq_elt;
-
 
 
 /*
@@ -274,14 +273,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     BIT_TO_CHAR( status.isr.adc)
   );
 */
-
-
-
-
-
-
-  // by convention
-  // bool is_hi =  status.sample.idx % 2 == 0;
 
 /*
 
@@ -320,26 +311,21 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   );
 
 
-
-
-
-  /* Hmmmm. would be really nice to use the seq_elt_t
-    so we can properly dereference back to sample.
-  */
   char buf[100];
 
   printf( "{");
-  printf( "azmux %u (%s), ",seq_elt.azmux , str_from_mux( buf, 100, seq_elt.azmux));
-  printf( "pc %u, ",        seq_elt.pc );
-  printf( "next-idx %u, ",  seq_elt.next_idx );
-  printf( "hi %c ",         BIT_TO_CHAR( seq_elt.hi));
-  printf( "convert %c ",    BIT_TO_CHAR( seq_elt.convert));
-  printf( "oob %c ",        BIT_TO_CHAR( seq_elt.oob));
+  printf( "azmux %u (%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
+  printf( "pc %u, ",          seq_elt.pc );
+  printf( "next-idx %u, ",    seq_elt.next_idx );
+  printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
+  printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
+  printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob));
   printf( "}, ");
 
-  // printf( "%c ", seq_elt.hi ? 'H' : 'L');
-
-  // printf( status.sample.oob ? "oob " : "    " );
+  /* other ways to format
+    printf( "%c ", seq_elt.hi ? 'H' : 'L');
+    printf( status.sample.oob ? "oob " : "    " );
+  */
 
 
   // adc conversion
