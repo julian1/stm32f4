@@ -267,16 +267,23 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   const seq_elt_t       seq_elt = data->seq_elt;
 
 
-/*
-  printf( "{isr %c%c}, ",
-    BIT_TO_CHAR( status.isr.cmpr),
-    BIT_TO_CHAR( status.isr.adc)
-  );
-*/
 
-/*
+  printf( "%s-%s, ", range->name, range->arg );
 
-  if( status.sample.hi ) {
+  ////////////////
+
+
+
+  /*
+    printf( "{isr %c%c}, ",
+      BIT_TO_CHAR( status.isr.cmpr),
+      BIT_TO_CHAR( status.isr.adc)
+    );
+  */
+
+
+
+  if( seq_elt.hi) {
 
     // for HI
     printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c ch2=%c}, ",
@@ -299,11 +306,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     printf( "                                       ");
   }
 
-*/
 
-  printf( "%s-%s, ", range->name, range->arg );
 
-  ////////////////
 
   printf( "{idx=%u, first=%u}, ",
     status.sample.idx,
@@ -360,6 +364,33 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
   return 1;
 }
 
+
+
+
+
+
+#if 0
+
+may 2026.
+  after returning seq_elt
+
+> DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,79(0, 0), mean   0.000,000,79, stddev +0.000a
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,70(1, 1), mean   0.000,000,74, stddev +43.67n
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,26(2, 2), mean   0.000,000,58, stddev +229.3n
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,96(3, 3), mean   0.000,000,68, stddev +257.5n
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,70(4, 4), mean   0.000,000,68, stddev +230.4n
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,87(5, 5), mean   0.000,000,71, stddev +222.2n
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
+DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,61(6, 6), mean   0.000,000,70, stddev +208.8n
+DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s
+
+#endif
 
 
 #if 0
