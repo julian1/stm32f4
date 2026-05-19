@@ -483,12 +483,15 @@ void app_configure( app_t *app )
 
   printf("app_configure()\n");
 
+  // app_msleep( app, 1500);
+
   char buf[ 100];
   uint32_t val;
 
 
   // ensure fpga cdone asserted
   assert( spi_ice40_cdone( app->spi_fpga0_pc));
+
 
 
   ///////////
@@ -499,6 +502,8 @@ void app_configure( app_t *app )
 */
 
   spi_check_comms( app->spi_fpga0);
+
+  // assert( 0);
 
 
   // check 4094 OE is not asserted

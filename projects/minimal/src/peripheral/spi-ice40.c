@@ -57,28 +57,40 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 
 
 
-
-uint32_t spi_ice40_reg_write32( spi_t *spi, uint8_t reg, uint32_t val)
+static uint32_t spi_ice40_reg_xfer( spi_t *spi, uint8_t reg, uint8_t write_flag,  uint32_t val)
 {
-  spi_cs_assert(spi);
+  spi_cs_assert( spi);
 
-  // write single byte, for the reg we are interested in, with read bit cleared.
-  spi_xfer( spi->spi, reg );
+  // OLD write byte for reg. write bit lo == active.
+  // spi_xfer( spi->spi, reg );
+
+  // write reg packed in MSB, write_flag in LSB, and use active HI write_flag.
+  spi_xfer( spi->spi, (reg << 1) | write_flag);
+
   // return the data
-  uint32_t ret = spi_xfer_32(spi->spi, val );
+  uint32_t ret = spi_xfer_32( spi->spi, val);
 
-  spi_cs_deassert(spi);
+  spi_cs_deassert( spi);
 
   return ret;
 }
 
 
-
-
-uint32_t spi_ice40_reg_read32(  spi_t *spi, uint8_t reg)
+uint32_t spi_ice40_reg_write32( spi_t *spi, uint8_t reg, uint32_t val)
 {
-  // call write with, with read bit set, and passing dummy value.
-  return spi_ice40_reg_write32( spi, reg | (1 << 7), 0);
+
+  return spi_ice40_reg_xfer( spi, reg, 0b1, val);
+}
+
+
+
+uint32_t spi_ice40_reg_read32( spi_t *spi, uint8_t reg)
+{
+  // OLD call write with, with write bit MSB, and write_bit hi == no write, and pass dummy value.
+  // return spi_ice40_reg_write32( spi, (1 << 7) | reg, 0);
+
+  // call xfer with write_flag cleared, and pass dummy val
+  return spi_ice40_reg_xfer( spi, reg, 0b0, 0);
 }
 
 
