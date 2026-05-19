@@ -65,13 +65,25 @@ static void port_configure( interrupt_t *i)
 }
 
 
+static void handler_set( interrupt_t *i, void *ctx, interrupt_handler_t handler)
+{
+  assert( i && i->magic == FPGA0_MAGIC);
+
+  i->ctx = ctx;
+  i->handler = handler;
+}
+
+
 void interrupt_fpga0_init( interrupt_t *i /* cb_table_t * */ )
 {
   assert(i);
-  memset(i, 0, sizeof(interrupt_t));
 
-  i->magic        = FPGA0_MAGIC;
-  i->port_configure = port_configure;
+  *i = ( const interrupt_t) {
+
+    .magic          = FPGA0_MAGIC,
+    .port_configure = port_configure,
+    .handler_set    = handler_set,
+  };
 
   x = i;
 }

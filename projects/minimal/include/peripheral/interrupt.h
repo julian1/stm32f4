@@ -9,6 +9,10 @@
 
 
 /*
+
+  note. the NVIC interrupt number (often referred to as IRQn in ARM Cortex-M
+  microcontrollers) corresponds directly with the vector table
+
   can pass the cb table in the init/constructor.
   use separate tables - for NVIC versus internal system/core exceptions that are negatively indexed.
 
@@ -49,7 +53,7 @@ typedef struct cb_table_t
 
   void                *ctx;
   interrupt_handler_t *handler;
-  void                (*isr)( void);   // used as check.
+  // void                (*isr)( void);   // used as check.
 } cb_table_t;
 
 
@@ -69,10 +73,11 @@ struct interrupt_t
   void *ctx;
 
 
-  /* rename to configure
+  /*
+      port_configure is correct name, since exti will configure input port,pin
   */
   void (*port_configure)( interrupt_t *);
-  // void (*handler_set)( interrupt_t *, void *ctx, interrupt_handler_t);
+  void (*handler_set)( interrupt_t *, void *ctx, interrupt_handler_t);
 };
 
 
@@ -80,21 +85,15 @@ struct interrupt_t
 
 static inline void interrupt_port_configure( interrupt_t *i)
 {
-  assert(i);
+  assert( i && i->port_configure);
   i->port_configure( i);
 }
 
 
 static inline  void interrupt_handler_set( interrupt_t *i, void *ctx, interrupt_handler_t h)
 {
-  assert(i);
-
-  // i->handler_set( i, ctx, h);
-
-  i->ctx      = ctx;
-  i->handler  = h;
-
-  // cannot be generic.
+  assert( i && i->handler_set);
+  i->handler_set( i, ctx, h);
 }
 
 
@@ -102,8 +101,7 @@ static inline  void interrupt_handler_set( interrupt_t *i, void *ctx, interrupt_
 
 
 
-
-/*
+#if 0
 
     OLD.
 
@@ -142,4 +140,6 @@ cleaner way to manage context pointers for callbacks/handlers.
   -----------------------
 
 
-*/
+#endif
+
+

@@ -61,15 +61,30 @@ static void port_configure( interrupt_t *i)
 }
 
 
+
+static void handler_set( interrupt_t *i, void *ctx, interrupt_handler_t handler)
+{
+  assert( i && i->magic == INT_SYSTICK_MAGIC);
+
+  i->ctx = ctx;
+  i->handler = handler;
+}
+
+
+
+
+
 void interrupt_systick_init( interrupt_systick_t *i, /* nvic_ctx_table * */ uint32_t tick_divider)
 {
   assert( i);
 
   *i = ( const interrupt_systick_t)  {
 
-    .magic        = INT_SYSTICK_MAGIC,
-    .port_configure =  port_configure,
-    .tick_divider = tick_divider,
+    .magic          = INT_SYSTICK_MAGIC,
+    .tick_divider   = tick_divider,
+
+    .port_configure = port_configure,
+    .handler_set    = handler_set,
   };
 
   x = i;
