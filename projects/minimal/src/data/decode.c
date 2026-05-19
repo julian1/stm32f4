@@ -297,8 +297,12 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
       BIT_TO_CHAR( status.cmpr.amp_unld_lt),
       BIT_TO_CHAR( status.cmpr.amp_unld_gt),
 
+      'x',
+      'x'
+/*
       BIT_TO_CHAR( status.cmpr.boot_ch1_ovld),
       BIT_TO_CHAR( status.cmpr.boot_ch2_ovld)
+*/
     );
   } else {
 
