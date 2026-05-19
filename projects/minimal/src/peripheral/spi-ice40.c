@@ -41,19 +41,9 @@ static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
   uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
   uint8_t d = spi_xfer( spi,  val        & 0xff  );
 
-  // fixed this.
-  // + or |
-  return (a << 24) + (b << 16) + (c << 8) + d;
-}
 
-
-/*
-static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // for write, or transfer
-  return spi_xfer_32(spi, reg << 24 | val);
+  return (a << 24) | (b << 16) | (c << 8) | d;
 }
-*/
 
 
 
@@ -119,5 +109,14 @@ void spi_ice40_reg_read_n( spi_t *spi, uint8_t reg, void *s, size_t n)
 
 
 
+
+
+/*
+static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // for write, or transfer
+  return spi_xfer_32(spi, reg << 24 | val);
+}
+*/
 
 
