@@ -113,6 +113,68 @@ _Static_assert (sizeof(reg_cr_t) == 4, "bad typedef size");
 
 
 
+#if 0
+typedef struct __attribute__((__packed__))
+reg_sr_t
+{
+
+  // hw flags do not belong here. since constant across power cycles.
+
+  // interrupt source
+  // almost an isr
+  struct {
+
+    uint8_t   magic         : 4;      // TODO, change back to 8 bits. and move out of isr.
+
+    uint8_t   adc           : 1;
+    // consider no longer use
+    uint8_t   cmpr          : 1;
+    uint8_t                 : 2;  // 8
+  } isr;
+
+
+  struct {
+
+    uint8_t   idx           : 3;
+    /* we need first...
+      to know to clear the buffers... after retrigger
+    */
+    uint8_t  first         : 1;
+
+    uint8_t                : 4;     //  16
+  } sample;
+
+
+
+  // comparator flags
+  struct {
+    uint8_t   amp_zero_lt   : 1;
+    uint8_t   amp_zero_gt   : 1;
+
+    uint8_t   amp_ovld_lt   : 1;
+    uint8_t   amp_ovld_gt   : 1;
+
+    uint8_t   amp_unld_lt   : 1;
+    uint8_t   amp_unld_gt   : 1;
+/*
+    uint8_t   boot_ch1_ovld : 1;
+    uint8_t   boot_ch2_ovld : 1;
+*/
+
+    uint8_t   boot_ch1_lt   : 1;
+    uint8_t   boot_ch1_gt   : 1;
+
+    uint8_t   boot_ch2_lt   : 1;
+    uint8_t   boot_ch2_gt   : 1;      // 18
+
+    uint8_t                 : 6;
+
+  } cmpr;                             // 32
+
+} reg_sr_t;
+
+
+#endif
 
 
 
