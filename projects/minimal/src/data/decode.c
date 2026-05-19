@@ -281,12 +281,17 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     );
   */
 
+  printf( "{idx=%u, first=%u}, ",
+    status.sample.idx,
+    status.sample.first
+  );
+
 
 
   if( seq_elt.hi) {
 
     // for HI
-    printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c ch2=%c}, ",
+    printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c%c ch2=%c%c}, ",
 
       BIT_TO_CHAR( status.cmpr.amp_zero_lt),
       BIT_TO_CHAR( status.cmpr.amp_zero_gt),
@@ -297,26 +302,21 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
       BIT_TO_CHAR( status.cmpr.amp_unld_lt),
       BIT_TO_CHAR( status.cmpr.amp_unld_gt),
 
-      'x',
-      'x'
-/*
-      BIT_TO_CHAR( status.cmpr.boot_ch1_ovld),
-      BIT_TO_CHAR( status.cmpr.boot_ch2_ovld)
-*/
+      BIT_TO_CHAR( status.cmpr.boot_ch1_lt),
+      BIT_TO_CHAR( status.cmpr.boot_ch1_gt),
+
+      BIT_TO_CHAR( status.cmpr.boot_ch2_lt),
+      BIT_TO_CHAR( status.cmpr.boot_ch2_gt)
+
     );
   } else {
 
     // ignore for LO
-    printf( "                                       ");
+    printf( "                                         ");
   }
 
 
 
-
-  printf( "{idx=%u, first=%u}, ",
-    status.sample.idx,
-    status.sample.first
-  );
 
 
   char buf[100];
