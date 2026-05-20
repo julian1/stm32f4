@@ -400,6 +400,7 @@ static void spi_check_comms( spi_t *spi)
 
 
 /*
+  // test some specific bit patterns
   uint32_t test_vals[] = { 1u << 31, 1u << 30, 1u << 29 }  ;
 
   for(unsigned i = 0; i < ARRAY_SIZE(test_vals); ++i ) {
@@ -865,59 +866,23 @@ static void app_console_update(app_t *app)
       /*
         control sequence point to apply mode state changes.  in response to repl commands.
         NOT. for auto-ranging.
-
-        EXTR.  problem that have pending mode state changes from REPL before \r .
-
-        BUT if there is auto-ranging change - then this is also a sequence point to apply the changes.
-
-        could have more than one mode.
       */
 
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
-        /*  if there is a case where we do not want to retrigger, then handle it exceptionally.
-            rather than making not retriggering the default behavior.
+        /*
+          always force a retrigger , if current trigger is active
+          (also sets sequencing first=true to clear buffers)
+          this is good default behavior.
+          if there is a case where we do not want to retrigger (for tests), then handle it exceptionally.
+          ie.  by calling app_transition_state() manually.
         */
 
-        /* force a retrigger, if current trigger is active
-          else preserve an inactive trigger through a state transition - useful for tests that use the repl etc.
-        */
         gpio_write( app->gpio_trigger, 0 );
 
         // update analog board state by calling transition_state(),
         app_transition_state( app );
 
-        /*
-          this looks completely wrong.
-          should not have a concept of ranging here.
-          and digging into it.
-
-          instead use the mode to communicate that state needs to be updated.
-          instead should always retrigger whenever the mode is written.
-        */
-
-        /*
-          Why not hold the trigger lo.   while we perform  the transition state?
-          Avoid spurious conversions, and interrupts.
-
-          And when do we not want to retrigger in here - in response to a repl command that modifies the mode ?
-
-        */
-/*
-        ranging_t *ranging = app->ranging;
-
-        if( ranging->retrigger) {
-
-          // re-trigger
-          printf("ranging retrigger\n");
-
-          // clear for next time
-          ranging->retrigger = false;
-
-          // set trigger low
-          gpio_write( app->gpio_trigger, 0);
-        }
-*/
 
         // re-apply trigger state
         gpio_write( app->gpio_trigger, app->repl_trigger_val);
@@ -1533,6 +1498,49 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+
+
+
+
+
+
+/*
+  always force a retrigger, if current trigger is active
+  else preserve an inactive trigger through a state transition - useful for tests that use the repl etc.
+*/
+
+
+/*
+  this looks completely wrong.
+  should not have a concept of ranging here.
+  and digging into it.
+
+  instead use the mode to communicate that state needs to be updated.
+  instead should always retrigger whenever the mode is written.
+*/
+
+/*
+  Why not hold the trigger lo.   while we perform  the transition state?
+  Avoid spurious conversions, and interrupts.
+
+  And when do we not want to retrigger in here - in response to a repl command that modifies the mode ?
+
+*/
+/*
+        ranging_t *ranging = app->ranging;
+
+        if( ranging->retrigger) {
+
+          // re-trigger
+          printf("ranging retrigger\n");
+
+          // clear for next time
+          ranging->retrigger = false;
+
+          // set trigger low
+          gpio_write( app->gpio_trigger, 0);
+        }
+*/
 
 
 
