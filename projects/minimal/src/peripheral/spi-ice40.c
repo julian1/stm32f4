@@ -36,10 +36,13 @@
 
 static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
 {
-  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // write MSB first
-  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
-  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
-  uint8_t d = spi_xfer( spi,  val        & 0xff  );
+  // uint16_t spi_xfer(uint32_t spi, uint16_t data)
+  // ret <<= 8;  ret |= spixfer().  etc.
+
+  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff);   // write MSB first
+  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff);
+  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff);
+  uint8_t d = spi_xfer( spi,  val        & 0xff);
 
 
   return (a << 24) | (b << 16) | (c << 8) | d;
