@@ -20,21 +20,13 @@
 
 
 
+
 // keep 4094 OE in separate register, not _CR_ combined register.
 // because only used once at config time
 #define REG_4094_OE                       9
 #define REG_CR                            12
 // #define REG_DIRECT                        14      // TO REMOVE.  use REF_SA_P_SEQ0 instead.
 #define REG_SR                            17
-
-/*
-// operation modes
-#define MODE_DIRECT                       0     // mcu can control outputs directly by writing the direct register
-#define MODE_ADC_MUX_REF_TEST             5     // test integrator, refmux switching
-#define MODE_SA_MOCK_ADC                  6     // sample acquisition, but adc is mocked
-#define MODE_SA_ADC                       7     // normal operation. with sa and adc
-
-*/
 
 
 ///////////////////////
@@ -445,5 +437,15 @@ _Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
 
 */
 
+
+
+/*
+// operation modes
+#define MODE_DIRECT                       0     // mcu can control outputs directly by writing the direct register
+#define MODE_ADC_MUX_REF_TEST             5     // test integrator, refmux switching
+#define MODE_SA_MOCK_ADC                  6     // sample acquisition, but adc is mocked
+#define MODE_SA_ADC                       7     // normal operation. with sa and adc
+
+*/
 
 #endif

@@ -3,6 +3,8 @@
   dec 2022.
     at 100MHz (instead of 50MHz) there are flip issues, using stress-test. with iso7762
 
+    but did clk, mosi use source-termination, and/or fixed-impedance traces ?
+
 
 */
 
@@ -79,12 +81,15 @@ void spi1_port_configure(void)
   // clk PA5, miso. PA6
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5  | GPIO6);
   gpio_set_af(GPIOA, GPIO_AF5, GPIO5  | GPIO6);       // af 5
+
+  // clk. PA5
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 
   // mosi. on PB5.
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 );
   gpio_set_af(GPIOB, GPIO_AF5, GPIO5 );       // af 5
+
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 }
