@@ -1184,10 +1184,12 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
   /////////////////////
   // sample acquisition
 
+/*
   else if( strcmp( cmd, "seqn?") == 0) {
 
     spi_print_register( spi, REG_SA_P_SEQ_N);
   }
+*/
 
   else if( strcmp( cmd, "seq0?") == 0) {
 
