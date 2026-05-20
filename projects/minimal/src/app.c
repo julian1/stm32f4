@@ -989,25 +989,28 @@ void app_update( app_t *app)
 
 
     // if( data.status.isr.adc) {
-
       // always delegate to ranging update
       // in case we want to use the reading.
-      bool result = ranging_update_data( app->ranging, &data);
-      if(result) {
 
-          // force a retrigger, if current trigger is active
-          gpio_write( app->gpio_trigger, 0 );
+    // event source is data, leading to need for state transition
+    bool result = ranging_update_data( app->ranging, &data);
+    if(result) {
 
-          app_transition_state( app );
+        // force a retrigger, if current trigger is active
+        gpio_write( app->gpio_trigger, 0 );
 
-          // re-apply trigger state
-          // not clear that trigger could/would be inactive when AR active.
-          gpio_write( app->gpio_trigger, app->repl_trigger_val);
+        app_transition_state( app );
 
-          // avoid doing more work - such as display rendering,
-          // to improve response in the case need a following range change
-          // return;
-      }
+        // re-apply trigger state
+        // not clear that trigger could/would be inactive when AR active.
+        gpio_write( app->gpio_trigger, app->repl_trigger_val);
+
+        // consider return early - to avoid more work
+        // should improve range change responsiveness in the case need a followup range switch
+        // return;
+    }
+
+
     // }
 
     printf( "\n");
