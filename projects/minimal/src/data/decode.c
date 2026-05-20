@@ -287,42 +287,45 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   );
 
 
+  char buf[100];
+
+  // printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c%c ch2=%c%c}, ",
+  snprintf( buf, 100, "{%c%c %c%c %c%c %c%c %c%c}, ",
+
+    BIT_TO_CHAR( status.cmpr.amp_zero_lt),
+    BIT_TO_CHAR( status.cmpr.amp_zero_gt),
+
+    BIT_TO_CHAR( status.cmpr.amp_ovld_lt),
+    BIT_TO_CHAR( status.cmpr.amp_ovld_gt),
+
+    BIT_TO_CHAR( status.cmpr.amp_unld_lt),
+    BIT_TO_CHAR( status.cmpr.amp_unld_gt),
+
+    BIT_TO_CHAR( status.cmpr.boot_ch1_lt),
+    BIT_TO_CHAR( status.cmpr.boot_ch1_gt),
+
+    BIT_TO_CHAR( status.cmpr.boot_ch2_lt),
+    BIT_TO_CHAR( status.cmpr.boot_ch2_gt)
+
+  );
+
 
   if( seq_elt.hi) {
 
-    // for HI
-    printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c%c ch2=%c%c}, ",
-
-      BIT_TO_CHAR( status.cmpr.amp_zero_lt),
-      BIT_TO_CHAR( status.cmpr.amp_zero_gt),
-
-      BIT_TO_CHAR( status.cmpr.amp_ovld_lt),
-      BIT_TO_CHAR( status.cmpr.amp_ovld_gt),
-
-      BIT_TO_CHAR( status.cmpr.amp_unld_lt),
-      BIT_TO_CHAR( status.cmpr.amp_unld_gt),
-
-      BIT_TO_CHAR( status.cmpr.boot_ch1_lt),
-      BIT_TO_CHAR( status.cmpr.boot_ch1_gt),
-
-      BIT_TO_CHAR( status.cmpr.boot_ch2_lt),
-      BIT_TO_CHAR( status.cmpr.boot_ch2_gt)
-
-    );
+    printf( buf );
   } else {
 
     // ignore for LO
-    printf( "                                         ");
+    // just use pad spaces
+    printf("%*s", strlen( buf), "");
   }
 
 
 
 
 
-  char buf[100];
-
   printf( "{");
-  printf( "azmux %u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
+  printf( "azmux %2u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
   printf( "pc %u, ",          seq_elt.pc );
   printf( "next-idx %u, ",    seq_elt.next_idx );
   printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
