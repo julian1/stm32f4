@@ -11,7 +11,7 @@
 
 
 
-// spi device cs encodin
+// spi device cs
 #define SPI_CS_DEASSERT                   0
 #define SPI_CS_FPGA0                      1
 #define SPI_CS_4094                       2
@@ -25,7 +25,6 @@
 // because only used once at config time
 #define REG_4094_OE                       9
 #define REG_CR                            12
-// #define REG_DIRECT                        14      // TO REMOVE.  use REF_SA_P_SEQ0 instead.
 #define REG_SR                            17
 
 
@@ -79,16 +78,18 @@ reg_cr_t
 
   // fpga operating mode. 3 bits
   uint8_t     sa_mode          : 3;
-  // uint8_t                   : 3;
 
 
-  // adc - whether to switch the input sigmux
-  // used for weighting
+  /* adc - whether to switch the input sigmux
+    used for initial cal weighting
+
+    consider move seq_elt_t
+    or place in a common structure
+  */
   uint8_t     adc_p_active_sigmux : 1;
 
   // for az mode
   uint8_t     sa_p_noaz     : 1;
-
 
   // uint8_t     sa_p_use_aperture_oob : 1;
 
@@ -147,13 +148,10 @@ reg_sr_t
 
     uint8_t   amp_unld_lt   : 1;
     uint8_t   amp_unld_gt   : 1;
-/*
-    uint8_t   boot_ch1_ovld : 1;
-    uint8_t   boot_ch2_ovld : 1;
-*/
 
     uint8_t   boot_ch1_lt   : 1;
     uint8_t   boot_ch1_gt   : 1;      // 24
+
 
     uint8_t   boot_ch2_lt   : 1;
     uint8_t   boot_ch2_gt   : 1;      // 26
@@ -179,53 +177,63 @@ seq_elt_t
 {
 
 /*
-
     extr. instead of always having a next_id.
-    consider
-      add type code
-      and use union.
+    consider add code and use union to represent different elt types
 
-    - to distinguish a seq_elt from another insn
-    like jmp/goto  with a pc or idx
+    - can then distinguish a seq_elt from insn like behavior
+    such as jmp/goto  with a pc or idx
 
-
-    For example, the r32v opcode is only 7 bits.
+    Note. r32v opcode is only 7 bits.
     note. rv32 op/code only bits 0-6
 */
 
-  // uint32_t    code    : 4;
+  // uint32_t    code       : 4;
 
-  uint32_t    azmux   : 4;
-  uint32_t    pc      : 2;
+  uint32_t    azmux         : 4;
+  uint32_t    pc            : 2;
 
 
   /* encoding next_idx like a linked list
-    means can remove two registers - the seq_n terminal, and the new wrap around idx.
-    - also noaz, where have to return to the same idx.
+    means can remove two registers - the seq_n terminal, and wrap-around idx value.
+    - must support noaz, where return to the same idx.
   */
-  uint32_t    next_idx : 3;   // 9
+  uint32_t    next_idx      : 3;   // 9
 
 
   // flags for decode
+  uint32_t    hi            : 1;        // TODO. bad name.  hi == input signal. or zero
+  uint32_t    convert       : 1;        // convert to reading on this input
 
-  uint32_t    hi      : 1;        // hi or zero
-  uint32_t    convert : 1;        // convert to reading on this input
+
+  /////////////////////////////
+
+  // control/ sequencing and other
+  /*
+      consider a common structure to localize adc control
+      to run independently of the sequencer
+
+  */
   uint32_t    oob_aperture  : 1;        // oob.   use oob aperture.
-  // uint32_t    oob_modulo : 1;        // only on modulo count.
+  // uint32_t    oob_modulo : 1;        // action only on modulo count
 
-                              // 12 bits.
 
+  /*
+    consider move active_sigmux flag here - and out of the generalized control register.
+    so adc can operate independently of sequencer then it may make sense.
+  */
+  // uint8_t     adc_p_active_sigmux : 1;
 
   uint32_t    dither_cm_dac : 1;
-  uint32_t    dither_runup  : 1;
+  uint32_t    dither_runup  : 1;      // 14
 
 
-  /* encoding leds here... not silly
-    although sample_idx. may be good enough
+  /*
+      not unreasonably to encode leds here...
+      although sample_idx. may be good enough
   */
   // uint32_t    leds    : 4;          // 18
 
-  // convenience for software/side - woudd would contribute hardware complexity
+  // ignore/nop - convenience for software/side - but would contribute hardware complexity
   // uint32_t ignore : 1;
 
 
