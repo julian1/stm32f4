@@ -76,7 +76,7 @@ typedef struct __attribute__((__packed__))
 reg_cr_t
 {
 
-  // fpga operating mode. 3 bits
+  // sequencer mode. 3 bits
   uint8_t     sa_mode          : 3;
 
 
