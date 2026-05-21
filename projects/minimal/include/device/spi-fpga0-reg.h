@@ -89,14 +89,14 @@ reg_cr_t
   uint8_t     adc_p_active_sigmux : 1;
 
   // for az mode
-  uint8_t     sa_p_noaz     : 1;
+  // uint8_t     sa_p_noaz     : 1;
 
   // uint8_t     sa_p_use_aperture_oob : 1;
 
  // input     p_use_slow_rundown,
  // input     p_use_fast_rundown,
 
-  uint32_t    dummy_bits_o  : 27;
+  uint32_t    dummy_bits_o  : 28;
 
 } reg_cr_t;
 

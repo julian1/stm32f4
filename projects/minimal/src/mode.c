@@ -789,15 +789,18 @@ bool mode_repl_statement(
 
   else if(strcmp(cmd, "noaz") == 0) {
 
+    assert( 0);
+
     // better to be a command. rather than set + argument.
     // else if(strcmp(s0, "noaz") == 0) {
 
-    mode->reg_cr.sa_p_noaz = true;
+    // mode->reg_cr.sa_p_noaz = true;
   }
 
   else if(strcmp(cmd, "az") == 0) {
 
-    mode->reg_cr.sa_p_noaz = false;
+    assert( 0);
+    // mode->reg_cr.sa_p_noaz = false;
   }
 
 

@@ -91,7 +91,7 @@ static void mode_partial_reset( _mode_t *mode)
   mode->sa.p_precharge    = tmp.sa.p_precharge;
 
   // persist noaz flag
-  mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
+  // mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
 
 
