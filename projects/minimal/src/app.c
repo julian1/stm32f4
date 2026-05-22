@@ -898,11 +898,22 @@ static void app_console_update(app_t *app)
 
 
 
-void app_update( app_t *app)
+void app_update( app_t *app /* ,  is_yield_context */)
 {
 
   assert(app && app->magic == APP_MAGIC);
 
+  /*
+      - consider data buffer on fpga side, and loop to get/process all data in priority
+
+      - or use an interrupt context to initiate the spi/dma transfer.
+        and store to buffer on mcu side.
+        can include all data in one single spi transmission to ease.
+        - consider issues around queued data and auto-ranging however.
+
+      - this could avoid the need to call yield() or pre-emptively context switch,
+      during a slow display update - when receiving fast data.
+  */
   // process new adc data in priority
   if( app->data_interrupt_valid) {
 
@@ -980,10 +991,21 @@ void app_update( app_t *app)
 
     printf( "\n");
 
+
+
+  /*
+    // more data to process, then return early, to get called again.
+    if( app->data_interrupt_valid)
+      return;
+    else just buffer. on fpga side.
+
+  */
+    /* these are heavyweight drawing....
+    // should do this last.
+    // and take a yield()  that calls  app->update() recursively. to process more data..
+    */
     display_vfd_update_data( app->display_vfd, &data);
     display_tft_update_data( app->display_tft, &data);
-
-
 
   }
 
@@ -997,8 +1019,11 @@ void app_update( app_t *app)
   }
 
 
+
+
   // vfd and tft update
   // do nothing for the moment
+  // use to flip display page - synchronized with display update.
   display_vfd_update( app->display_vfd);
   display_tft_update( app->display_tft);
 

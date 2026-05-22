@@ -183,14 +183,15 @@ seq_elt_t
     - can then distinguish a seq_elt from insn like behavior
     such as jmp/goto  with a pc or idx
 
-    Note. r32v opcode is only 7 bits.
-    note. rv32 op/code only bits 0-6
+    Note. for rv32.  rv32 opcode is only 7 bits. only bits 0-6
 */
 
   // uint32_t    code       : 4;
 
   uint32_t    azmux         : 4;
-  uint32_t    pc            : 2;
+
+  // uint32_t    pc_protect            : 2;   // during protect/azmux switch phase.
+  uint32_t    pc            : 2;              // during sample/adc phase. TODO. consider renmae
 
 
   /* encoding next_idx like a linked list
@@ -201,7 +202,7 @@ seq_elt_t
 
 
   // flags for decode
-  uint32_t    hi            : 1;        // TODO. bad name.  hi == input signal. or zero
+  uint32_t    hi            : 1;        // TODO. bad name.  hi == input signal/sample. or zero
   uint32_t    convert       : 1;        // convert to reading on this input
 
 
