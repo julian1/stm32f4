@@ -898,21 +898,26 @@ static void app_console_update(app_t *app)
 
 
 
-void app_update( app_t *app /* ,  is_yield_context */)
+void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 {
 
   assert(app && app->magic == APP_MAGIC);
 
   /*
-      - consider data buffer on fpga side, and loop to get/process all data in priority
+    - how to handle fast data update/writer
 
-      - or use an interrupt context to initiate the spi/dma transfer.
-        and store to buffer on mcu side.
-        can include all data in one single spi transmission to ease.
+      - consider add data buffer on fpga side - then loop to fetch all data in priority to the display updates.
+          while( spi_read_reg32( REG_DATA_VALID) ) {  get the data ... }
+
+      - or move spi/dma transfer to dma/interupt context .  and store to buffer on mcu side, independently of update().
+          can simplify spi xfer - to return multiple reg values in single action..
         - consider issues around queued data and auto-ranging however.
+        - coroutine - would be useful for interrupts
+
+      - or use a separate mcu for display side. and move analog mcu to analog board - like 34470a.
 
       - this could avoid the need to call yield() or pre-emptively context switch,
-      during a slow display update - when receiving fast data.
+        during a slow display update - when receiving fast data.
   */
   // process new adc data in priority
   if( app->data_interrupt_valid) {
