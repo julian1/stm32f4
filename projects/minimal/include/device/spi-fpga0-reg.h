@@ -162,10 +162,6 @@ reg_sr_t
 
 } reg_sr_t;
 
-
-
-
-
 _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
@@ -187,72 +183,42 @@ typedef struct __attribute__((__packed__))
 seq_elt_t
 {
 
-/*
-    extr. instead of always having a next_id.
-    consider add code and use union to represent different elt types
 
-    - can then distinguish a seq_elt from insn like behavior
-    such as jmp/goto  with a pc or idx
+  uint32_t    code          : 4;  // 0      // unused/reserved
 
-    Note. for rv32.  rv32 opcode is only 7 bits. only bits 0-6
-*/
+  uint32_t    pc_protect    : 2;  // 4      // pc state during azmux switching
+  uint32_t    pc_sample     : 2;  // 6      // pc state during sample
+  uint32_t    azmux         : 4;  // 8     // azmux state for sample
 
-  uint32_t    code          : 4;  // 4
+  uint32_t    next_idx      : 3;  // 12
 
-  uint32_t    pc_protect    : 2;  // 6      // rename pc_switch during azmux switch
-  uint32_t    pc_sample     : 2;  // 8
-
-  uint32_t    azmux         : 4;  // 12
-
-
-
-  /* encoding next_idx like a linked list
-    means can remove two registers - the seq_n terminal, and wrap-around idx value.
-    - must support noaz, where return to the same idx.
-  */
-  uint32_t    next_idx      : 3;   // 15
-
-
-  // flags for decode
-  uint32_t    hi            : 1;        // TODO. bad name.  hi == input signal/sample. or zero
-  uint32_t    convert       : 1;        // convert to reading on this input
-
+  uint32_t                  : 1;  // 15 + 1 = 16
 
   /////////////////////////////
+  // decode flags
 
-  // control/ sequencing and other
-  /*
-      consider a common structure to localize adc control
-      to run independently of the sequencer
+  uint32_t    hi            : 1;  // 16     // TODO. bad name.  hi == input signal/sample. or zero
+  uint32_t    convert       : 1;  // 17     // convert to reading on this input
+  uint32_t                  : 6;  // 18 + 6 =  24
 
-  */
-  uint32_t    oob_aperture  : 1;        // oob.   use oob aperture.
-  // uint32_t    oob_modulo : 1;        // action only on modulo count
+  /////////////////////////////
+  // control flags
+
+  uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
+  uint32_t    dither_cm_dac : 1;  // 25
+  uint32_t    dither_runup  : 1;  // 26
 
 
-  /*
-    consider move active_sigmux flag here - and out of the generalized control register.
-    so adc can operate independently of sequencer then it may make sense.
-  */
+  uint32_t                  : 5;  // 27 + 5 = 32
+
+
+  // uint32_t    nop           : 1;  // 27
   // uint8_t     adc_p_active_sigmux : 1;
-
-  uint32_t    dither_cm_dac : 1;
-  uint32_t    dither_runup  : 1;      // 14
-
-
-  /*
-      not unreasonably to encode leds here...
-      although sample_idx. may be good enough
-  */
+  // uint32_t    oob_modulo : 1;        // action only on modulo count
   // uint32_t    leds    : 4;          // 18
 
-  // ignore/nop - convenience for software/side - but would contribute hardware complexity
-  // uint32_t ignore : 1;
 
 
-
-
-  uint32_t          : 12;
 } seq_elt_t;
 
 _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
@@ -264,24 +230,27 @@ _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
 
 
 
-  /*
-    apr 2026
+  /* can encode next_idx like a linked list
+    allows two registers to be removed - the seq_n terminal, and wrap-around idx value.
+    - must support noaz, where return to the same idx.
+  */
 
-    consider - flags returned in SR register. to decode
-    or some user bits - passed blindly from az sequencer into the SR.
-    is_hi
-    is_oob
-    convert_on_receive
-    ----
+/*
 
-    can even encode monitor, or leds here.
-    for use when az-sequencer is in holding pattern
-
-    it makes sense - because the az-sequencer is the driver of most of these of these fields.
-    in normal operation
+    control/ sequencing and other
+    consider a common structure - for to localizing adc control parameters
+    independent of the sequencer
 
   */
 
+
+  /*
+    consider move active_sigmux flag here - and out of the generalized control register.
+    so adc can operate independently of sequencer then it may make sense.
+
+      not unreasonably to encode leds here...
+      although sample_idx. may be good enough
+  */
 
 
 
