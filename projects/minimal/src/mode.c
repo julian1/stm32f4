@@ -140,7 +140,7 @@ void sa_set( sa_state_t *sa, const char *s)
 
     // val
     sa->p_seq_elt[ 0].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 0].pc    = 0b00;
+    sa->p_seq_elt[ 0].pc_sample    = 0b00;
 
     // zero
     sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
@@ -148,7 +148,7 @@ void sa_set( sa_state_t *sa, const char *s)
 /*
     // zero
     sa->p_seq_elt[ 1].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 1].pc    = 0b00;
+    sa->p_seq_elt[ 1].pc_sample    = 0b00;
 */
 
     // could set a catcher handler/closure here
@@ -167,7 +167,7 @@ void sa_set( sa_state_t *sa, const char *s)
     sa->p_seq_elt[ 0] = (const seq_elt_t ) {
 
       .azmux        = S3,       // PC-CH2-OUT
-      .pc           = 0b10,     // pc2 active
+      .pc_sample    = 0b10,     // pc2 active
       .next_idx     = 1,
       .hi           = true
   /*
@@ -188,7 +188,7 @@ void sa_set( sa_state_t *sa, const char *s)
     sa->p_seq_elt[ 1] = (const seq_elt_t) {
 
       .azmux        = S7,    // CH2-LO
-      .pc           = 0b00,
+      .pc_sample    = 0b00,
       .next_idx     = 0,
       .hi           = false
     };
@@ -202,7 +202,7 @@ void sa_set( sa_state_t *sa, const char *s)
 
    const seq_elt_t hi =  {
       .azmux        = S1,    // PC-CH1-OUT
-      .pc           = 0b01,  // pc1 active
+      .pc_sample    = 0b01,  // pc1 active
       .next_idx     = 1,
       .hi           = true,
       .convert      = false
@@ -212,7 +212,7 @@ void sa_set( sa_state_t *sa, const char *s)
     // zero
    const seq_elt_t lo =  {
       .azmux        = S5,    // COM-LC
-      .pc           = 0b00,
+      .pc_sample    = 0b00,
       .next_idx     = 0,
       .hi           = false,
       .convert      = true          // convert on the lo.

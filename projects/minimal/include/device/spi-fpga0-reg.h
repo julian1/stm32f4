@@ -172,6 +172,17 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 
+/*
+`define SEQ_CODE_SLICE        0 +: 4
+`define SEQ_PC_PROTECT_SLICE  4 +: 2
+`define SEQ_PC_SAMPLE_SLICE   6 +: 2
+
+`define SEQ_AZMUX_SLICE       8 +: 4
+
+`define SEQ_NEXT_IDX_SLICE    12 +: 3
+*/
+
+
 typedef struct __attribute__((__packed__))
 seq_elt_t
 {
@@ -186,19 +197,20 @@ seq_elt_t
     Note. for rv32.  rv32 opcode is only 7 bits. only bits 0-6
 */
 
-  // uint32_t    code       : 4;
+  uint32_t    code          : 4;  // 4
 
-  uint32_t    azmux         : 4;
+  uint32_t    pc_protect    : 2;  // 6      // rename pc_switch during azmux switch
+  uint32_t    pc_sample     : 2;  // 8
 
-  // uint32_t    pc_protect            : 2;   // during protect/azmux switch phase.
-  uint32_t    pc            : 2;              // during sample/adc phase. TODO. consider renmae
+  uint32_t    azmux         : 4;  // 12
+
 
 
   /* encoding next_idx like a linked list
     means can remove two registers - the seq_n terminal, and wrap-around idx value.
     - must support noaz, where return to the same idx.
   */
-  uint32_t    next_idx      : 3;   // 9
+  uint32_t    next_idx      : 3;   // 15
 
 
   // flags for decode
@@ -240,7 +252,7 @@ seq_elt_t
 
 
 
-  uint32_t          : 18;
+  uint32_t          : 12;
 } seq_elt_t;
 
 _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
