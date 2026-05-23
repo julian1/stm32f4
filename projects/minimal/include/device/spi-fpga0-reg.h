@@ -215,6 +215,16 @@ seq_elt_t
   uint32_t                  : 6;  // 27 + 5 = 32
 
 
+
+} seq_elt_t;
+
+_Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
+
+
+
+
+
+
   /*
 
     - if have first_in_sequence clearly marked.
@@ -254,23 +264,13 @@ seq_elt_t
 
   // general adc control/behavior
   // uint32_t    dither_cm_dac : 1;  // 25
-  // uint32_t    dither_runup  : 1;  // 26
+  // uint32_t    dither_ref_runup  : 1;  // 26
   // uint8_t     adc_p_active_sigmux : 1;
 
   // conversion specific
   // uint32_t    nop           : 1;  // 27
   // uint32_t    oob_modulo : 1;        // action only on modulo count
   // uint32_t    leds    : 4;          // 18
-
-
-
-} seq_elt_t;
-
-_Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
-
-
-
-
 
 
 
