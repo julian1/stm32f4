@@ -200,9 +200,7 @@ void sa_set( sa_state_t *sa, const char *s)
     // az mode
     // signal on S3, S7
 
-    // seq_elt_t p_seq_elt [ 4] ;
-    // sa->p_seq_elt = ( const  seq_elt_t [4] ) {
-    // sa->p_seq_elt = ( const  seq_elt_t [4] ) {
+    // this is the same for ch1 or ch2. just need to override the azmux entry for ch2.
 
     const seq_elt_t  seq_elt[] =  {
       { // 0

@@ -186,9 +186,9 @@ seq_elt_t
 
   uint32_t    code          : 4;  // 0      // unused/reserved
 
-  uint32_t    pc_protect    : 2;  // 4      // pc state during azmux switching.  rename pc_switch.
-  uint32_t    pc_sample     : 2;  // 6      // pc state during sample
-  uint32_t    azmux         : 4;  // 8     // azmux state for sample
+  uint32_t    pc_protect    : 2;  // 4      // normally 2'b00. used to disable pc switching. for leakage tests, etc.
+  uint32_t    pc_sample     : 2;  // 6      // pc switch for both channels during sample
+  uint32_t    azmux         : 4;  // 8      // azmux state for sample
 
   uint32_t    next_idx      : 3;  // 12
 
@@ -197,8 +197,8 @@ seq_elt_t
   /////////////////////////////
   // decode flags
 
-  uint32_t    hi            : 1;  // 16     // TODO. bad name.  hi == input signal/sample. or zero
-  uint32_t    convert       : 1;  // 17     // convert to reading on this input
+  uint32_t    hi            : 1;  // 16     // TODO. consider bad name.  hi == input signal/sample. or zero
+  uint32_t    convert       : 1;  // 17     // flag to decode, to convert to reading on this input. or just use !first_in_sequence
   uint32_t                  : 6;  // 18 + 6 =  24
 
   /////////////////////////////
@@ -209,6 +209,7 @@ seq_elt_t
 
   // this would allows zgjc, cm_dither, to become general reg_sa flags.
   uint32_t    first_in_sequence : 1;  // 25     // for setting zgjc, cm_dither, zero in noaz
+                                      // generally do the reading convert when flag  not active
 
 
   uint32_t                  : 6;  // 27 + 5 = 32
