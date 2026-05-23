@@ -200,6 +200,51 @@ void sa_set( sa_state_t *sa, const char *s)
     // az mode
     // signal on S3, S7
 
+    // seq_elt_t p_seq_elt [ 4] ;
+    // sa->p_seq_elt = ( const  seq_elt_t [4] ) {
+    // sa->p_seq_elt = ( const  seq_elt_t [4] ) {
+
+    const seq_elt_t  seq_elt[] =  {
+      { // 0
+      .azmux        = S1,    // PC-CH1-OUT
+      .pc_sample    = 0b01,  // pc1 select ch1 input
+      .next_idx     = 1,
+      .hi           = true,
+      .convert      = false,
+      .oob_aperture = true,               // use fast/constant aperture
+      .first_in_sequence = true           // set zgjc, cm-dither, zero for noaz.
+      },
+      { // 1
+      .azmux        = S5,    // COM-LC
+      .pc_sample    = 0b00,
+      .next_idx     = 2,
+      .hi           = false,
+      .convert      = true,    // convert on the lo.
+      .oob_aperture = true
+      },
+    //////////
+      { // 2
+      .azmux        = S1,    // PC-CH1-OUT
+      .pc_sample    = 0b01,  // pc1 select ch1 input
+      .next_idx     = 3,
+      .hi           = true,
+      .convert      = false,
+      .first_in_sequence = true           // set zgjc, cm-dither, zero for noaz.
+      },
+      { // 3
+      .azmux        = S5,    // COM-LC
+      .pc_sample    = 0b00,
+      .next_idx     = 2,      // jump to 2.
+      .hi           = false,
+      .convert      = true    // convert on the lo.
+      },
+    };
+  _Static_assert( sizeof( sa->p_seq_elt) == sizeof(seq_elt_t) * 4
+      && sizeof( sa->p_seq_elt) == sizeof( seq_elt) );
+
+  memcpy( &sa->p_seq_elt, &seq_elt, sizeof( seq_elt));
+
+#if 0
    const seq_elt_t hi =  {
       .azmux        = S1,    // PC-CH1-OUT
       .pc_sample    = 0b01,  // pc1 active
@@ -219,7 +264,9 @@ void sa_set( sa_state_t *sa, const char *s)
     };
 
 
-    /* if( oob) if( noaz) etc.
+    /*
+      if( oob) if( noaz) etc.
+      difficulty...
 
     */
 
@@ -229,7 +276,7 @@ void sa_set( sa_state_t *sa, const char *s)
     // sa->p_seq_elt[ 1].next_idx = 2;
 
     // can easily encode. the oob entries.  by just overriding the index.
-
+#endif
 
   }
 

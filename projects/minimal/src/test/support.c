@@ -12,6 +12,7 @@
 
 
 
+#define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
 
 void spi_read_registers( spi_t *spi, data_t *data)
@@ -44,12 +45,18 @@ void print_data( data_t * data)
 
   reg_sr_t  status = data->status;
 
+  printf( "{idx=%u, first=%c}, ",
+    status.sample.idx,
+    BIT_TO_CHAR( status.sample.first_conversion)
+  );
+
+/*
   printf( "{first=%u idx=%u}, ",
     status.sample.first,
     status.sample.idx
     // status.sample.seq_n
   );
-
+*/
 
   printf( "counts pos %7lu neg %7lu sig %7lu, ", data->clk_count_refmux_pos, data->clk_count_refmux_neg, data->clk_count_sigmux);
 }

@@ -131,7 +131,10 @@ reg_sr_t
     /* we need first...
       to know to clear the buffers... after retrigger
     */
-    uint8_t  first         : 1;
+
+    uint8_t  first_conversion : 1;
+    // uint8_t  first_sequence   : 1;      // we cannot know this easily.... if dont return to idx==0..
+                                          // also for NOAZ. where do not return to the first element
 
     uint8_t                : 4;     //  16
   } sample;
@@ -172,9 +175,7 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 `define SEQ_CODE_SLICE        0 +: 4
 `define SEQ_PC_PROTECT_SLICE  4 +: 2
 `define SEQ_PC_SAMPLE_SLICE   6 +: 2
-
 `define SEQ_AZMUX_SLICE       8 +: 4
-
 `define SEQ_NEXT_IDX_SLICE    12 +: 3
 */
 
@@ -183,10 +184,9 @@ typedef struct __attribute__((__packed__))
 seq_elt_t
 {
 
-
   uint32_t    code          : 4;  // 0      // unused/reserved
 
-  uint32_t    pc_protect    : 2;  // 4      // pc state during azmux switching
+  uint32_t    pc_protect    : 2;  // 4      // pc state during azmux switching.  rename pc_switch.
   uint32_t    pc_sample     : 2;  // 6      // pc state during sample
   uint32_t    azmux         : 4;  // 8     // azmux state for sample
 
@@ -202,18 +202,62 @@ seq_elt_t
   uint32_t                  : 6;  // 18 + 6 =  24
 
   /////////////////////////////
-  // control flags
+  // conversion specific flags
+  // otherwise consider use reg_sa
 
   uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
-  uint32_t    dither_cm_dac : 1;  // 25
-  uint32_t    dither_runup  : 1;  // 26
+
+  // this would allows zgjc, cm_dither, to become general reg_sa flags.
+  uint32_t    first_in_sequence : 1;  // 25     // for setting zgjc, cm_dither, zero in noaz
 
 
-  uint32_t                  : 5;  // 27 + 5 = 32
+  uint32_t                  : 6;  // 27 + 5 = 32
 
 
-  // uint32_t    nop           : 1;  // 27
+  /*
+
+    - if have first_in_sequence clearly marked.
+
+
+    important
+    - remember. the ZGJC and cm_dither.
+      must be set and held constant across all conversion in the sequence
+      how do we represent, encode this?
+      - just act on the first instance that we see the flag ?
+
+      - first_in_sequence.  flag.  (would be where zgjc, and cm_dither would be set).
+
+    - ie. hi,lo,  or 4 if using ratiometric..
+    - and for NOAZ.  no matter how many readings are made.
+
+
+    - have an insn to fix  zgjc..
+    - have an insn to jump.
+
+
+    - this is complicated if first two entries are OOB.
+    - because 0 index is no longer the start state?
+
+    Hmmm....
+
+    - the way we have represented the oob_aperture is not great
+    -
+
+    - note. there are flags
+        first_conversion
+        first_sequence
+
+    - should make the oob decision using the first_conversion and first_sequence ?
+  */
+
+
+  // general adc control/behavior
+  // uint32_t    dither_cm_dac : 1;  // 25
+  // uint32_t    dither_runup  : 1;  // 26
   // uint8_t     adc_p_active_sigmux : 1;
+
+  // conversion specific
+  // uint32_t    nop           : 1;  // 27
   // uint32_t    oob_modulo : 1;        // action only on modulo count
   // uint32_t    leds    : 4;          // 18
 
@@ -368,19 +412,6 @@ reg_direct_t
 _Static_assert (sizeof( reg_direct_t) == 4, "bad typedef size");
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

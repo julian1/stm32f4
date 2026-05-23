@@ -91,7 +91,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     return;
 
 
-  if( data->status.sample.first) {
+  if( data->status.sample.first_conversion) {
 
     // first reading may now be valid...
     // although perhaps out of band

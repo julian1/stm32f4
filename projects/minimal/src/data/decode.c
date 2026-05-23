@@ -281,9 +281,9 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     );
   */
 
-  printf( "{idx=%u, first=%u}, ",
+  printf( "{idx=%u, first=%c}, ",
     status.sample.idx,
-    status.sample.first
+    BIT_TO_CHAR( status.sample.first_conversion)
   );
 
 
@@ -326,13 +326,23 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   printf( "{");
   printf( "azmux %2u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
-  printf( "pc_sample %u, ",   seq_elt.pc_sample);
   printf( "pc_protect %u, ",  seq_elt.pc_protect);
+  printf( "pc_sample %u, ",   seq_elt.pc_sample);
   printf( "next-idx %u, ",    seq_elt.next_idx );
   printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
   printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
   printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob_aperture));
+  printf( "first in seq %c ", BIT_TO_CHAR( seq_elt.oob_aperture));
   printf( "}, ");
+
+
+/*
+  uint32_t    convert       : 1;  // 17     // convert to reading on this input
+  uint32_t                  : 6;  // 18 + 6 =  24
+  uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
+  uint32_t    first_in_sequence : 1;  // 24     // for setting zgjc, cm_dither, zero in noaz
+*/
+
 
   /* other ways to format
     printf( "%c ", seq_elt.hi ? 'H' : 'L');
