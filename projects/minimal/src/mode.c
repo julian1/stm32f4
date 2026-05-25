@@ -235,18 +235,18 @@ void sa_set( sa_state_t *sa, const char *s)
   else if( strcmp(s, "ch1") == 0
     || strcmp(s, "ch2") == 0) {
 
+
     /*
       normal az operation. with oob reading for fast ranging.
-
+      Lo is the second measurement in AZ cycle.
     */
-
     bool is_ch1 = strcmp(s, "ch1") == 0;
 
     const seq_elt_t  seq_elts[] =  /*( const wrapper_t ) */ {
       {
       // oob reading, az mode
       // 0
-      .azmux        = is_ch1 ? S1   : S3,     // PC-CH1-OUT,  PC-CH2-OUT
+      .azmux        = is_ch1 ? S1   : S3,     // HI - PC-CH1-OUT,  PC-CH2-OUT
       .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
       .next_idx     = 1,
       .hi           = true,
@@ -255,7 +255,7 @@ void sa_set( sa_state_t *sa, const char *s)
       .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
       },
       { // 1
-      .azmux        = is_ch1 ? S5  : S7,      // COM-LC, CH2-LO
+      .azmux        = is_ch1 ? S5  : S7,      // LO - COM-LC, CH2-LO
       .pc_sample    = 0b00,
       .next_idx     = 2,
       .hi           = false,
@@ -264,7 +264,7 @@ void sa_set( sa_state_t *sa, const char *s)
       },
       // normal reading, az mode
       { // 2
-      .azmux        = is_ch1 ? S1   : S3,     // PC-CH1-OUT,  PC-CH2-OUT
+      .azmux        = is_ch1 ? S1   : S3,     // HI - PC-CH1-OUT,  PC-CH2-OUT
       .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
       .next_idx     = 3,
       .hi           = true,
@@ -272,7 +272,7 @@ void sa_set( sa_state_t *sa, const char *s)
       .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
       },
       { // 3
-      .azmux        = is_ch1 ? S5  : S7,      // COM-LC, CH2-LO
+      .azmux        = is_ch1 ? S5  : S7,      // LO - COM-LC, CH2-LO
       .pc_sample    = 0b00,
       .next_idx     = 2,                      // jump to 2.
       .hi           = false,
