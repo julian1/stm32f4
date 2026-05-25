@@ -263,10 +263,10 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
   // it becomes confusing to interpret stdout. when set and reset.
   sa_set( &mode->sa, "ch1");
 
-  // close relay - select external terminal input
+  // close external terminal input relay
   mode->serial.K402 = SR_SET;
 
-  printf("dcv range_10Meg is %u\n", range_10Meg );
+  printf("dcv range_10Meg state is %u\n", range_10Meg );
 
   if(strcasecmp( range->arg, "1000") == 0) {
 

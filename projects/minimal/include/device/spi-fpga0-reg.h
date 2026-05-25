@@ -207,7 +207,7 @@ seq_elt_t
 
   uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
 
-  // this would allows zgjc, cm_dither, to become general reg_sa flags.
+  // flag for zgjc, cm-dither, if zero for noaz.
   uint32_t    first_in_sequence : 1;  // 25     // for setting zgjc, cm_dither, zero in noaz
                                       // generally do the reading convert when flag  not active
 

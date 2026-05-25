@@ -116,44 +116,7 @@ void mode_az_set(_mode_t *mode, const char *s)
 }
 #endif
 
-
-
-void sa_set( sa_state_t *sa, const char *s)
-{
-  /*
-      options here.   "ch1", "ch2", "ratio", "0".
-      keep the az flag separate.
-  */
-
-
-  if(strcmp(s, "0") == 0) {
-
-    /*  sample star-ground, for both readings
-        used for noise test, and low-leakage input during adc weight calculation
-    */
-
-    assert( 0);
-
-    // signal can come in on S3, S7
-    // sa_state_t *sa = &mode->sa;
-    // sa->p_seq_n = 2;
-
-    // val
-    sa->p_seq_elt[ 0].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 0].pc_sample    = 0b00;
-
-    // zero
-    sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
-
-/*
-    // zero
-    sa->p_seq_elt[ 1].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 1].pc_sample    = 0b00;
-*/
-
-    // could set a catcher handler/closure here
-  }
-
+#if 0
   else if( strcmp(s, "ch2") == 0) {
 
     // assert( 0);
@@ -192,89 +155,141 @@ void sa_set( sa_state_t *sa, const char *s)
       .next_idx     = 0,
       .hi           = false
     };
+  }
+#endif
+
+
+#if 0
+
+    // sample star-gnd.
+
+    assert( 0);
+
+    // signal can come in on S3, S7
+    // sa_state_t *sa = &mode->sa;
+    // sa->p_seq_n = 2;
+
+    // val
+    sa->p_seq_elt[ 0].azmux = S6;     // A400-1
+    sa->p_seq_elt[ 0].pc_sample    = 0b00;        // this doesn't look right.
+
+    // zero
+    sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
+
+/*
+    // zero
+    sa->p_seq_elt[ 1].azmux = S6;     // A400-1
+    sa->p_seq_elt[ 1].pc_sample    = 0b00;
+*/
+
+    // could set a catcher handler/closure here
+#endif
+
+
+// typedef struct { int data[3]; } ArrayWrapper;
+
+
+
+// typedef struct wrapper_t { seq_elt_t data[4]; } wrapper_t ;
+
+void sa_set( sa_state_t *sa, const char *s)
+{
+  /*
+      options here.   "ch1", "ch2", "ratio", "0".
+      keep the az flag separate.
+  */
+
+
+  if(strcmp(s, "0") == 0) {
+
+    /*  sample star-ground, for both readings
+        for noise test, and low-leakage input during adc weight calculation
+        bypasses pc switching
+    */
+
+    const seq_elt_t  seq_elts[] =  {
+      { // 0
+      .azmux        = S6,                     // A400-1
+      .pc_sample    = 0b00,
+      .next_idx     = 1,
+      .hi           = true,
+      .convert      = false,
+      .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
+      },
+      { // 1
+      .azmux        = S6,                     // A400-1
+      .pc_sample    = 0b00,
+      .next_idx     = 0,                      // jump to 2.
+      .hi           = false,
+      .convert      = true                    // convert on lo.
+      }
+    };
+
+    // clear memory first.
+    memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
+    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+
 
   }
 
-  else if( strcmp(s, "ch1") == 0) {
-
-    // az mode
-    // signal on S3, S7
-
-    // this is the same for ch1 or ch2. just need to override the azmux entry for ch2.
-
-    const seq_elt_t  seq_elt[] =  {
-      { // 0
-      .azmux        = S1,    // PC-CH1-OUT
-      .pc_sample    = 0b01,  // pc1 select ch1 input
-      .next_idx     = 1,
-      .hi           = true,
-      .convert      = false,
-      .oob_aperture = true,               // use fast/constant aperture
-      .first_in_sequence = true           // set zgjc, cm-dither, zero for noaz.
-      },
-      { // 1
-      .azmux        = S5,    // COM-LC
-      .pc_sample    = 0b00,
-      .next_idx     = 2,
-      .hi           = false,
-      .convert      = true,    // convert on the lo.
-      .oob_aperture = true
-      },
-    //////////
-      { // 2
-      .azmux        = S1,    // PC-CH1-OUT
-      .pc_sample    = 0b01,  // pc1 select ch1 input
-      .next_idx     = 3,
-      .hi           = true,
-      .convert      = false,
-      .first_in_sequence = true           // set zgjc, cm-dither, zero for noaz.
-      },
-      { // 3
-      .azmux        = S5,    // COM-LC
-      .pc_sample    = 0b00,
-      .next_idx     = 2,      // jump to 2.
-      .hi           = false,
-      .convert      = true    // convert on the lo.
-      },
-    };
-  _Static_assert( sizeof( sa->p_seq_elt) == sizeof(seq_elt_t) * 4
-      && sizeof( sa->p_seq_elt) == sizeof( seq_elt) );
-
-  memcpy( &sa->p_seq_elt, &seq_elt, sizeof( seq_elt));
-
-#if 0
-   const seq_elt_t hi =  {
-      .azmux        = S1,    // PC-CH1-OUT
-      .pc_sample    = 0b01,  // pc1 active
-      .next_idx     = 1,
-      .hi           = true,
-      .convert      = false
-    };
-
-
-    // zero
-   const seq_elt_t lo =  {
-      .azmux        = S5,    // COM-LC
-      .pc_sample    = 0b00,
-      .next_idx     = 0,
-      .hi           = false,
-      .convert      = true          // convert on the lo.
-    };
-
+  else if( strcmp(s, "ch1") == 0
+    || strcmp(s, "ch2") == 0) {
 
     /*
-      if( oob) if( noaz) etc.
-      difficulty...
+      normal az operation. with oob reading for fast ranging.
 
     */
 
-    // val
-    sa->p_seq_elt[ 0] = hi;
-    sa->p_seq_elt[ 1] = lo;
-    // sa->p_seq_elt[ 1].next_idx = 2;
+    bool is_ch1 = strcmp(s, "ch1") == 0;
 
-    // can easily encode. the oob entries.  by just overriding the index.
-#endif
+    const seq_elt_t  seq_elts[] =  /*( const wrapper_t ) */ {
+      {
+      // oob reading, az mode
+      // 0
+      .azmux        = is_ch1 ? S1   : S3,     // PC-CH1-OUT,  PC-CH2-OUT
+      .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
+      .next_idx     = 1,
+      .hi           = true,
+      .convert      = false,
+      .oob_aperture = true,                   // use fast/constant aperture
+      .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
+      },
+      { // 1
+      .azmux        = is_ch1 ? S5  : S7,      // COM-LC, CH2-LO
+      .pc_sample    = 0b00,
+      .next_idx     = 2,
+      .hi           = false,
+      .convert      = true,                   // convert to reading on lo.
+      .oob_aperture = true
+      },
+      // normal reading, az mode
+      { // 2
+      .azmux        = is_ch1 ? S1   : S3,     // PC-CH1-OUT,  PC-CH2-OUT
+      .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
+      .next_idx     = 3,
+      .hi           = true,
+      .convert      = false,
+      .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
+      },
+      { // 3
+      .azmux        = is_ch1 ? S5  : S7,      // COM-LC, CH2-LO
+      .pc_sample    = 0b00,
+      .next_idx     = 2,                      // jump to 2.
+      .hi           = false,
+      .convert      = true                    // convert on lo.
+      },
+    };
+
+
+    /* could create two entries - and copy and override the oob flag, and the index.
+        not clear which expression is simpler.
+    */
+
+    _Static_assert( sizeof( sa->p_seq_elt) == sizeof( seq_elt_t) * 4
+        && sizeof( sa->p_seq_elt) == sizeof( seq_elts) );
+
+    memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
+    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
 
   }
 
