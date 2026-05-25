@@ -142,7 +142,6 @@ static void range_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
   assert(strcasecmp( range->name, "lo") == 0);
 
   mode_partial_reset( mode);
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
@@ -171,7 +170,6 @@ static void range_lo2( const range_t *range, _mode_t *mode, bool range_10Meg)
   assert(strcasecmp( range->name, "lo2") == 0);
 
   mode_partial_reset( mode);
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   sa_set( &mode->sa, "0" ); // sample A400 gnd
 
@@ -206,7 +204,6 @@ static void range_ref( const range_t *range, _mode_t *mode, bool range_10Meg)
   assert(strcasecmp( range->name, "ref") == 0);
 
   mode_partial_reset( mode);
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref");
 }
@@ -220,7 +217,6 @@ static void range_temp( const range_t *range, _mode_t *mode, bool range_10Meg)
   assert(mode && mode->magic == MODE_MAGIC);
 
   mode_partial_reset( mode);
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "temp");
 }
@@ -235,7 +231,6 @@ static void range_lts( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_partial_reset( mode);
 
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "lts");
 
@@ -263,8 +258,9 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_partial_reset( mode);
 
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
+  // TODO remove this as default.
+  // it becomes confusing to interpret stdout. when set and reset.
   sa_set( &mode->sa, "ch1");
 
   // close relay - select external terminal input
