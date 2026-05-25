@@ -79,7 +79,7 @@ void ranging_init(
 
 
 
-const range_t * ranging_range_active_get( ranging_t *ranging)
+const range_t * ranging_range_active_get( const ranging_t *ranging)
 {
   assert( ranging && ranging->magic == RANGING_MAGIC);
   // printf("active range %u\n" ,   ranging->range_idx );
@@ -365,14 +365,14 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
 
 
 
-  if( fabs( data->adc_reading_nominal) > 11.0 ) {      // second bit indicates above threshold
+  if( fabs( data->reading_nominal) > 11.0 ) {      // second bit indicates above threshold
 
     // 11 -> 1.1
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
     if(ret) {
 
-      printf("\nnominal %f\n", data->adc_reading_nominal);
+      printf("\nnominal %f\n", data->reading_nominal);
       printf(", ovld and have valid u range");
 
       ++ranging->range_idx;
@@ -392,14 +392,14 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   }
 
 
-  else if( fabs( data->adc_reading_nominal) <= 1.0 ) {
+  else if( fabs( data->reading_nominal) <= 1.0 ) {
 
     // 1.0 -> 10.0
 
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
     if(ret) {
 
-      printf("\nnominal %f\n", data->adc_reading_nominal);
+      printf("\nnominal %f\n", data->reading_nominal);
       printf(", unld and have valid d range");
       --ranging->range_idx;
       ranging_range_set( ranging, ranging->range_idx);

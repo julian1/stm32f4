@@ -180,9 +180,13 @@ void _4094_state_clear_relays(_4094_state_t *state);
 
 
 
-/* sample/sequence acquisition
-  better name.  sa_p_state_t  or p_sa_t ;
+/*
+  sample/sequence acquisition
+  control state
 */
+
+typedef struct data_t data_t ;
+
 
 typedef struct sa_state_t
 {
@@ -191,32 +195,38 @@ typedef struct sa_state_t
   uint32_t p_trig_delay;
   uint32_t p_precharge;
 
-  // number of phases
-  // consider rename - opportunity for confusion, since suffix of _n in verilog indicates  inverted signal.
-  // uint32_t p_seq_n;
-
+  // consider naming  - terms, elts, phases
   seq_elt_t p_seq_elt [ 4] ;
 
-/*
-  this is kind of mode state.
-  associated handler strategy for decode.
-  void (*decode_strategy)( data_t *data  );
-*/
+  /*
+    this is kind of mode state.
+    it is an associated handler strategy for decode.
+    - keep here, because it is very helpful localize and set these together
+  */
+  void (*decode_strategy)( void *ctx, data_t *data);
+  void *decode_ctx;
+
 
 } sa_state_t;
+
+
 
 
 void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
 
 void sa_set( sa_state_t *sa, const char *s);
 
-
-// these funcs almost belong where reg_direct, and reg_cr are defined
-// void direct_az_set(reg_direct_t *reg_direct, const char *s);
-
 void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
+
+
+
+
+
+/*
+  adc control state
+*/
 
 
 

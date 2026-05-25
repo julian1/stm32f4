@@ -47,7 +47,7 @@ void print_data( data_t * data)
 
   printf( "{idx=%u, first=%c}, ",
     status.sample.idx,
-    BIT_TO_CHAR( status.sample.first_conversion)
+    BIT_TO_CHAR( status.sample.first)
   );
 
 /*

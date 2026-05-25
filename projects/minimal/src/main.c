@@ -411,6 +411,7 @@ static int main_f429(void)
     &decode,
     &spi_fpga0,
     &cal,
+    &mode,
     &ranging,
     &line_freq
   );

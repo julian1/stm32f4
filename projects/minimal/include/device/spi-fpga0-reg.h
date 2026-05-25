@@ -132,9 +132,13 @@ reg_sr_t
       to know to clear the buffers... after retrigger
     */
 
-    uint8_t  first_conversion : 1;
-    // uint8_t  first_sequence   : 1;      // we cannot know this easily.... if dont return to idx==0..
-                                          // also for NOAZ. where do not return to the first element
+    /*
+      naming is not clear.
+      this is the first conversion after a re/trigger event.
+    */
+    uint8_t  first          : 1;
+    // uint8_t  first_sequence   : 1;      // can use a register indexed by idx to cal this.
+                                            // on either side
 
     uint8_t                : 4;     //  16
   } sample;
@@ -186,7 +190,7 @@ seq_elt_t
 
   uint32_t    code          : 4;  // 0      // unused/reserved
 
-  uint32_t    pc_protect    : 2;  // 4      // normally 2'b00. used to disable pc switching. for leakage tests, etc.
+  uint32_t    pc_protect    : 2;  // 4      // consider renmae 'pc_switch'.  normally 2'b00. but can disable pc switching. for leakage tests, etc.
   uint32_t    pc_sample     : 2;  // 6      // pc switch for both channels during sample
   uint32_t    azmux         : 4;  // 8      // azmux state for sample
 
@@ -195,25 +199,34 @@ seq_elt_t
   uint32_t                  : 1;  // 15 + 1 = 16
 
   /////////////////////////////
+#if 0
   // decode flags
-  // sa->data_handler = void (*decode_strategy)( data_t *data  );
+  // replaced this with a dedicated strategy set at the time
+  // the sample sequence is determined.
+
 
   uint32_t    hi            : 1;  // 16     // TODO. consider bad name.  hi == input signal/sample. or zero
-  uint32_t    convert       : 1;  // 17     // flag to decode, to convert to reading on this input. or just use !first_in_sequence
+  uint32_t    convert       : 1;  // 17     // flag to decode, to convert to reading on this input. or just use !zgjc
   uint32_t                  : 6;  // 18 + 6 =  24
 
+#endif
+
+  uint32_t                  : 8;  // 18 + 6 =  24
+
   /////////////////////////////
-  // conversion specific flags
-  // otherwise consider use reg_sa
+  // conversion control flags
+  // keep specific. eg. 'zgjc' instead of 'first_in_sequence'.
 
-  uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
+  uint32_t    oob_aperture  : 1;  // 24     // use oob aperture for conversion
 
-  // flag for zgjc, cm-dither, if zero for noaz.
-  uint32_t    first_in_sequence : 1;  // 25     // for setting zgjc, cm_dither, zero in noaz
-                                      // generally do the reading convert when flag  not active
+  uint32_t    zgjc          : 1;  // 25     // apply zgjc.
+                                            // probably cm_dither, zero in noaz
+                                            // generally do the reading convert when flag  not active
+
+  uint32_t    cm_dac_dither : 1;  // 26     // apply dac dither
 
 
-  uint32_t                  : 6;  // 27 + 5 = 32
+  uint32_t                  : 5;  // 27 + 5 = 32
 
 
 
@@ -228,7 +241,7 @@ _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
 
   /*
 
-    - if have first_in_sequence clearly marked.
+    - if have zgjc clearly marked.
 
 
     important
@@ -237,7 +250,7 @@ _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
       how do we represent, encode this?
       - just act on the first instance that we see the flag ?
 
-      - first_in_sequence.  flag.  (would be where zgjc, and cm_dither would be set).
+      - zgjc.  flag.  (would be where zgjc, and cm_dither would be set).
 
     - ie. hi,lo,  or 4 if using ratiometric..
     - and for NOAZ.  no matter how many readings are made.
@@ -256,10 +269,10 @@ _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
     -
 
     - note. there are flags
-        first_conversion
+        first
         first_sequence
 
-    - should make the oob decision using the first_conversion and first_sequence ?
+    - should make the oob decision using the first and first_sequence ?
   */
 
 

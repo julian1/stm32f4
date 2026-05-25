@@ -42,47 +42,55 @@ typedef struct cal_t cal_t;
 
 */
 
-typedef struct data_t
+
+typedef struct data_t data_t;
+
+struct data_t
 {
 
-  uint32_t        magic;
+  uint32_t      magic;
 
 
   // uint32_t     timestamp;
 
 
   // set/stamp environment fields first.
-  const range_t   *range;
-  const cal_t     *cal;
-  uint32_t        line_freq;
+  const range_t *range;
+  const cal_t   *cal;
+  uint32_t      line_freq;
 
   // need 10Meg.
 
 
   ////////////////
-  // acquisition/adc related fields
-
-  reg_sr_t        status;
-
-  seq_elt_t       seq_elt;
+  // low-level acquisition/adc related fields
 
 
+  reg_sr_t      status;
 
-  /*
-    data_t is more high-level structure,
-    but record low-level counts to ease calibration of cal w
-  */
+  seq_elt_t     seq_elt;
+
   uint32_t adc_clk_count_refmux_pos;
   uint32_t adc_clk_count_refmux_neg;
   uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
 
-  double   adc_clock_count_ratio;
+  //
+  double   ratio_refmux;
+
+
+  ////////////////
+  // decode values... consider drop adc_ prefix
+  // these are decoded values, calculated by decode
 
   // clk count sum, with ref weighting
-  double  adc_count_sum;
+  double  count_sum;
 
   // count normalized by aperture/sigmux
-  double adc_count_sum_norm;
+  double count_sum_norm;
+
+  ///////////////////
+  // these are readings. after decode
+  // not adc
 
   // wehter reading valid for this conversion/iteration
   // or use NaN?
@@ -90,7 +98,7 @@ typedef struct data_t
 
   // for ranging
   // for amp-out
-  double adc_reading_nominal;
+  double reading_nominal;
 
 
   // reading adjusted by cal, and range
@@ -98,7 +106,7 @@ typedef struct data_t
 
 
 
-} data_t;
+} ;
 
 
 

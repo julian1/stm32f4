@@ -59,7 +59,7 @@ void ranging_init(
 
 
 
-const range_t * ranging_range_active_get( ranging_t *ranging);
+const range_t * ranging_range_active_get( const ranging_t *ranging);
 
 
 void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char *arg);

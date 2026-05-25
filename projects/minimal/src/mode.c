@@ -2,14 +2,16 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <math.h>   // fabs
+#include <math.h>   // fabs,
 #include <string.h>   // strcmp, memset
+#include <stdlib.h>   // malloc               // TODO review
 
 
 #include <support.h> // str_decode_uint
 
 
 #include <lib3/format.h>      // str_format_bits()
+#include <lib3/util.h>        // UNUSED
 
 #include <mode.h>
 
@@ -43,6 +45,9 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
 void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 {
   // now the sequencer mode
+
+  // deprecated, and unused for the moment
+  assert( 0);
 
   assert( u0 <=  0b111);
 
@@ -187,12 +192,219 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 
 // typedef struct { int data[3]; } ArrayWrapper;
-
-
-
 // typedef struct wrapper_t { seq_elt_t data[4]; } wrapper_t ;
 
 
+
+
+
+
+
+#include <data/data.h>
+#include <data/cal.h>
+
+
+
+
+
+typedef struct decode_oob_t
+{
+  /*
+    oob reading. is always the same.  regardless az,noaz. or dither etc.
+    so just factor into  one place
+  */
+
+  // persist...  for AZ. from last reading
+  uint32_t adc_clk_count_refmux_pos_hi;
+  uint32_t adc_clk_count_refmux_neg_hi;
+
+} decode_oob_t;
+
+
+
+static void decode_oob( decode_oob_t *decode, data_t *data)
+{
+  /*
+    oob. is hi first by convension.
+  */
+
+  const reg_sr_t status = data->status;
+  const seq_elt_t term  = data->seq_elt;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+  assert( term.oob_aperture);
+
+  if( status.sample.first) {
+
+    // clear state after a re/trigger action
+    decode->adc_clk_count_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_clk_count_refmux_neg_hi = 0;
+  }
+
+  if( status.sample.idx % 2 == 0) {
+
+    printf( "hi ");
+
+    // HI.  record counts.
+    decode->adc_clk_count_refmux_pos_hi     = data->adc_clk_count_refmux_pos;
+    decode->adc_clk_count_refmux_neg_hi     = data->adc_clk_count_refmux_neg;
+    assert( data->reading_valid == false);
+  }
+  else {
+
+    printf( "lo ");
+
+    // LO convert value
+    data->count_sum =
+        ((double) decode->adc_clk_count_refmux_pos_hi - (cal_w * decode->adc_clk_count_refmux_neg_hi))
+      - ((double) data->adc_clk_count_refmux_pos      - (cal_w * data->adc_clk_count_refmux_neg));
+
+    data->reading_valid     = true;
+  }
+}
+
+
+
+
+
+typedef struct decode_t
+{
+  uint32_t    magic;
+
+  decode_oob_t    oob;
+
+  // persist...  for AZ. from last reading
+  uint32_t adc_clk_count_refmux_pos_hi;
+  uint32_t adc_clk_count_refmux_neg_hi;
+
+
+} decode_t;
+
+
+
+
+
+
+
+#define DECODE_MAGIC 23782191
+
+// still need somewhere to store this memory...
+
+static void decode_init( decode_t *decode)
+{
+  memset( decode, 0, sizeof( decode_t ));
+  decode->magic = DECODE_MAGIC;
+
+}
+
+
+
+
+
+static void decode_az_hi_first( decode_t *decode, data_t *data)
+{
+  /*
+
+    these functions localize all the behaviors around hi/lo/ ratiometric handling, needed to output a reading.
+    (although final reading needs cal).
+
+    information about terms (hi,lo, ratiometric etc) should not escape outside this context.
+
+    high_first az generalizes handling, without regard to azmux, or oob or zgjc.
+  */
+
+
+  assert( decode && decode->magic == DECODE_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  const reg_sr_t status = data->status;
+  const seq_elt_t term  = data->seq_elt;
+  // uint32_t azmux        = term.azmux;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+
+  ///////////////////////////
+  // similar to base case/ and recursive case
+
+  if( status.sample.first) {
+
+    // clear state after re/trigger action
+    decode->adc_clk_count_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_clk_count_refmux_neg_hi = 0;
+  }
+
+
+  if( term.oob_aperture) {
+
+    // delegate to oob handler
+    decode_oob( &decode->oob, data);
+    return;
+  }
+
+
+  // normal reading
+  assert( !term.oob_aperture);
+
+
+  /*
+    many ways to distinguish/generalize how we handle conversions here
+    - can use the sample.idx, or check term.azmux, or use the zgjc flag which is the HI/LO
+    eg.
+      if( term.zgjc ) {       // first in sequence
+      if( term.azmux == S1 || term.azmux == S3)  {    // azmux hi
+
+    sample.idx will work for any hi-first sequence
+    also no reason to care about the azmux state here
+  */
+
+  if( status.sample.idx % 2 == 0) {
+
+    printf( "hi ");
+
+    // HI.  record counts.
+    decode->adc_clk_count_refmux_pos_hi     = data->adc_clk_count_refmux_pos;
+    decode->adc_clk_count_refmux_neg_hi     = data->adc_clk_count_refmux_neg;
+
+    assert( data->reading_valid == false);
+
+  }
+  else {
+
+    printf( "lo ");
+
+    // LO convert value
+    data->count_sum =
+        ((double) decode->adc_clk_count_refmux_pos_hi - (cal_w * decode->adc_clk_count_refmux_neg_hi))
+      - ((double) data->adc_clk_count_refmux_pos      - (cal_w * data->adc_clk_count_refmux_neg));
+
+    /*
+      consider if want to handle normalization here.
+      perhaps for ratio-metric, may want to divide by (data->adc_clk_count_sigmux * 2);
+
+      // normalized count
+      data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
+    */
+
+    data->reading_valid     = true;
+  }
+
+
+}
+
+
+
+
+/*
+  - consider if issue around synchronization of state updates from REPL here .
+  - the mode can be modified before it is written to the board.
+    so there is potential for the decode handler to be out of synch, with sequencer running on the analog board.
+  ----
+  - but the analog board - is always written after REPL. command. without handling data.
+
+*/
 
 
 void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
@@ -210,59 +422,59 @@ void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
         bypasses pc switching
     */
 
-    const seq_elt_t  seq_elts[] =  {
+    /* important - no need to add the OOB reading here.
+      only wan for the obvious cases to speed up auto-ranging.
+    */
+    const seq_elt_t  seq_elts[] =  {          // conversion terms
       { // 0
       .azmux        = S6,                     // A400-1
       .pc_sample    = 0b00,
       .next_idx     = 1,
-      .hi           = true,
-      .convert      = false,
-      .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
+      .zgjc         = true               // set for zgjc, cm-dither, zero for noaz.
       },
       { // 1
       .azmux        = S6,                     // A400-1
       .pc_sample    = 0b00,
       .next_idx     = 0,                      // jump to 2.
-      .hi           = false,
-      .convert      = true                    // convert on lo.
       }
     };
 
-    // clear memory first.
+    // clear memory
     memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
     memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
 
-
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
+    sa->decode_ctx = malloc( sizeof( decode_t));
+    decode_init( sa->decode_ctx);
   }
+
 
   else if( strcmp(s, "ch1") == 0
     || strcmp(s, "ch2") == 0) {
 
 
     /*
-      normal az operation. with oob reading for fast ranging.
-      Lo is the second measurement in AZ cycle.
+      normal az operation.
+      HI/input first
+      with oob reading included for fast auto-ranging.
     */
     bool is_ch1 = strcmp(s, "ch1") == 0;
 
-    const seq_elt_t  seq_elts[] =  /*( const wrapper_t ) */ {
+    const seq_elt_t  seq_elts[] =  /*( const wrapper_t ) */ {     // conversion terms
       {
       // oob reading, az mode
       // 0
       .azmux        = is_ch1 ? S1   : S3,     // HI - PC-CH1-OUT,  PC-CH2-OUT
       .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
       .next_idx     = 1,
-      .hi           = true,
-      .convert      = false,
       .oob_aperture = true,                   // use fast/constant aperture
-      .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
+      .zgjc         = true                    // indicate set zgjc here, also cm-dither, zero for noaz.
       },
       { // 1
       .azmux        = is_ch1 ? S5  : S7,      // LO - COM-LC, CH2-LO
-      .pc_sample    = 0b00,
+      // .pc_sample    = 0b00,
       .next_idx     = 2,
-      .hi           = false,
-      .convert      = true,                   // convert to reading on lo.
       .oob_aperture = true
       },
       // normal reading, az mode
@@ -270,16 +482,12 @@ void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
       .azmux        = is_ch1 ? S1   : S3,     // HI - PC-CH1-OUT,  PC-CH2-OUT
       .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
       .next_idx     = 3,
-      .hi           = true,
-      .convert      = false,
-      .first_in_sequence = true               // set zgjc, cm-dither, zero for noaz.
+      .zgjc         = true                    // indicate set zgjc here, also cm-dither, zero for noaz.
       },
       { // 3
       .azmux        = is_ch1 ? S5  : S7,      // LO - COM-LC, CH2-LO
       .pc_sample    = 0b00,
       .next_idx     = 2,                      // jump to 2.
-      .hi           = false,
-      .convert      = true                    // convert on lo.
       },
     };
 
@@ -294,42 +502,18 @@ void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
     memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
     memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
 
-    /*
-      EXTR.
-
-      could remove the flags - that control decode ( hi and convert ).
-      and just set a custom handler/strategy here.
-
-
-      // sa->data_handler = void (*decode_strategy)( data_t *data  );
-
-      would maintain state for the previous LO.
-
-      -----------
-      eg. we know the hi is when azmux == S1 || S3
-      THIS may be enough - to localize the ratio calculation - and keep everything else the same.
-
-      the state variables. would change.
-
-      ---------------------------
-
-      would key off the .first. to clear the lagged values.
-
-      then calc,
-
-        data->adc_count_sum
-        data->reading_valid = true;
-
-      this might
-
-    */
-
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
+    sa->decode_ctx = malloc( sizeof( decode_t));
+    decode_init( sa->decode_ctx);
   }
+
 
   else if(strcmp(s, "ratio") == 0 ) {
 
     assert( 0);
   }
+
   else {
     assert( 0);
   }

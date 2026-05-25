@@ -30,38 +30,9 @@
 
 #include <data/decode.h>
 
+#include <mode.h>   // sa_state_t
+
 #include <support.h>  // char * str_from_mux( char *buf, size_t n, unsigned val);
-
-
-void decode_init(
-
-  decode_t  *decode,
-  spi_t     *spi,
-  cal_t     *cal,
-  ranging_t	*ranging,
-  uint32_t  *line_freq
-)
-{
-  // called once at initialization
-
-  assert( decode);
-  assert( ranging);
-  assert(cal && cal->magic == CAL_MAGIC);
-
-  *decode = (const decode_t) {
-
-    .magic        = DECODE_MAGIC,
-    .spi          = spi,
-    .cal          = cal,    // correct. like a singleton.
-    .ranging      = ranging,
-
-    .line_freq    = line_freq,
-
-    .show_counts  = true,
-    .show_reading = true,
-  };
-
-}
 
 
 
@@ -105,7 +76,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
   // useful for bounds - and to correct asymetry
-  data->adc_clock_count_ratio =
+  data->ratio_refmux =
       (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
       ?  (double) data->adc_clk_count_refmux_pos / data->adc_clk_count_refmux_neg
       :  - (double) data->adc_clk_count_refmux_neg / data->adc_clk_count_refmux_pos;
@@ -113,7 +84,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
 
-  if( decode->show_counts) {
+  if( true || decode->show_counts) {
 
     printf( "{counts pos %7lu neg %7lu sig %7lu}, ",
       data->adc_clk_count_refmux_pos,
@@ -123,60 +94,39 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     // printf( "ratio %.2f, ", ratio);
   }
 
-  printf(" sigmux %lu ", data->adc_clk_count_sigmux);
+  // printf(" sigmux %lu ", data->adc_clk_count_sigmux);
 
-
-  // TODO FIXME
-  // we are not clearing the lagged values.... on first.
-  // although not clear that it is needed.
 
   /*
-    consider delegate decode behavior as a strategy
-    sa->data_handler = void (*decode_strategy)( data_t *data  );
+    delegate decode
 
-    rather than lots of flags.
-*/
+    assumes that the current mode has valid sample acquisition handler.
+    potential synchronization issue repl update of mode?
+    but we always write state to the board. after setting  the mode. so should be ok.
 
-  if( data->seq_elt.hi) {
+  */
+  const sa_state_t *sa = &decode->mode->sa;
 
-    // HI.  record counts.
-    decode->adc_clk_count_refmux_pos_hi = data->adc_clk_count_refmux_pos;
-    decode->adc_clk_count_refmux_neg_hi = data->adc_clk_count_refmux_neg;
+  assert( sa->decode_strategy);
+  assert( sa->decode_ctx);
 
-    // data->valid = false;
-  }
-
-  else {
-
-
-    // LO
-    data->adc_count_sum =
-        ((double) decode->adc_clk_count_refmux_pos_hi - (cal->w * decode->adc_clk_count_refmux_neg_hi))
-      - ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg));
-
-    // change reading_valid. meaning the HI-LO
-    data->reading_valid     = true;
-  }
+  sa->decode_strategy( sa->decode_ctx, data );
 
 
 
 
   if( data->reading_valid) {
 
-    /*
-      only place/juncture where ranging active range . is
-      used to stamp the data_t.
-
-    */
-
+    // can get an exact zero, due to quantization
+    // assert( data->count_sum);
 
     if(decode->show_counts)
-      printf("sum %.2f, ", data->adc_count_sum);
+      printf("sum %.2f, ", data->count_sum);
 
 
 
     // normalized count
-    data->adc_count_sum_norm = data->adc_count_sum  / data->adc_clk_count_sigmux;
+    data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
 
     // printf("cal %p\n", cal);
     // printf("cal->w %lf\n", cal->w);
@@ -185,14 +135,14 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
     // for ranging
-    data->adc_reading_nominal = cal->b * data->adc_count_sum_norm;
+    data->reading_nominal = cal->b * data->count_sum_norm;
 
 
     // range should already be set.
     const range_t *range = data->range;
     assert(range && range->magic == RANGE_MAGIC);
 
-    data->reading = range->range_reading_convert( range, cal, data->adc_count_sum_norm);
+    data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
 
 
     char buf[100 + 1];
@@ -246,6 +196,14 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   const range_t *range = ranging_range_active_get( decode->ranging);
   assert(range && range->magic == RANGE_MAGIC);
 
+
+  /*
+    only place/juncture where ranging active range . is
+    used to stamp the data_t.
+
+  */
+
+
   data->range     = range;
   data->cal       = cal;
   data->line_freq = *decode->line_freq;
@@ -291,7 +249,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   printf( "{idx=%u, first=%c}, ",
     status.sample.idx,
-    BIT_TO_CHAR( status.sample.first_conversion)
+    BIT_TO_CHAR( status.sample.first)
   );
 
 
@@ -317,7 +275,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   );
 
-
+/*
   if( seq_elt.hi) {
 
     printf( buf );
@@ -327,7 +285,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     // just use pad spaces
     printf("%*s", strlen( buf), "");
   }
-
+*/
 
 
 
@@ -337,10 +295,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   printf( "pc_protect %u, ",  seq_elt.pc_protect);
   printf( "pc_sample %u, ",   seq_elt.pc_sample);
   printf( "next-idx %u, ",    seq_elt.next_idx );
-  printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
-  printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
+  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
+  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
   printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob_aperture));
-  printf( "first in seq %c ", BIT_TO_CHAR( seq_elt.oob_aperture));
+  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt.zgjc));
+  printf( "dither %c ",       BIT_TO_CHAR( seq_elt.cm_dac_dither));
   printf( "}, ");
 
 
@@ -348,7 +307,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   uint32_t    convert       : 1;  // 17     // convert to reading on this input
   uint32_t                  : 6;  // 18 + 6 =  24
   uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
-  uint32_t    first_in_sequence : 1;  // 24     // for setting zgjc, cm_dither, zero in noaz
+  uint32_t    zgjc : 1;  // 24     // for setting zgjc, cm_dither, zero in noaz
 */
 
 
@@ -388,6 +347,44 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
     return 0;
 
   return 1;
+}
+
+
+
+
+
+void decode_init(
+
+  decode_t        *decode,
+  spi_t           *spi,
+  const cal_t     *cal,
+  const _mode_t   *mode,
+
+  const ranging_t	*ranging,
+  uint32_t        *line_freq
+)
+{
+  // called once at initialization
+
+  assert( decode);
+  assert( ranging);
+  assert(cal && cal->magic == CAL_MAGIC);
+
+  *decode = (const decode_t) {
+
+    .magic        = DECODE_MAGIC,
+    .spi          = spi,
+    .cal          = cal,    // correct. like a singleton.
+    .mode         = mode,
+
+    .ranging      = ranging,
+
+    .line_freq    = line_freq,
+
+    .show_counts  = true,
+    .show_reading = true,
+  };
+
 }
 
 

@@ -13,6 +13,7 @@ typedef struct spi_t spi_t;
 typedef struct range_t range_t;
 typedef struct data_t data_t;
 typedef struct ranging_t ranging_t;
+typedef struct _mode_t _mode_t;
 
 
 
@@ -21,27 +22,42 @@ typedef struct ranging_t ranging_t;
 #define DECODE_MAGIC 123
 
 
+/*
+  TODO
+  review.
+  decode could just about be typed on app....
+  instead than passing all this stuff
+
+  only state. are the debug/print control stuff.
+
+*/
 
 typedef struct decode_t
 {
   uint32_t    magic;
 
-  spi_t       *spi ;
-  cal_t       *cal;
-  ranging_t   *ranging;
+  // should all be const
+  spi_t             *spi ;
+  const cal_t       *cal;
 
+  // needed to decode
+  // but issue is that the mode - can be out of sequence.
+  const _mode_t    *mode;
 
-  uint32_t    *line_freq;
+  // only for printing/formatting.
+  const ranging_t   *ranging;   // why?
+
+  uint32_t          *line_freq;
 
 
   /*
     these fields are the important persistent state
   */
-
+/*
   // persist...  for AZ. from last reading
   uint32_t adc_clk_count_refmux_pos_hi;
   uint32_t adc_clk_count_refmux_neg_hi;
-
+*/
   ///////////////////////
 
   bool show_counts;
@@ -55,11 +71,13 @@ typedef struct decode_t
 
 
 void decode_init(
-  decode_t  *decode,
-  spi_t     *spi,
-  cal_t     *cal,
-  ranging_t *ranging,
-  uint32_t  *line_freq
+  decode_t        *decode,
+  spi_t           *spi,
+  const cal_t     *cal,
+  const _mode_t   *mode,
+
+  const ranging_t *ranging,
+  uint32_t        *line_freq
 );
 
 
