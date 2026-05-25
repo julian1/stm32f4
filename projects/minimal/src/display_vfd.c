@@ -170,7 +170,7 @@ void display_vfd_update_data( display_vfd_t *display, const data_t *data)
   */
   bool  noaz = 0; //  data->status.noaz;  or dig out from the mode?
 
-  double nplc = aperture_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
+  double nplc = aperture_to_nplc( data->adc_sigmux, data->line_freq );
 
   snprintf( buf, 100, "%s-%s %s",  range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
   vfd_font_small_write( vfd, buf, 0, 3 );

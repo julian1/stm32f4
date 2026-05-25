@@ -70,9 +70,9 @@ struct data_t
 
   seq_elt_t     seq_elt;
 
-  uint32_t adc_clk_count_refmux_pos;
-  uint32_t adc_clk_count_refmux_neg;
-  uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
+  uint32_t adc_refmux_pos;
+  uint32_t adc_refmux_neg;
+  uint32_t adc_sigmux;        // also needed to report nplc in ui.
 
   //
   double   ratio_refmux;

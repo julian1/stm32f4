@@ -215,8 +215,8 @@ typedef struct decode_oob_t
   */
 
   // persist...  for AZ. from last reading
-  uint32_t adc_clk_count_refmux_pos_hi;
-  uint32_t adc_clk_count_refmux_neg_hi;
+  uint32_t adc_refmux_pos_hi;
+  uint32_t adc_refmux_neg_hi;
 
 } decode_oob_t;
 
@@ -240,8 +240,8 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
     printf( "clear ");
 
     // clear state after a re/trigger action
-    decode->adc_clk_count_refmux_pos_hi = 0; // UINT32_MAX
-    decode->adc_clk_count_refmux_neg_hi = 0;
+    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_refmux_neg_hi = 0;
   }
 
   if( status.sample.idx % 2 == 0) {
@@ -249,8 +249,8 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
     printf( "hi ");
 
     // HI.  record counts.
-    decode->adc_clk_count_refmux_pos_hi     = data->adc_clk_count_refmux_pos;
-    decode->adc_clk_count_refmux_neg_hi     = data->adc_clk_count_refmux_neg;
+    decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
     assert( data->reading_valid == false);
   }
   else {
@@ -259,8 +259,8 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
 
     // LO convert value
     data->count_sum =
-        ((double) decode->adc_clk_count_refmux_pos_hi - (cal_w * decode->adc_clk_count_refmux_neg_hi))
-      - ((double) data->adc_clk_count_refmux_pos      - (cal_w * data->adc_clk_count_refmux_neg));
+        ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
+      - ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg));
 
     data->reading_valid     = true;
   }
@@ -277,8 +277,8 @@ typedef struct decode_t
   decode_oob_t    oob;
 
   // persist...  for AZ. from last reading
-  uint32_t adc_clk_count_refmux_pos_hi;
-  uint32_t adc_clk_count_refmux_neg_hi;
+  uint32_t adc_refmux_pos_hi;
+  uint32_t adc_refmux_neg_hi;
 
 
 } decode_t;
@@ -336,8 +336,8 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     printf( "clear ");
 
     // clear state after re/trigger action
-    decode->adc_clk_count_refmux_pos_hi = 0; // UINT32_MAX
-    decode->adc_clk_count_refmux_neg_hi = 0;
+    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_refmux_neg_hi = 0;
   }
 
 
@@ -369,8 +369,8 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     printf( "hi ");
 
     // HI.  record counts.
-    decode->adc_clk_count_refmux_pos_hi     = data->adc_clk_count_refmux_pos;
-    decode->adc_clk_count_refmux_neg_hi     = data->adc_clk_count_refmux_neg;
+    decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
 
     assert( data->reading_valid == false);
 
@@ -381,15 +381,15 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
     // LO convert value
     data->count_sum =
-        ((double) decode->adc_clk_count_refmux_pos_hi - (cal_w * decode->adc_clk_count_refmux_neg_hi))
-      - ((double) data->adc_clk_count_refmux_pos      - (cal_w * data->adc_clk_count_refmux_neg));
+        ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
+      - ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg));
 
     /*
       consider if want to handle normalization here.
-      perhaps for ratio-metric, may want to divide by (data->adc_clk_count_sigmux * 2);
+      perhaps for ratio-metric, may want to divide by (data->adc_sigmux * 2);
 
       // normalized count
-      data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
+      data->count_sum_norm = data->count_sum  / data->adc_sigmux;
     */
 
     data->reading_valid     = true;

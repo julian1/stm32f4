@@ -70,16 +70,16 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
   // record for current part of reading
   // cal w. needs this data
-  data->adc_clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  data->adc_clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  data->adc_clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
+  data->adc_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  data->adc_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  data->adc_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
 
 
   // useful for bounds - and to correct asymetry
   data->ratio_refmux =
-      (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
-      ?  (double) data->adc_clk_count_refmux_pos / data->adc_clk_count_refmux_neg
-      :  - (double) data->adc_clk_count_refmux_neg / data->adc_clk_count_refmux_pos;
+      (data->adc_refmux_pos >= data->adc_refmux_neg)
+      ?  (double) data->adc_refmux_pos / data->adc_refmux_neg
+      :  - (double) data->adc_refmux_neg / data->adc_refmux_pos;
 
 
 
@@ -87,14 +87,14 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   if( true || decode->show_counts) {
 
     printf( "{counts pos %7lu neg %7lu sig %7lu}, ",
-      data->adc_clk_count_refmux_pos,
-      data->adc_clk_count_refmux_neg,
-      data->adc_clk_count_sigmux
+      data->adc_refmux_pos,
+      data->adc_refmux_neg,
+      data->adc_sigmux
     );
     // printf( "ratio %.2f, ", ratio);
   }
 
-  // printf(" sigmux %lu ", data->adc_clk_count_sigmux);
+  // printf(" sigmux %lu ", data->adc_sigmux);
 
 
   /*
@@ -126,7 +126,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
     // normalized count
-    data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
+    data->count_sum_norm = data->count_sum  / data->adc_sigmux;
 
     // printf("cal %p\n", cal);
     // printf("cal->w %lf\n", cal->w);
