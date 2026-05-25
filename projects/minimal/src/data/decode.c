@@ -292,8 +292,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   printf( "{");
   printf( "azmux %2u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
-  printf( "pc_protect %u, ",  seq_elt.pc_protect);
-  printf( "pc_sample %u, ",   seq_elt.pc_sample);
+  printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt.pc_protect));
+  printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt.pc_sample));
   printf( "next-idx %u, ",    seq_elt.next_idx );
   // printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
   // printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
