@@ -187,14 +187,30 @@ static void printf_seq_elt( const seq_elt_t *seq_elt)
   printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt->pc_protect));
   printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt->pc_sample));
   printf( "next-idx %u, ",    seq_elt->next_idx );
-  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt->hi));
-  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt->convert));
   printf( "oob %c ",          BIT_TO_CHAR( seq_elt->oob_aperture));
   printf( "zglc %c ",         BIT_TO_CHAR( seq_elt->zgjc));
   printf( "dither %c ",       BIT_TO_CHAR( seq_elt->cm_dac_dither));
   printf( "}, ");
 
+  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt->hi));
+  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt->convert));
 }
+
+
+
+static void printf_seq_elt_brief( const seq_elt_t *seq_elt)
+{
+// factor all this into a function
+
+  char buf[ 100];
+
+  printf( "{");
+  printf( "azmux %2u(%s), ",  seq_elt->azmux, str_from_mux( buf, 100, seq_elt->azmux));
+  printf( "oob %c ",          BIT_TO_CHAR( seq_elt->oob_aperture));
+  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt->zgjc));
+  printf( "}, ");
+}
+
 
 
 static void printf_status_cmpr( const reg_sr_t status)
@@ -202,7 +218,6 @@ static void printf_status_cmpr( const reg_sr_t status)
 
   char buf[100];
 
-  // printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c%c ch2=%c%c}, ",
   snprintf( buf, 100, "{%c%c %c%c %c%c %c%c %c%c}, ",
 
     BIT_TO_CHAR( status.cmpr.amp_zero_lt),
@@ -224,7 +239,7 @@ static void printf_status_cmpr( const reg_sr_t status)
 
 
   // we no longer have a concept of whether a conversion is hi/lo. here.
-  // so just print
+  // so don't suppress printing the lo comparator vals
   printf( buf );
 
 /*
@@ -322,9 +337,12 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     BIT_TO_CHAR( status.sample.first)
   );
 
-  printf_status_cmpr( status );
+  // printf_status_cmpr( status );
 
-  printf_seq_elt( &data->seq_elt );
+  // printf_seq_elt( &data->seq_elt );
+
+  printf_seq_elt_brief( &data->seq_elt );
+
 
 
   // adc conversion
