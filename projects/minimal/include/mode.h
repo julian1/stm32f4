@@ -195,17 +195,32 @@ typedef struct sa_state_t
   uint32_t p_trig_delay;
   uint32_t p_precharge;
 
-  // consider naming  - terms, elts, phases
+  // conversion terms. consider naming  - terms, elts, phases
   seq_elt_t p_seq_elt [ 4] ;
 
   /*
-    this is kind of mode state.
-    it is an associated handler strategy for decode.
-    - keep here, because it is very helpful localize and set these together
+    not strictly board state.
+    this is the associated decode strategy handler for the p_seq_elts.
+    - but managing it here, localizes info in one place.  and noting that must be updated together.
   */
   void (*decode_strategy)( void *ctx, data_t *data);
   void *decode_ctx;
 
+
+  /*
+    EXTR.
+    TODO.
+    reconsider.
+
+    putting the noaz flag here. and persisting.  would simplfy a lot of argument passing/handling.
+    because the setup of the sequence elts - depends on knowing this flag.
+    also ranging functions must change input channels from ch1, or ch2 , which means must know this flag etc.
+    -
+    BUT it is not strictly board state.  a bit similar to the decode strategy function.
+
+  */
+
+  // bool   noaz;
 
 } sa_state_t;
 
@@ -299,20 +314,20 @@ typedef struct _mode_t
 
 
   /* choice,
-      is to place 10Meg flag in app_t or mode_t.
+      is to place 10Meg flag in app_t ranging_t or mode_t.
 
-      state must persistent across ranges.
+      state must persistent across range switching.
         So perhaps place in range_t.
 
     - mode_t is bad, because this mode_t is board state.  and 10Meg. is not directly written to the board.
-    - however for mode_reset() we really expect a clear/fixed state point. and placing in mode ensures this.
-    - ie.. we really do not want to have to clear this flag when running cal transfer routines
-    -----------
-    - but the times we actually have to care about range switching are few, and localized.
-    */
-  // bool          range_10Meg ;
+        however for mode_reset() we want a fixed state synchronization point.
+        and placing in mode ensures this.
 
+    - ie.. and we do not want to have to manage/clear this flag when running cal transfer routines
+    - otherwise the times we actually have to care about range switching are few, and localized.
+  */
 
+  // bool       range_10Meg ;
 
 } _mode_t ;
 

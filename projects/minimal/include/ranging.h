@@ -28,7 +28,7 @@ struct ranging_t
 
   size_t        range_idx;
 
-
+  // putting this in the mode/ sa structure ... would  simplify
   bool          range_10Meg ;           // auto 10Meg.
 
   bool          ar;                     // autoranging

@@ -88,10 +88,10 @@ reg_cr_t
   */
   uint8_t     adc_p_active_sigmux : 1;
 
-  // for az mode
-  // uint8_t     sa_p_noaz     : 1;
-
-  // uint8_t     sa_p_use_aperture_oob : 1;
+  /*
+    - adc flags that persist across multiple conversions should go here.
+    otherise add the control flag directly in the conversion elt/term
+  */
 
  // input     p_use_slow_rundown,
  // input     p_use_fast_rundown,
@@ -184,6 +184,8 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 */
 
 
+// rename term_t  or conversion_term_t  or seq_term_t
+
 typedef struct __attribute__((__packed__))
 seq_elt_t
 {
@@ -215,16 +217,17 @@ seq_elt_t
 
   /////////////////////////////
   // conversion control flags
-  // keep specific. eg. 'zgjc' instead of 'first_in_sequence'.
+  // keep specific function. eg. 'zgjc' instead of 'first_in_sequence'.
 
   uint32_t    oob_aperture  : 1;  // 24     // use oob aperture for conversion
 
   uint32_t    zgjc          : 1;  // 25     // apply zgjc.
-                                            // probably cm_dither, zero in noaz
+                                            // probably cm_dither,
                                             // generally do the reading convert when flag  not active
 
   uint32_t    cm_dac_dither : 1;  // 26     // apply dac dither
 
+  // uint32_t active_sigmux : 1;            //  can be moved here, if need to control for different conversions
 
   uint32_t                  : 5;  // 27 + 5 = 32
 
@@ -291,7 +294,6 @@ _Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
 
   /* can encode next_idx like a linked list
     allows two registers to be removed - the seq_n terminal, and wrap-around idx value.
-    - must support noaz, where return to the same idx.
   */
 
 /*
