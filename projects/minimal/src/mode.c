@@ -225,7 +225,7 @@ typedef struct decode_oob_t
 static void decode_oob( decode_oob_t *decode, data_t *data)
 {
   /*
-    oob. is hi first by convension.
+    oob. is hi first by convention.
   */
 
   const reg_sr_t status = data->status;
@@ -343,7 +343,7 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
   if( term.oob_aperture) {
 
-    // delegate to oob handler
+    // delegate to oob conversion handler
     decode_oob( &decode->oob, data);
     return;
   }
@@ -378,6 +378,8 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
   else {
 
     printf( "lo ");
+
+    // TODO. add the zero. average.
 
     // LO convert value
     data->count_sum =
