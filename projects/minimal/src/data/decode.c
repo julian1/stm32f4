@@ -176,6 +176,76 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 #define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
 
+static void printf_seq_elt( const seq_elt_t *seq_elt)
+{
+// factor all this into a function
+
+  char buf[ 100];
+
+  printf( "{");
+  printf( "azmux %2u(%s), ",  seq_elt->azmux, str_from_mux( buf, 100, seq_elt->azmux));
+  printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt->pc_protect));
+  printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt->pc_sample));
+  printf( "next-idx %u, ",    seq_elt->next_idx );
+  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt->hi));
+  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt->convert));
+  printf( "oob %c ",          BIT_TO_CHAR( seq_elt->oob_aperture));
+  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt->zgjc));
+  printf( "dither %c ",       BIT_TO_CHAR( seq_elt->cm_dac_dither));
+  printf( "}, ");
+
+}
+
+
+static void printf_status_cmpr( const reg_sr_t status)
+{
+
+  char buf[100];
+
+  // printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c%c ch2=%c%c}, ",
+  snprintf( buf, 100, "{%c%c %c%c %c%c %c%c %c%c}, ",
+
+    BIT_TO_CHAR( status.cmpr.amp_zero_lt),
+    BIT_TO_CHAR( status.cmpr.amp_zero_gt),
+
+    BIT_TO_CHAR( status.cmpr.amp_ovld_lt),
+    BIT_TO_CHAR( status.cmpr.amp_ovld_gt),
+
+    BIT_TO_CHAR( status.cmpr.amp_unld_lt),
+    BIT_TO_CHAR( status.cmpr.amp_unld_gt),
+
+    BIT_TO_CHAR( status.cmpr.boot_ch1_lt),
+    BIT_TO_CHAR( status.cmpr.boot_ch1_gt),
+
+    BIT_TO_CHAR( status.cmpr.boot_ch2_lt),
+    BIT_TO_CHAR( status.cmpr.boot_ch2_gt)
+
+  );
+
+
+  // we no longer have a concept of whether a conversion is hi/lo. here.
+  // so just print
+  printf( buf );
+
+/*
+
+  if( seq_elt.hi) {
+
+    printf( buf );
+  } else {
+
+    // ignore for LO
+    // just use pad spaces
+    printf("%*s", strlen( buf), "");
+  }
+*/
+}
+
+
+
+
+
+
 void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 {
 
@@ -230,7 +300,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   spi_ice40_reg_read_n( spi, REG_SA_SEQ_ELT, &data->seq_elt, sizeof( data->seq_elt));
 
   // east syntax
-  const seq_elt_t       seq_elt = data->seq_elt;
+  // const seq_elt_t       seq_elt = data->seq_elt;
 
 
 
@@ -252,69 +322,9 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     BIT_TO_CHAR( status.sample.first)
   );
 
+  printf_status_cmpr( status );
 
-  char buf[100];
-
-  // printf( "{zero=%c%c ovld=%c%c unld=%c%c ch1=%c%c ch2=%c%c}, ",
-  snprintf( buf, 100, "{%c%c %c%c %c%c %c%c %c%c}, ",
-
-    BIT_TO_CHAR( status.cmpr.amp_zero_lt),
-    BIT_TO_CHAR( status.cmpr.amp_zero_gt),
-
-    BIT_TO_CHAR( status.cmpr.amp_ovld_lt),
-    BIT_TO_CHAR( status.cmpr.amp_ovld_gt),
-
-    BIT_TO_CHAR( status.cmpr.amp_unld_lt),
-    BIT_TO_CHAR( status.cmpr.amp_unld_gt),
-
-    BIT_TO_CHAR( status.cmpr.boot_ch1_lt),
-    BIT_TO_CHAR( status.cmpr.boot_ch1_gt),
-
-    BIT_TO_CHAR( status.cmpr.boot_ch2_lt),
-    BIT_TO_CHAR( status.cmpr.boot_ch2_gt)
-
-  );
-
-/*
-  if( seq_elt.hi) {
-
-    printf( buf );
-  } else {
-
-    // ignore for LO
-    // just use pad spaces
-    printf("%*s", strlen( buf), "");
-  }
-*/
-
-
-
-
-  printf( "{");
-  printf( "azmux %2u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
-  printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt.pc_protect));
-  printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt.pc_sample));
-  printf( "next-idx %u, ",    seq_elt.next_idx );
-  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
-  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
-  printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob_aperture));
-  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt.zgjc));
-  printf( "dither %c ",       BIT_TO_CHAR( seq_elt.cm_dac_dither));
-  printf( "}, ");
-
-
-/*
-  uint32_t    convert       : 1;  // 17     // convert to reading on this input
-  uint32_t                  : 6;  // 18 + 6 =  24
-  uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
-  uint32_t    zgjc : 1;  // 24     // for setting zgjc, cm_dither, zero in noaz
-*/
-
-
-  /* other ways to format
-    printf( "%c ", seq_elt.hi ? 'H' : 'L');
-    printf( status.sample.oob ? "oob " : "    " );
-  */
+  printf_seq_elt( &data->seq_elt );
 
 
   // adc conversion
@@ -388,6 +398,48 @@ void decode_init(
 }
 
 
+
+/*
+  if( seq_elt.hi) {
+
+    printf( buf );
+  } else {
+
+    // ignore for LO
+    // just use pad spaces
+    printf("%*s", strlen( buf), "");
+  }
+*/
+
+/*
+  // factor all this into a function
+
+  printf( "{");
+  printf( "azmux %2u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
+  printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt.pc_protect));
+  printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt.pc_sample));
+  printf( "next-idx %u, ",    seq_elt.next_idx );
+  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
+  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
+  printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob_aperture));
+  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt.zgjc));
+  printf( "dither %c ",       BIT_TO_CHAR( seq_elt.cm_dac_dither));
+  printf( "}, ");
+*/
+
+
+/*
+  uint32_t    convert       : 1;  // 17     // convert to reading on this input
+  uint32_t                  : 6;  // 18 + 6 =  24
+  uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
+  uint32_t    zgjc : 1;  // 24     // for setting zgjc, cm_dither, zero in noaz
+*/
+
+
+  /* other ways to format
+    printf( "%c ", seq_elt.hi ? 'H' : 'L');
+    printf( status.sample.oob ? "oob " : "    " );
+  */
 
 
 
