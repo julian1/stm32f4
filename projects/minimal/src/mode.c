@@ -237,6 +237,8 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
 
   if( status.sample.first) {
 
+    printf( "clear ");
+
     // clear state after a re/trigger action
     decode->adc_clk_count_refmux_pos_hi = 0; // UINT32_MAX
     decode->adc_clk_count_refmux_neg_hi = 0;
@@ -330,6 +332,8 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
   // similar to base case/ and recursive case
 
   if( status.sample.first) {
+
+    printf( "clear ");
 
     // clear state after re/trigger action
     decode->adc_clk_count_refmux_pos_hi = 0; // UINT32_MAX
