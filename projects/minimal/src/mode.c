@@ -192,7 +192,10 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 // typedef struct wrapper_t { seq_elt_t data[4]; } wrapper_t ;
 
-void sa_set( sa_state_t *sa, const char *s)
+
+
+
+void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
 {
   /*
       options here.   "ch1", "ch2", "ratio", "0".
@@ -290,6 +293,36 @@ void sa_set( sa_state_t *sa, const char *s)
 
     memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
     memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+
+    /*
+      EXTR.
+
+      could remove the flags - that control decode ( hi and convert ).
+      and just set a custom handler/strategy here.
+
+
+      // sa->data_handler = void (*decode_strategy)( data_t *data  );
+
+      would maintain state for the previous LO.
+
+      -----------
+      eg. we know the hi is when azmux == S1 || S3
+      THIS may be enough - to localize the ratio calculation - and keep everything else the same.
+
+      the state variables. would change.
+
+      ---------------------------
+
+      would key off the .first. to clear the lagged values.
+
+      then calc,
+
+        data->adc_count_sum
+        data->reading_valid = true;
+
+      this might
+
+    */
 
   }
 

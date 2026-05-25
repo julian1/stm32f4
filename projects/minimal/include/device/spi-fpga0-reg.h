@@ -196,6 +196,7 @@ seq_elt_t
 
   /////////////////////////////
   // decode flags
+  // sa->data_handler = void (*decode_strategy)( data_t *data  );
 
   uint32_t    hi            : 1;  // 16     // TODO. consider bad name.  hi == input signal/sample. or zero
   uint32_t    convert       : 1;  // 17     // flag to decode, to convert to reading on this input. or just use !first_in_sequence

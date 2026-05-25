@@ -197,6 +197,11 @@ typedef struct sa_state_t
 
   seq_elt_t p_seq_elt [ 4] ;
 
+/*
+  this is kind of mode state.
+  associated handler strategy for decode.
+  void (*decode_strategy)( data_t *data  );
+*/
 
 } sa_state_t;
 

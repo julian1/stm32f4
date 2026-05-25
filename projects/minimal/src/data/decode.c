@@ -126,8 +126,16 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   printf(" sigmux %lu ", data->adc_clk_count_sigmux);
 
 
+  // TODO FIXME
+  // we are not clearing the lagged values.... on first.
+  // although not clear that it is needed.
 
+  /*
+    consider delegate decode behavior as a strategy
+    sa->data_handler = void (*decode_strategy)( data_t *data  );
 
+    rather than lots of flags.
+*/
 
   if( data->seq_elt.hi) {
 
