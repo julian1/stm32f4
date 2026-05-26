@@ -118,7 +118,10 @@ static void mode_partial_reset( _mode_t *mode)
 
 static void mode_reset_inputs( _mode_t *mode)
 {
-  /* for ranging.
+  /*
+    for ranging.
+    consider move to mode.c
+    could also be useful to expose in repl. mode reset inputs
   */
 
   /*
@@ -156,7 +159,9 @@ static void mode_reset_inputs( _mode_t *mode)
   mode->serial.U426      = S4,
 
   // invert dac.
-  // TODO.  different from mode_reset(). because will encode the spi dac. cmd flags
+  // TODO.  this state is different from mode_reset().
+  // because the hardware cmd flags for spi write are set.
+  // the mode should just encode the val.
   mode_invert_dac_set( mode, 0);
 
 
@@ -172,7 +177,7 @@ static void mode_reset_inputs( _mode_t *mode)
   mode->sa.decode_strategy  = NULL;
   mode->sa.decode_ctx       = NULL;
 
-
+  // input muxes.  hi/lo and feeder mux
   mode->serial.U409 = SOFF;
   mode->serial.U419 = SOFF;
   mode->serial.U420 = SOFF;

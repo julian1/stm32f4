@@ -29,10 +29,15 @@ struct ranging_t
   size_t        range_idx;
 
   /*
-      // putting this in the mode/ sa structure ... would  simplify
-    it is only applied. when we change the range.
-    - if put in mode_t. then is no context in mode_repl() . to apply the change,
-      and retrigger.
+    putting this in the mode/ sa structure ... would  simplify arg passing to range_set_mode()
+    but we can just as easily create a local structure
+
+    the bigger issue is that this is only applied on range changes.
+    so if we store in mode_t. there is no context, to apply the changes to the actual relay state.
+    as well as to force a retrigger.
+
+    so it is reasonable here.
+    note that the transfer cal routines will clear/reset
   */
   bool          range_10Meg ;           // auto 10Meg.
 

@@ -208,13 +208,10 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
   if( sscanf(cmd, "10Meg %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in ranging_t rather than mode_t
-        ie. there is no use/relevance when not using ranges
+    /*  see comments in ranging.h
+        the 10Meg. impedance state is a high-level range_t state concept and belongs in ranging_t rather than mode_t
+        it is not relevant when setting the mode directly. and when not using ranges
         we can still use the mode_t and write K403 directly whenever needed.
-        -------
-        for the same reason - we only need to set it, in tests etc, if we use a dcv ranges
-        so perhaps should move it out of mode_t. and explicitly set it, for the few cases that tests use the range function.
-        perhaps rename  range_10Meg.
     */
     _mode_t  *mode  = ranging->mode;
     assert(mode && mode->magic == MODE_MAGIC);
