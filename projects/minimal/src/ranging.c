@@ -134,14 +134,6 @@ static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
   range->range_set_mode( range, ranging->mode, ranging->range_10Meg);
 
 
-
-  /*  who clears this flag????
-    cleared by app_t after state transistion.  which is messy.
-    consider record flag against the mode...
-  */
-
-  // why not just always retrigger?
-  // ranging->retrigger = true;
 }
 
 
@@ -230,16 +222,11 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     // set flag
     ranging->range_10Meg = u0;
 
-
     // re-apply range function
     // which may modify the mode
     ranging_range_set( ranging, ranging->range_idx);
 
-
     // board state will be update/transferred on repl '\r'
-
-    // set retrigger to clear data buffers
-    // ranging->retrigger = true;
   }
 
 

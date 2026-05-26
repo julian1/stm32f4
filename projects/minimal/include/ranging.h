@@ -38,15 +38,6 @@ struct ranging_t
 
   bool          ar;                     // autoranging
 
-  // bool          retrigger;              // for manual rangning functions ....
-                                        // not very good.
-                                        // EXTR. consider using a mode flag.
-                                        // instead as a shared state to communicate need to update.
-
-#if 0
-  // strategy
-  bool (*ranging_update_data)( ranging_t *ranging,  const data_t *data );
-#endif
 
 };
 

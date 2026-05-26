@@ -4,8 +4,6 @@
 
 #include <stdbool.h>
 
-#include <device/spi-fpga0-reg.h>     // for reg_sr_t
-
 
 
 typedef struct cal_t cal_t;
@@ -28,8 +26,13 @@ typedef struct environment_t environment_t;
   review.
   decode could just about be typed on app....
   instead than passing all this stuff
-
   only state. are the debug/print control stuff.
+
+  we used to type on app_t.
+  then moved.
+  but this module does less now the decode strategy is stored on/against the mode.
+
+  the only local state. is related to the show flags.
 
 */
 
@@ -42,25 +45,14 @@ typedef struct decode_t
   const cal_t       *cal;
 
   // needed to decode
-  // but issue is that the mode - can be out of sequence.
+  // but potential issue with state synchronization, of mode is being updated
   const _mode_t    *mode;
 
   // only for printing/formatting.
-  const ranging_t   *ranging;   // why?
+  const ranging_t   *ranging;
 
-  const environment_t   *environment;
+  const environment_t *environment;
 
-  // uint32_t          *line_freq;
-
-
-  /*
-    these fields are the important persistent state
-  */
-/*
-  // persist...  for AZ. from last reading
-  uint32_t adc_refmux_pos_hi;
-  uint32_t adc_refmux_neg_hi;
-*/
   ///////////////////////
 
   bool show_counts;
