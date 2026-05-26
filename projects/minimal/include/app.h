@@ -1,6 +1,4 @@
 
-#pragma once
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>   // size_t
@@ -61,6 +59,7 @@ typedef struct ranging_t ranging_t;
 typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
 
+typedef struct environment_t environment_t;
 
 typedef struct vfd_t vfd_t;
 typedef struct display_vfd_t display_vfd_t;
@@ -244,7 +243,11 @@ typedef struct app_t
   // line_freq is an environment property
   // does it belong in cal or data?
   // issue is that we use it in multiple places/modules - eg. tests, cal
-  uint32_t      *line_freq;
+
+  // put in own struct environmental.  and pass down...
+  // uint32_t      *line_freq;
+
+  environment_t *environment;
 
 
 

@@ -24,9 +24,11 @@
 
 
 #include <cal/transfer.h>
+
 #include <app.h>
 #include <mode.h>
 #include <support.h> // nplc_to_aperture()
+#include <environment.h> // nplc_to_aperture()
 
 #include <data/cal.h>
 #include <data/decode.h>
@@ -72,7 +74,7 @@ void app_cal_w( app_t *app)
   // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // set nplc
-  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, *app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->environment->line_freq ));
 
 
   ///////////////////////////////

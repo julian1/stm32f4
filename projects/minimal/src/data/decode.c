@@ -26,6 +26,7 @@
 #include <data/data.h>
 #include <data/range.h>
 #include <ranging.h>
+#include <environment.h>
 
 
 #include <data/decode.h>
@@ -281,6 +282,9 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   const range_t *range = ranging_range_active_get( decode->ranging);
   assert(range && range->magic == RANGE_MAGIC);
 
+  const environment_t *environment = decode->environment;
+  assert( environment);
+  assert( environment->line_freq == 50);
 
   /*
     only place/juncture where ranging active range . is
@@ -291,7 +295,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   data->range     = range;
   data->cal       = cal;
-  data->line_freq = *decode->line_freq;
+  data->line_freq = environment->line_freq;
 
 
   /////////////////
@@ -389,7 +393,8 @@ void decode_init(
   const _mode_t   *mode,
 
   const ranging_t	*ranging,
-  uint32_t        *line_freq
+  const environment_t *environment
+  // uint32_t        *line_freq
 )
 {
   // called once at initialization
@@ -406,8 +411,9 @@ void decode_init(
     .mode         = mode,
 
     .ranging      = ranging,
+    .environment = environment,
 
-    .line_freq    = line_freq,
+    // .line_freq    = line_freq,
 
     .show_counts  = true,
     .show_reading = true,

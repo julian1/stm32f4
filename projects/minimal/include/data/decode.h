@@ -12,8 +12,9 @@ typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
 typedef struct range_t range_t;
 typedef struct data_t data_t;
-typedef struct ranging_t ranging_t;
 typedef struct _mode_t _mode_t;
+typedef struct ranging_t ranging_t ;
+typedef struct environment_t environment_t;
 
 
 
@@ -47,7 +48,9 @@ typedef struct decode_t
   // only for printing/formatting.
   const ranging_t   *ranging;   // why?
 
-  uint32_t          *line_freq;
+  const environment_t   *environment;
+
+  // uint32_t          *line_freq;
 
 
   /*
@@ -77,7 +80,7 @@ void decode_init(
   const _mode_t   *mode,
 
   const ranging_t *ranging,
-  uint32_t        *line_freq
+  const environment_t *environment
 );
 
 

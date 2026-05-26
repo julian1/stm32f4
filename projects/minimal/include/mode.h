@@ -44,6 +44,9 @@
 #define SR_RESET    0b10
 
 
+typedef struct data_t data_t ;
+typedef struct environment_t environment_t;
+
 
 
 
@@ -185,8 +188,6 @@ void _4094_state_clear_relays(_4094_state_t *state);
   control state
 */
 
-typedef struct data_t data_t ;
-
 
 typedef struct sa_state_t
 {
@@ -212,7 +213,7 @@ typedef struct sa_state_t
     TODO.
     reconsider.
 
-    putting the noaz flag here. and persisting.  would simplfy a lot of argument passing/handling.
+    putting the noaz flag here. and persisting.  would simplfy a lot of argument passing/handling down from app..
     because the setup of the sequence elts - depends on knowing this flag.
     also ranging functions must change input channels from ch1, or ch2 , which means must know this flag etc.
     -
@@ -336,7 +337,7 @@ typedef struct _mode_t
 void mode_init(_mode_t *mode);
 void mode_reset(_mode_t *mode);
 
-bool mode_repl_statement( _mode_t     *mode, const char  *cmd, const uint32_t line_freq);
+bool mode_repl_statement( _mode_t     *mode, const char  *cmd, environment_t *environment);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 

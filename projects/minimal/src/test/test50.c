@@ -42,6 +42,7 @@
 #include <support.h> // nplc_to_aperture()
 #include <mode.h>
 #include <app.h>
+#include <environment.h>
 
 
 #include <peripheral/gpio.h>        // trigger
@@ -97,7 +98,7 @@ static void test( app_t *app)
     gpio_write( app->gpio_trigger, false);
 
     // set nplc
-    adc_aperture_set( &mode->adc, nplc_to_aperture( k, *app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( k, app->environment->line_freq ));
 
     app_transition_state( app);
 

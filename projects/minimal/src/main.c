@@ -79,6 +79,7 @@
 #include <data/buffer.h>
 // #include <data/aggregate.h>
 #include <ranging.h>
+#include <environment.h>
 
 #include <display-vfd.h>
 #include <agg/display-tft.h>
@@ -378,8 +379,9 @@ static int main_f429(void)
   );
 
 
-
-  uint32_t      line_freq = 50;
+  environment_t environment = {
+    .line_freq = 50
+  };
 
 
 
@@ -413,7 +415,7 @@ static int main_f429(void)
     &cal,
     &mode,
     &ranging,
-    &line_freq
+    &environment
   );
 
 
@@ -503,9 +505,7 @@ static int main_f429(void)
 
     .cal                = &cal,
 
-    // review - does app_t need these
-    // or just inject into the decode_t and ranging_t.  etc.
-    .line_freq          = &line_freq,
+    .environment        = &environment,
 
     .decode             = &decode,
     .buffer             = &buffer,
