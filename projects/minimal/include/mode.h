@@ -11,8 +11,8 @@
 
 
 /*
-  for hardware - make the enable pin the first bit in representation.
-  that way can keep the same encoding for 2x04, and 1x08 muxes.
+  for hardware - make enable pin the first bit in representation.
+  that way can use the same encoding for 2x04, and 1x08 muxes.
 */
 
 // TODO. consider rename M1, M2 etc. although does not distinguish single v dual
@@ -146,11 +146,14 @@ typedef struct _4094_state_t
 
 
 
-//////////
 
-// clear relay state
 
-void _4094_state_clear_relays(_4094_state_t *state);
+/*
+  clear relay state
+  this is not a reset().  which uses SR_SET, or SR_RESET.
+*/
+
+void _4094_state_clear_relays( _4094_state_t *state);
 
 
 

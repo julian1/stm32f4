@@ -130,7 +130,22 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
 
 
 
+/*
+  EXTR.
+  - instead of mallocing, could just make a union structure.
+  for differrent representations.
 
+  - otherwise pre-allocate and put and put on stack in main.c
+  and then pass as pointer on mode creation.
+  like every other object we create.
+  -----------
+
+  - ratiometric - difficult for auto-ranging.  because of nominal value.
+  - one way to handle.  would just be to take the max of the two readings.
+      and use that for auto-ranging.
+      else only use 10V range.
+
+*/
 
 typedef struct decode_t
 {
@@ -434,10 +449,20 @@ void _4094_state_clear_relays(_4094_state_t *state)
 
 
 
+#if 0
 
+/* could pass the environment on creation. but think better if it belongs
+  to the setter/controller context.
+  similarly the memory for the decoder strategy could be  passed on creation.
 
+*/
 
+void mode_init(_mode_t *mode, environment_t *environment, decode_union_t * u)
+{
 
+}
+
+#endif
 
 void mode_reset(_mode_t *mode)
 {
@@ -446,6 +471,12 @@ void mode_reset(_mode_t *mode)
       for default initialization
       otherwise they will not get an initial pulse/value.
     */
+
+
+  /*
+    TODO FIXME memory leak. here
+    mode->sa->decode_ctx = malloc( sizeof( decode_t));
+  */
 
 
   *mode = ( const _mode_t) {

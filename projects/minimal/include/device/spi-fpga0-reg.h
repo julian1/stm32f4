@@ -184,7 +184,13 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 */
 
 
-// rename term_t  or conversion_term_t  or seq_term_t
+/*
+  consider rename seq_elt_t.
+
+    to term_t. or conversion_term_t.  or   conv_term_t
+    seq_term_t
+
+*/
 
 typedef struct __attribute__((__packed__))
 seq_elt_t
@@ -203,8 +209,8 @@ seq_elt_t
   /////////////////////////////
 #if 0
   // decode flags
-  // replaced this with a dedicated strategy set at the time
-  // the sample sequence is determined.
+  // now using dedicated handler strategy set at the same time
+  // the seq_ets are set.
 
 
   uint32_t    hi            : 1;  // 16     // TODO. consider bad name.  hi == input signal/sample. or zero

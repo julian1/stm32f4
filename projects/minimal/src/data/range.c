@@ -38,6 +38,8 @@ static void mode_reset_inputs( _mode_t *mode)
 
   assert( mode && mode->magic == MODE_MAGIC);
 
+
+
   // front end relays
   mode->serial. K404  = SR_RESET;
   mode->serial. K403  = SR_RESET;
@@ -59,10 +61,11 @@ static void mode_reset_inputs( _mode_t *mode)
   // set loside input boot buffer mux to A400-1/ star ground
   mode->serial.U426      = S4,
 
-  // invert dac.
-  // TODO.  this state is different from mode_reset().
-  // because the hardware cmd flags for spi write are set.
-  // the mode should just encode the val.
+  /* invert dac.
+    TODO.  this state is different from mode_reset().
+    because the hardware cmd flags for spi write are set.
+    the mode should just encode the val.
+  */
   mode_invert_dac_set( mode, 0);
 
 
@@ -76,7 +79,7 @@ static void mode_reset_inputs( _mode_t *mode)
   memset( &mode->sa.p_seq_elt, 0, sizeof( mode->sa.p_seq_elt));
 
   mode->sa.decode_strategy  = NULL;
-  mode->sa.decode_ctx       = NULL;
+  mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
 
   // input muxes.  hi/lo and feeder mux
   mode->serial.U409 = SOFF;
