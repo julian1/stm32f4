@@ -16,105 +16,6 @@
 #include <support.h>   // format_value()
 
 
-/*
-  the amplifier  gain. should be included in b.
-
-  -----
-  state that is not updated with range  change
-
-    - LTS.
-    - STS
-    - adc/sa. parameters not.  eg. line-freq.
-    - 10Meg. impedance not.
-
-
-      done have to do all the state.  for temp.  but measuring
-      - ACAL can just propagate the internal ref. calibration.
-
-    - temp - only one value.  unit is degC.  would likely use  100x.  gain, anyway.
-    - ref  - only has 10V/1x gain range.
-    - daq  - would have 10,1,0.1,   no HV. inputs.
-
-  - so it is only really the daq. that needs ranges.
-*/
-
-
-
-/*
-  the initial state, may want to move here
-
-  10Meg. impedance setting needs to persists through range change.
-    This is a high-level concept. should be applied at range change.
-
-      we could add the variable in the mode...
-
-*/
-
-/*
-  recognize that we dont seek to cover all states.
-  all states, for self-diagnostics, acal etc
-
-  //////////
-  // actually we dont even care about not using default here..
-  // lts,sts adc,
-
-*/
-
-
-/*
-  instead of have this extra state
-
-  mode_reset() is different from the partial state reset required to change ranges
-
-*/
-
-#if 0
-
-static void mode_partial_reset( _mode_t *mode)
-{
-  // rename this.  as mode_range_reset...
-
-  assert(mode && mode->magic == MODE_MAGIC);
-
-  // copy the mode
-  _mode_t tmp = *mode;
-  UNUSED(tmp);
-
-  // reset mode,
-  mode_reset( mode);
-
-
-  // persist adc parameters, aperture and reset period
-  mode->adc = tmp.adc;
-
-  // persist the sa trigger-delay,  and precharge period
-  // the channel seqn and seq, will be set by the range
-  mode->sa.p_trig_delay   = tmp.sa.p_trig_delay;
-  mode->sa.p_precharge    = tmp.sa.p_precharge;
-
-  // persist noaz flag
-  // mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
-
-
-
-  // persist the daq input selection muxes
-  mode->serial.U1009  =  tmp.serial.U1009;
-  mode->serial.U1010  =  tmp.serial.U1010;
-
-  // persist sts datc value
-  mode->mdac1_val     = tmp.mdac1_val;
-
-  // persist LTS source muxes
-  mode->serial.U1003 = tmp.serial.U1003;
-  mode->serial.U1012 = tmp.serial.U1012;
-
-
-  // 10meg. impedance flag. is persisted by mode...
-  // mode->range_10Meg  = tmp.range_10Meg;
-}
-
-#endif
-
 
 static void mode_reset_inputs( _mode_t *mode)
 {
@@ -206,7 +107,7 @@ static void mode_reset_inputs( _mode_t *mode)
 
 
 
-static void range_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
+static void range_ref_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
 {
   UNUSED(range_10Meg);
   // sample ref-lo switched on input hi and lo mux.
@@ -245,7 +146,8 @@ static void range_lo2( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_reset_inputs( mode);
 
-  sa_set( &mode->sa, "0" ); // sample A400 gnd
+  // sample A400 gnd directly from the azmux.
+  sa_set( &mode->sa, "0" );
 
   if(strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
@@ -643,32 +545,33 @@ size_t ranges_init( range_t *ranges, size_t sz)
   const range_t temp[] = {
 
     // magic        name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
-    { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,      range_reading_normal, range_reading_format,   NULL,             },
 
-    { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO",   "1",    false,  false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO",   "10",   false,  true,     range_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "1",    false,  false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "10",   false,  true,     range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
 
-    { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO2",  "1",    false,  false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO2",  "10",   false,  true,     range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "1",    false,  false,    range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "10",   false,  true,     range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
 
 
-    { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "1",    false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "10",   false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "100",  false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "1000", false,  true,     range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
 
-    { RANGE_MAGIC,  "TEMP", "",     true,   true,     range_temp, range_reading_temp,   range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "1",    false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "10",   false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "100",  false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "1000", false,  true,     range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
 
-    { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },  // better name, LTS or DCV LTS.
-    { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LTS",  "1",    false,  false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LTS",  "10",   false,  true,     range_lts,  range_reading_normal, range_reading_format,   NULL,             }
+    { RANGE_MAGIC,  "TEMP", "",     true,   true,     range_temp,     range_reading_temp,   range_reading_format,   NULL,             },
+
+    { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },  // better name, LTS or DCV LTS.
+    { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LTS",  "1",    false,  false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LTS",  "10",   false,  true,     range_lts,      range_reading_normal, range_reading_format,   NULL,             }
 
   };
 
@@ -691,4 +594,103 @@ behavior. The function expects valid, null-terminated strings as its arguments.
 
 
 
+
+/*
+  the amplifier  gain. should be included in b.
+
+  -----
+  state that is not updated with range  change
+
+    - LTS.
+    - STS
+    - adc/sa. parameters not.  eg. line-freq.
+    - 10Meg. impedance not.
+
+
+      done have to do all the state.  for temp.  but measuring
+      - ACAL can just propagate the internal ref. calibration.
+
+    - temp - only one value.  unit is degC.  would likely use  100x.  gain, anyway.
+    - ref  - only has 10V/1x gain range.
+    - daq  - would have 10,1,0.1,   no HV. inputs.
+
+  - so it is only really the daq. that needs ranges.
+*/
+
+
+
+/*
+  the initial state, may want to move here
+
+  10Meg. impedance setting needs to persists through range change.
+    This is a high-level concept. should be applied at range change.
+
+      we could add the variable in the mode...
+
+*/
+
+/*
+  recognize that we dont seek to cover all states.
+  all states, for self-diagnostics, acal etc
+
+  //////////
+  // actually we dont even care about not using default here..
+  // lts,sts adc,
+
+*/
+
+
+/*
+  instead of have this extra state
+
+  mode_reset() is different from the partial state reset required to change ranges
+
+*/
+
+#if 0
+
+static void mode_partial_reset( _mode_t *mode)
+{
+  // rename this.  as mode_range_reset...
+
+  assert(mode && mode->magic == MODE_MAGIC);
+
+  // copy the mode
+  _mode_t tmp = *mode;
+  UNUSED(tmp);
+
+  // reset mode,
+  mode_reset( mode);
+
+
+  // persist adc parameters, aperture and reset period
+  mode->adc = tmp.adc;
+
+  // persist the sa trigger-delay,  and precharge period
+  // the channel seqn and seq, will be set by the range
+  mode->sa.p_trig_delay   = tmp.sa.p_trig_delay;
+  mode->sa.p_precharge    = tmp.sa.p_precharge;
+
+  // persist noaz flag
+  // mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
+
+
+
+  // persist the daq input selection muxes
+  mode->serial.U1009  =  tmp.serial.U1009;
+  mode->serial.U1010  =  tmp.serial.U1010;
+
+  // persist sts datc value
+  mode->mdac1_val     = tmp.mdac1_val;
+
+  // persist LTS source muxes
+  mode->serial.U1003 = tmp.serial.U1003;
+  mode->serial.U1012 = tmp.serial.U1012;
+
+
+  // 10meg. impedance flag. is persisted by mode...
+  // mode->range_10Meg  = tmp.range_10Meg;
+}
+
+#endif
 
