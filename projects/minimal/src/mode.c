@@ -57,145 +57,6 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-#if 0
-
-void direct_az_set(reg_direct_t *reg_direct, const char *s)
-{
-  /*
-    set reg_direct with same inputs as would be used in az ode.
-    for tests.
-  */
-  if(strcmp(s, "0") == 0 ) {
-
-    /*  sample star-ground, for both readings
-        used for noise test, and low-leakage input during adc weight calculation
-    */
-
-    // for direct mode
-    reg_direct->azmux_o = S6;    // A400-1
-    reg_direct->pc_o = 0b00;
-  }
-  else if(strcmp(s, "ch2") == 0 ) {
-
-    // direct mode
-    reg_direct->azmux_o = S3;
-    reg_direct->pc_o = 0b10;
-  }
-  else if(strcmp(s, "ch1") == 0 ) {
-
-    // direct mode
-    reg_direct->azmux_o = S1;
-    reg_direct->pc_o = 0b01;
-
-  } else if(strcmp(s, "ratio") == 0 ) {
-    assert( 0);
-  }
-  else
-    assert( 0);
-
-}
-
-
-#endif
-
-
-
-
-
-/*
-  for argument validation - need a function stringinlist...   perhaps even pass the strbasecmp comparison function
-  to validate
-
-*/
-
-#if 0
-void mode_az_set(_mode_t *mode, const char *s)
-{
-  // we used to set both the direct register as well as the saaz setup.
-  // but we could combine.
-
-  sa_set(     &mode->sa, s);
-  direct_az_set( &mode->reg_direct, s);
-
-  // bool ret = mode_az_set_relax( mode, s);
-  // assert( ret);
-}
-#endif
-
-#if 0
-  else if( strcmp(s, "ch2") == 0) {
-
-    // assert( 0);
-
-    // az mode
-    // signal on S3, S7
-    // sa->p_seq_n = 2;
-
-
-    // hi/val/input
-    sa->p_seq_elt[ 0] = (const seq_elt_t ) {
-
-      .azmux        = S3,       // PC-CH2-OUT
-      .pc_sample    = 0b10,     // pc2 active
-      .next_idx     = 1,
-      .hi           = true
-  /*
-      .oob   = 1,         // flag for decode - oob.   set by control of aperture.
-      .convert = 1,       // flag for decode. convert on this input .  pass through flag.
-      .hi    = 1          // flag for decode.
-    */
-    };
-
-/*
-    char buf[ 100];
-    uint32_t  val;
-    memcpy( &val, &sa->p_seq_elt[ 0], sizeof(val));
-    printf("p_seq_elt[0] %s\n",  str_format_bits( buf, 32, val));
-    assert(0);
-*/
-    // lo/zero
-    sa->p_seq_elt[ 1] = (const seq_elt_t) {
-
-      .azmux        = S7,    // CH2-LO
-      .pc_sample    = 0b00,
-      .next_idx     = 0,
-      .hi           = false
-    };
-  }
-#endif
-
-
-#if 0
-
-    // sample star-gnd.
-
-    assert( 0);
-
-    // signal can come in on S3, S7
-    // sa_state_t *sa = &mode->sa;
-    // sa->p_seq_n = 2;
-
-    // val
-    sa->p_seq_elt[ 0].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 0].pc_sample    = 0b00;        // this doesn't look right.
-
-    // zero
-    sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
-
-/*
-    // zero
-    sa->p_seq_elt[ 1].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 1].pc_sample    = 0b00;
-*/
-
-    // could set a catcher handler/closure here
-#endif
-
-
-// typedef struct { int data[3]; } ArrayWrapper;
-// typedef struct wrapper_t { seq_elt_t data[4]; } wrapper_t ;
-
-
 
 
 
@@ -1491,6 +1352,145 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
 
 
 
+
+
+#if 0
+
+void direct_az_set(reg_direct_t *reg_direct, const char *s)
+{
+  /*
+    set reg_direct with same inputs as would be used in az ode.
+    for tests.
+  */
+  if(strcmp(s, "0") == 0 ) {
+
+    /*  sample star-ground, for both readings
+        used for noise test, and low-leakage input during adc weight calculation
+    */
+
+    // for direct mode
+    reg_direct->azmux_o = S6;    // A400-1
+    reg_direct->pc_o = 0b00;
+  }
+  else if(strcmp(s, "ch2") == 0 ) {
+
+    // direct mode
+    reg_direct->azmux_o = S3;
+    reg_direct->pc_o = 0b10;
+  }
+  else if(strcmp(s, "ch1") == 0 ) {
+
+    // direct mode
+    reg_direct->azmux_o = S1;
+    reg_direct->pc_o = 0b01;
+
+  } else if(strcmp(s, "ratio") == 0 ) {
+    assert( 0);
+  }
+  else
+    assert( 0);
+
+}
+
+
+#endif
+
+
+
+
+
+/*
+  for argument validation - need a function stringinlist...   perhaps even pass the strbasecmp comparison function
+  to validate
+
+*/
+
+#if 0
+void mode_az_set(_mode_t *mode, const char *s)
+{
+  // we used to set both the direct register as well as the saaz setup.
+  // but we could combine.
+
+  sa_set(     &mode->sa, s);
+  direct_az_set( &mode->reg_direct, s);
+
+  // bool ret = mode_az_set_relax( mode, s);
+  // assert( ret);
+}
+#endif
+
+#if 0
+  else if( strcmp(s, "ch2") == 0) {
+
+    // assert( 0);
+
+    // az mode
+    // signal on S3, S7
+    // sa->p_seq_n = 2;
+
+
+    // hi/val/input
+    sa->p_seq_elt[ 0] = (const seq_elt_t ) {
+
+      .azmux        = S3,       // PC-CH2-OUT
+      .pc_sample    = 0b10,     // pc2 active
+      .next_idx     = 1,
+      .hi           = true
+  /*
+      .oob   = 1,         // flag for decode - oob.   set by control of aperture.
+      .convert = 1,       // flag for decode. convert on this input .  pass through flag.
+      .hi    = 1          // flag for decode.
+    */
+    };
+
+/*
+    char buf[ 100];
+    uint32_t  val;
+    memcpy( &val, &sa->p_seq_elt[ 0], sizeof(val));
+    printf("p_seq_elt[0] %s\n",  str_format_bits( buf, 32, val));
+    assert(0);
+*/
+    // lo/zero
+    sa->p_seq_elt[ 1] = (const seq_elt_t) {
+
+      .azmux        = S7,    // CH2-LO
+      .pc_sample    = 0b00,
+      .next_idx     = 0,
+      .hi           = false
+    };
+  }
+#endif
+
+
+#if 0
+
+    // sample star-gnd.
+
+    assert( 0);
+
+    // signal can come in on S3, S7
+    // sa_state_t *sa = &mode->sa;
+    // sa->p_seq_n = 2;
+
+    // val
+    sa->p_seq_elt[ 0].azmux = S6;     // A400-1
+    sa->p_seq_elt[ 0].pc_sample    = 0b00;        // this doesn't look right.
+
+    // zero
+    sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
+
+/*
+    // zero
+    sa->p_seq_elt[ 1].azmux = S6;     // A400-1
+    sa->p_seq_elt[ 1].pc_sample    = 0b00;
+*/
+
+    // could set a catcher handler/closure here
+#endif
+
+
+// typedef struct { int data[3]; } ArrayWrapper;
+// typedef struct wrapper_t { seq_elt_t data[4]; } wrapper_t ;
 
 
 
