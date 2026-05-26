@@ -157,6 +157,9 @@ typedef struct decode_t
   uint32_t adc_refmux_pos_hi;
   uint32_t adc_refmux_neg_hi;
 
+  uint32_t adc_refmux_pos_lo;
+  uint32_t adc_refmux_neg_lo;
+
 
 } decode_t;
 
@@ -175,6 +178,125 @@ static void decode_init( decode_t *decode)
   memset( decode, 0, sizeof( decode_t ));
   decode->magic = DECODE_MAGIC;
 
+}
+
+
+
+
+
+
+
+#define HI_CH1  S1
+#define HI_CH2  S3
+
+#define COM_LC  S5
+#define LO_CH2  S7
+
+#define LO_STAR S6
+
+
+
+static void decode_az_hi_first( decode_t *decode, data_t *data);
+
+static void compile_sa_az_hi_first( sa_state_t *sa)
+{
+
+  assert( !sa->noaz);
+
+  // clear memory
+  _Static_assert( sizeof( sa->p_seq_elt) == sizeof( seq_elt_t) * 4);
+  memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
+
+
+  if(strcmp( sa->input, "0") == 0) {
+
+    /*  use star-ground, for both readings
+        use for noise test, and low-leakage input during adc weight calculation
+        bypasses pc switching
+    */
+
+    /* important - no need to add a OOB reading here.
+      unlikely to be using auto-ranging
+    */
+    const seq_elt_t  seq_elts[ 4] =  {
+      { // 0
+      .azmux        = LO_STAR,            // treat as hi
+      .pc_sample    = 0b00,
+      .zgjc         = true,               // set zgjc, cm-dither
+      .next_idx     = 1,
+      },
+      { // 1
+      .azmux        = LO_STAR,            // treat as zero
+      .pc_sample    = 0b00,
+      .next_idx     = 0,                  // jump back to 0 for next zero.
+      }
+    };
+    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
+    sa->decode_ctx = malloc( sizeof( decode_t));    // TODO FIXME memory
+    decode_init( sa->decode_ctx);
+  }
+
+
+  else if( strcmp( sa->input, "ch1") == 0
+    || strcmp( sa->input, "ch2") == 0) {
+
+    /*
+      normal az operation.
+      HI/input first
+      with oob reading included for fast auto-ranging.
+    */
+    bool is_ch1 = strcmp( sa->input, "ch1") == 0;
+
+    const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {
+      {
+      // oob reading, az mode.  hi first
+      // 0
+      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
+      .pc_sample    = is_ch1 ? 0b01   : 0b10,   // pc1 select ch1 input
+      .oob_aperture = true,                   // use fast/constant aperture
+      .zgjc         = true,                    // indicate set zgjc here, also cm-dither, zero for noaz.
+      .next_idx     = 1,
+      },
+
+      { // 1
+      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .oob_aperture = true,
+      .next_idx     = 2,
+      },
+
+      // normal reading, az mode, hi first
+      { // 2
+      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
+      .pc_sample    = is_ch1 ? 0b01   : 0b10,   // pc1 select ch1 input
+      .zgjc         = true,                    // indicate set zgjc here, also cm-dither, zero for noaz.
+      .next_idx     = 3,
+      },
+      { // 3
+      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .next_idx     = 2,                      // jump to 2.
+      },
+    };
+    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
+    sa->decode_ctx = malloc( sizeof( decode_t));  // TODO FIXME memory
+
+    decode_init( sa->decode_ctx);
+  }
+
+
+  else if( strcmp( sa->input, "ratio") == 0 ) {
+
+    assert( 0);
+  }
+
+  else {
+    assert( 0);
+  }
 }
 
 
@@ -210,13 +332,14 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
   if( status.sample.first) {
 
-    printf( "clear ");
-
     // clear state after re/trigger action
+    printf( "clear ");
+    // decode_reset()
     decode->adc_refmux_pos_hi = 0; // UINT32_MAX
     decode->adc_refmux_neg_hi = 0;
+    decode->adc_refmux_pos_lo = 0; // UINT32_MAX
+    decode->adc_refmux_neg_lo = 0;
   }
-
 
   if( term.oob_aperture) {
 
@@ -224,11 +347,8 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     decode_oob( &decode->oob, data);
     return;
   }
-
-
   // normal reading
   assert( !term.oob_aperture);
-
 
   /*
     many ways to distinguish/generalize how we handle conversions here
@@ -243,22 +363,17 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
   if( status.sample.idx % 2 == 0) {
 
-    printf( "hi ");
-
     // HI.  record counts.
+    printf( "hi ");
     decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
     decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
-
     assert( data->reading_valid == false);
-
   }
   else {
 
-    printf( "lo ");
-
     // TODO. add the zero. average.
-
     // LO convert value
+    printf( "lo ");
     data->count_sum =
         ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
       - ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg));
@@ -273,9 +388,162 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
     data->reading_valid     = true;
   }
+}
 
+
+
+
+////////////////////////////
+
+
+static void decode_noaz_lo_first( decode_t *decode, data_t *data);
+
+
+static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz, bool oob  */)
+{
+  /*
+    could probably just use the az_hi_first.
+    and swap the terms around and patch the indices, and zgjc setting
+    but it is complicated enough, to do it manually.
+  */
+
+  assert( sa->noaz);
+
+  // clear memory
+  _Static_assert( sizeof( sa->p_seq_elt) == sizeof( seq_elt_t) * 4);
+  memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
+
+
+  if(strcmp( sa->input, "0") == 0) {
+
+    const seq_elt_t  seq_elts[ 4] =  {
+      { // 0
+      .azmux        = LO_STAR,                // treat as zero
+      .pc_sample    = 0b00,
+      .zgjc         = true,                      // set for zgjc, cm-dither, zero for noaz.
+      .next_idx     = 1,
+      },
+      { // 1
+      .azmux        = LO_STAR,                // treat as hi
+      .pc_sample    = 0b00,
+      .next_idx     = 1,                      // repeat. jump to 1.
+      }
+    };
+    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_noaz_lo_first;
+    sa->decode_ctx = malloc( sizeof( decode_t));    // TODO FIXME memory
+    decode_init( sa->decode_ctx);
+  }
+
+  else if( strcmp( sa->input, "ch1") == 0
+    || strcmp( sa->input, "ch2") == 0) {
+
+    bool is_ch1 = strcmp( sa->input, "ch1") == 0;
+
+    const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {     // conversion terms
+      {
+      // oob reading, is still az mode, hi first
+      // 0
+      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
+      .pc_sample    = is_ch1 ? 0b01   : 0b10,   // pc1 select ch1 input
+      .oob_aperture = true,                     // use fast/constant aperture
+      .zgjc         = true,                     // set zgjc here, also cm-dither, zero for noaz.
+      .next_idx     = 1,
+      },
+      { // 1
+      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .oob_aperture = true,
+      .next_idx     = 2
+      },
+
+
+      // normal reading, noaz mode, lo first
+      { // 2
+      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .zgjc         = true,
+      .next_idx     = 3,
+      },
+      { // 3
+      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
+      .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
+      .next_idx     = 3,                      // repeat
+      },
+    };
+    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_noaz_lo_first;
+    sa->decode_ctx = malloc( sizeof( decode_t));  // TODO FIXME memory
+
+    decode_init( sa->decode_ctx);
+  }
+  else if( strcmp( sa->input, "ratio") == 0 ) {
+
+    assert( 0);
+  }
+
+  else {
+    assert( 0);
+  }
 
 }
+
+
+
+static void decode_noaz_lo_first( decode_t *decode, data_t *data)
+{
+  assert( decode && decode->magic == DECODE_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  const reg_sr_t status = data->status;
+  const seq_elt_t term  = data->seq_elt;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+  if( status.sample.first) {
+
+    // clear state after re/trigger action
+    printf( "clear ");
+    // decode_reset()
+    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_refmux_neg_hi = 0;
+    decode->adc_refmux_pos_lo = 0; // UINT32_MAX
+    decode->adc_refmux_neg_lo = 0;
+  }
+
+  if( term.oob_aperture) {
+
+    // delegate to oob conversion handler
+    decode_oob( &decode->oob, data);
+    return;
+  }
+  // normal reading
+  assert( !term.oob_aperture);
+
+  if( status.sample.idx % 2 == 0) {
+
+    // LO   record counts.
+    printf( "lo ");
+    decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_lo     = data->adc_refmux_neg;
+    assert( data->reading_valid == false);
+  }
+  else {
+
+    // HI convert value
+    printf( "hi ");
+    data->count_sum =
+        ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg))
+      - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
+
+    data->reading_valid     = true;
+  }
+}
+
+
 
 
 
@@ -289,124 +557,45 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 */
 
-/*
-  make static.  and rename  to sa_rebuild()
-  and pass the mode. and all the arguments.
-*/
-
-void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
+static void compile_sa( sa_state_t *sa)
 {
-  /*
-      options here.   "ch1", "ch2", "ratio", "0".
-      keep the az flag separate.
-  */
 
+  // cannot rebuild sequence terms.
+  // unless have all the arguments...
+  if( strlen( sa->input) == 0)
+    return;
 
-  if(strcmp(s, "0") == 0) {
-
-    /*  sample star-ground, for both readings
-        for noise test, and low-leakage input during adc weight calculation
-        bypasses pc switching
-    */
-
-    /* important - no need to add the OOB reading here.
-      only wan for the obvious cases to speed up auto-ranging.
-    */
-    const seq_elt_t  seq_elts[] =  {          // conversion terms
-      { // 0
-      .azmux        = S6,                     // A400-1
-      .pc_sample    = 0b00,
-      .next_idx     = 1,
-      .zgjc         = true               // set for zgjc, cm-dither, zero for noaz.
-      },
-      { // 1
-      .azmux        = S6,                     // A400-1
-      .pc_sample    = 0b00,
-      .next_idx     = 0,                      // jump to 2.
-      }
-    };
-
-    // clear memory
-    memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
-    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
-
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));    // TODO FIXME memory
-    decode_init( sa->decode_ctx);
-  }
-
-
-  else if( strcmp(s, "ch1") == 0
-    || strcmp(s, "ch2") == 0) {
-
-
-    /*
-      normal az operation.
-      HI/input first
-      with oob reading included for fast auto-ranging.
-    */
-    bool is_ch1 = strcmp(s, "ch1") == 0;
-
-    const seq_elt_t  seq_elts[] =  /*( const wrapper_t ) */ {     // conversion terms
-      {
-      // oob reading, az mode
-      // 0
-      .azmux        = is_ch1 ? S1   : S3,     // HI - PC-CH1-OUT,  PC-CH2-OUT
-      .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
-      .next_idx     = 1,
-      .oob_aperture = true,                   // use fast/constant aperture
-      .zgjc         = true                    // indicate set zgjc here, also cm-dither, zero for noaz.
-      },
-      { // 1
-      .azmux        = is_ch1 ? S5  : S7,      // LO - COM-LC, CH2-LO
-      // .pc_sample    = 0b00,
-      .next_idx     = 2,
-      .oob_aperture = true
-      },
-      // normal reading, az mode
-      { // 2
-      .azmux        = is_ch1 ? S1   : S3,     // HI - PC-CH1-OUT,  PC-CH2-OUT
-      .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
-      .next_idx     = 3,
-      .zgjc         = true                    // indicate set zgjc here, also cm-dither, zero for noaz.
-      },
-      { // 3
-      .azmux        = is_ch1 ? S5  : S7,      // LO - COM-LC, CH2-LO
-      .pc_sample    = 0b00,
-      .next_idx     = 2,                      // jump to 2.
-      },
-    };
-
-
-    /* could create two entries - and copy and override the oob flag, and the index.
-        not clear which expression is simpler.
-    */
-
-    _Static_assert( sizeof( sa->p_seq_elt) == sizeof( seq_elt_t) * 4
-        && sizeof( sa->p_seq_elt) == sizeof( seq_elts) );
-
-    memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
-    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
-
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));  // TODO FIXME memory
-
-    decode_init( sa->decode_ctx);
-  }
-
-
-  else if(strcmp(s, "ratio") == 0 ) {
-
-    assert( 0);
-  }
-
-  else {
-    assert( 0);
-  }
-
+  if( sa->noaz)
+    compile_sa_noaz_lo_first( sa);
+  else
+    compile_sa_az_hi_first( sa);
 }
+
+
+
+
+void sa_set( sa_state_t *sa, const char *s )
+{
+  assert( strcmp( s, "0") == 0
+    || strcmp( s, "ch1") == 0
+    || strcmp( s, "ch2") == 0
+    || strcmp( s, "ratio") == 0);
+
+
+  strncpy( sa->input , s,  sizeof( sa->input));
+  sa->input[ sizeof( sa->input) - 1] = 0;
+
+  compile_sa( sa);
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -980,49 +1169,30 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
       because float looks like int
   */
 
+  ////////////////////////
+
 
   else if(strcmp(cmd, "noaz") == 0) {
 
-    assert( 0);
 
-    // better to be a command. rather than set + argument.
-    // else if(strcmp(s0, "noaz") == 0) {
-
-    // mode->reg_cr.sa_p_noaz = true;
+    mode->sa.noaz = true;
+    compile_sa( &mode->sa);
   }
 
   else if(strcmp(cmd, "az") == 0) {
 
-    assert( 0);
-    // mode->reg_cr.sa_p_noaz = false;
+    mode->sa.noaz = false;
+    compile_sa( &mode->sa);
   }
 
+  else if(
+        (sscanf(cmd, "set az %100s", s0) == 1)
+    ||  (sscanf(cmd, "sa %100s", s0) == 1)
+    )  {
 
+    sa_set( &mode->sa, s0);
 
-  /*
-    this looks wrongly prefix named.
-
-    it sets the sequencing inputs. / or sequence/sample acquisition input
-
-    should rename   set_sa_ xxx
-    because the function is sa
-    or just sa.  because
-
-    eg. 'sa ch2'
-
-  */
-  else if( sscanf(cmd, "set az %100s", s0) == 1)  {
-
-    // consider deprecate
-    sa_set( &mode->sa, s0 );
   }
-
-  else if( sscanf(cmd, "sa %100s", s0) == 1)  {
-
-    // eg. like this.
-    sa_set( &mode->sa, s0 );
-  }
-
 
 
 

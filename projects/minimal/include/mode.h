@@ -182,17 +182,10 @@ typedef struct sa_state_t
 
   // driver state. used to build the low-level board state terms, and decode.
   // need a rebuild() func to call when any item is modified.
-
-
-  char input[ 6];   "0", "ch1", "ch2", "ratio"  etc.
-  bool noaz;
   bool oob;       // no_oob.
-
-  note. strncpy() function does not guarantee null termination.
-  use,
-    strncpy(dest, src, sizeof(dest) - 1);
-    dest[sizeof(dest) - 1] = '\0'; // Ensures safety
   */
+  char input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
+  bool noaz;
 
   // conversion terms. consider name - terms, elts, phases
   seq_elt_t p_seq_elt [ 4] ;
