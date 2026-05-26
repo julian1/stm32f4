@@ -289,6 +289,10 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 */
 
+/*
+  make static.  and rename  to sa_rebuild()
+  and pass the mode. and all the arguments.
+*/
 
 void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
 {

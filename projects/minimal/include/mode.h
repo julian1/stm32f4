@@ -165,6 +165,8 @@ void _4094_state_clear_relays( _4094_state_t *state);
 /*
   sample/sequence acquisition
   control state
+
+  conversion terms.
 */
 
 
@@ -175,7 +177,24 @@ typedef struct sa_state_t
 
   uint32_t p_precharge;
 
-  // conversion terms. consider naming  - terms, elts, phases
+
+  /*
+
+  // driver state. used to build the low-level board state terms, and decode.
+  // need a rebuild() func to call when any item is modified.
+
+
+  char input[ 6];   "0", "ch1", "ch2", "ratio"  etc.
+  bool noaz;
+  bool oob;       // no_oob.
+
+  note. strncpy() function does not guarantee null termination.
+  use,
+    strncpy(dest, src, sizeof(dest) - 1);
+    dest[sizeof(dest) - 1] = '\0'; // Ensures safety
+  */
+
+  // conversion terms. consider name - terms, elts, phases
   seq_elt_t p_seq_elt [ 4] ;
 
   /*
@@ -192,7 +211,7 @@ typedef struct sa_state_t
     TODO.
     reconsider.
 
-    putting the noaz flag here. and persisting.  would simplfy a lot of argument passing/handling down from app..
+    add the noaz flag here. and persisting.  would simplfy a lot of argument passing/handling down from app..
     because the setup of the sequence elts - depends on knowing this flag.
     also ranging functions must change input channels from ch1, or ch2 , which means must know this flag etc.
     -
@@ -202,7 +221,6 @@ typedef struct sa_state_t
     noaz. and 10Meg.  are driving state. they control how other fields work.
   */
 
-  // bool   noaz;
 
 } sa_state_t;
 
