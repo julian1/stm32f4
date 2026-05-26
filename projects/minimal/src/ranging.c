@@ -236,7 +236,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     ranging_range_set( ranging, ranging->range_idx);
 
 
-    // state will be transferred at repl '\r'
+    // board state will be update/transferred on repl '\r'
 
     // set retrigger to clear data buffers
     // ranging->retrigger = true;

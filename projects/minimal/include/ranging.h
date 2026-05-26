@@ -28,7 +28,12 @@ struct ranging_t
 
   size_t        range_idx;
 
-  // putting this in the mode/ sa structure ... would  simplify
+  /*
+      // putting this in the mode/ sa structure ... would  simplify
+    it is only applied. when we change the range.
+    - if put in mode_t. then is no context in mode_repl() . to apply the change,
+      and retrigger.
+  */
   bool          range_10Meg ;           // auto 10Meg.
 
   bool          ar;                     // autoranging

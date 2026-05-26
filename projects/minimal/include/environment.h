@@ -16,6 +16,10 @@ typedef struct environment_t
 
   uint32_t      line_freq;
 
+  // reallly dont think belongs here.
+  // issue is must in a right context where can re-calculate the mode, then update board state
+  // bool          range_10Meg ;           // auto 10Meg.
+
 } environment_t;
 
 

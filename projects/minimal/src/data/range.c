@@ -118,7 +118,8 @@ static void mode_partial_reset( _mode_t *mode)
 
 static void mode_reset_inputs( _mode_t *mode)
 {
-  // name partial reset?
+  /* for ranging.
+  */
 
   /*
     should copy. from mode_reset()

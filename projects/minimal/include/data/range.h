@@ -89,15 +89,13 @@ struct range_t
   // const char  *unit;
 
   /*
-    can always use a structure to pass arguments,
-    if argument passing becomes to onerous
+    can use a structure to pass arguments here,
+    if passing the range_10Meg. is considered to onerous
   */
 
   // set the range, by manipulating the mode
   void (*range_set_mode)( const range_t *range, _mode_t *,  bool range_10Meg);
 
-
-  // TODO. renam the range_reading value to count_norm.
 
   // convert normalized count to a reading according to calibration
   double (*range_reading_convert)( const range_t *range, const cal_t *, double count_sum_norm);
