@@ -142,30 +142,6 @@ typedef struct _4094_state_t
 
 
 
-  // flag that something changed.
-  /*
-      no. the sequence points for state transition are known.
-      either,
-        - '\r' for repl statement.
-        - or range-change, generated AR. in response to interrupt.
-        - or in test code, that manipulates the mode directly.
-      ------
-      AND if the mode has been modified.
-      i think we always want a retrigger.
-  */
-  /*
-    Easier way to determine change - is just to compare mode after repl processed. with a copy of the mode before hand.
-    before repl command is processed.
-      - two cases.
-      - retrigger, and non retrigger.
-
-  */
-
-  // bool modified;
-
-  // bool retrigger;
-
-
 } _4094_state_t;
 
 
@@ -316,22 +292,6 @@ typedef struct _mode_t
   bool          trigger_source;
 
 
-  /* choice,
-      is to place 10Meg flag in app_t ranging_t or mode_t.
-
-      state must persistent across range switching.
-        So perhaps place in range_t.
-
-    - mode_t is bad, because this mode_t is board state.  and 10Meg. is not directly written to the board.
-        however for mode_reset() we want a fixed state synchronization point.
-        and placing in mode ensures this.
-
-    - ie.. and we do not want to have to manage/clear this flag when running cal transfer routines
-    - otherwise the times we actually have to care about range switching are few, and localized.
-  */
-
-  // bool       range_10Meg ;
-
 } _mode_t ;
 
 
@@ -365,6 +325,31 @@ void mode_invert_dac_set( _mode_t *mode, unsigned u0 );
 
 
 
+
+// flag that something changed.
+/*
+  no. the sequence points for state transition are known.
+  either,
+    - '\r' for repl statement.
+    - or range-change, generated AR. in response to interrupt.
+    - or in test code, that manipulates the mode directly.
+  ------
+  AND if the mode has been modified.
+  i think we always want a retrigger.
+*/
+/*
+Easier way to determine change - is just to compare mode after repl processed. with a copy of the mode before hand.
+before repl command is processed.
+  - two cases.
+  - retrigger, and non retrigger.
+
+
+// bool modified;
+
+// bool retrigger;
+
+
+*/
 
 /*
 
