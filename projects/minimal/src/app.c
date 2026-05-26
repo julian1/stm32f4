@@ -516,7 +516,7 @@ void app_configure( app_t *app )
 
 
   // reset the mode.
-  mode_init( app->mode);
+  mode_reset( app->mode);
 
 
   /* OK. this is tricky.

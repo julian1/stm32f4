@@ -68,6 +68,8 @@
 
 */
 
+#if 0
+
 static void mode_partial_reset( _mode_t *mode)
 {
   // rename this.  as mode_range_reset...
@@ -111,6 +113,72 @@ static void mode_partial_reset( _mode_t *mode)
   // mode->range_10Meg  = tmp.range_10Meg;
 }
 
+#endif
+
+
+static void mode_reset_inputs( _mode_t *mode)
+{
+  // name partial reset?
+
+  /*
+    should copy. from mode_reset()
+      - front-end relays.
+      - loside/ . drives.
+      - invert dac
+      - amplifier
+      - az. input channel
+      - input muxes
+
+  */
+
+  assert( mode && mode->magic == MODE_MAGIC);
+
+  // front end relays
+  mode->serial. K404  = SR_RESET;
+  mode->serial. K403  = SR_RESET;
+  mode->serial. K405  = SR_RESET;
+  mode->serial. K406  = SR_RESET;
+
+  // U402
+  mode->serial. K407  = SR_RESET;
+  mode->serial. K402  = SR_RESET;
+
+  // u405
+  mode->serial. K401  = SR_RESET;
+
+  ///////
+
+  // set lo-side drive of com-lc to A400-1/ star-ground
+  mode->serial.U423      = D3,
+
+  // set loside input boot buffer mux to A400-1/ star ground
+  mode->serial.U426      = S4,
+
+  // invert dac.
+  // TODO.  different from mode_reset(). because will encode the spi dac. cmd flags
+  mode_invert_dac_set( mode, 0);
+
+
+
+  // amplifier
+  // 1x. S8.  same as - from mode_reset()
+  mode_gain_set( mode, 1);
+
+  // az, input channel
+  // leave precharge, trig_delay
+  memset( &mode->sa.p_seq_elt, 0, sizeof( mode->sa.p_seq_elt));
+
+  mode->sa.decode_strategy  = NULL;
+  mode->sa.decode_ctx       = NULL;
+
+
+  mode->serial.U409 = SOFF;
+  mode->serial.U419 = SOFF;
+  mode->serial.U420 = SOFF;
+
+}
+
+
 
 
 
@@ -141,7 +209,7 @@ static void range_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   assert(strcasecmp( range->name, "lo") == 0);
 
-  mode_partial_reset( mode);
+  mode_reset_inputs( mode);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
@@ -169,7 +237,7 @@ static void range_lo2( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   assert(strcasecmp( range->name, "lo2") == 0);
 
-  mode_partial_reset( mode);
+  mode_reset_inputs( mode);
 
   sa_set( &mode->sa, "0" ); // sample A400 gnd
 
@@ -203,7 +271,7 @@ static void range_ref( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   assert(strcasecmp( range->name, "ref") == 0);
 
-  mode_partial_reset( mode);
+  mode_reset_inputs( mode);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref");
 }
@@ -216,7 +284,7 @@ static void range_temp( const range_t *range, _mode_t *mode, bool range_10Meg)
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  mode_partial_reset( mode);
+  mode_reset_inputs( mode);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "temp");
 }
@@ -229,7 +297,7 @@ static void range_lts( const range_t *range, _mode_t *mode, bool range_10Meg)
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  mode_partial_reset( mode);
+  mode_reset_inputs( mode);
 
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "lts");
@@ -249,6 +317,9 @@ static void range_lts( const range_t *range, _mode_t *mode, bool range_10Meg)
 
 
 
+
+
+
 static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
 {
   assert(range && range->magic == RANGE_MAGIC);
@@ -256,20 +327,8 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   assert( strcasecmp( range->name, "dcv") == 0);
 
-  mode_partial_reset( mode);
+  mode_reset_inputs( mode);
 
-  /*
-    ranging should set
-      - front-end relays.
-      - amplifier
-      - az. input channel
-      - invert dac.
-      - input muxes
-
-      - leave everything else. reset() that is .
-      - rangin
-
-  */
 
 
   // TODO remove this as default.

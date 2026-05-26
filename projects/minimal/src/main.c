@@ -360,7 +360,7 @@ static int main_f429(void)
 
 
   _mode_t       mode;
-  mode_init( &mode);
+  mode_reset( &mode);
 
 
   // _mode_t       mode_last_written;

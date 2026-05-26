@@ -578,7 +578,7 @@ void _4094_state_clear_relays(_4094_state_t *state)
 
 
 
-void mode_init(_mode_t *mode)
+void mode_reset(_mode_t *mode)
 {
    /*
       all relays need to be defined as b01 or b10.
@@ -655,7 +655,7 @@ void mode_init(_mode_t *mode)
 
 }
 
-
+/*
 void mode_reset( _mode_t *mode)
 {
 
@@ -665,7 +665,7 @@ void mode_reset( _mode_t *mode)
   mode_init( mode);
 }
 
-
+*/
 
 
 
@@ -792,7 +792,14 @@ void mode_invert_dac_set( _mode_t *mode, unsigned u0 )
 
   assert( u0 <= 0xfff);
 
-  // move this to where dac is written. or insider the peripheral
+  /*
+    TODO reiew
+    consider embedding the write code in the mode - is not quite right.
+    mode should have the value.
+    and use write code - in the underlying spi write.
+    ---
+    it is ok. for the moment
+  */
   uint8_t cmd = 0x01;
   mode->mdac0_val = (cmd <<12) | (u0 & 0xfff);
 }
