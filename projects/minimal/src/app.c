@@ -55,6 +55,7 @@
 #include <data/buffer.h>
 #include <data/range.h>
 #include <ranging.h>
+#include <environment.h>
 
 
 
@@ -350,8 +351,9 @@ void app_transition_state( app_t  *app)
   spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE_OOB,  mode->adc.p_aperture_oob );
 
 
-  // write the mcu board trigger source,
-  // this has nothing to do with the actual fpga/sample acquisition trigger
+  /*  write mcu board trigger source,
+    this has *nothing* to do with the trigger
+  */
   gpio_write( app->gpio_trigger_source, mode->trigger_source);
 
   /*
@@ -1126,8 +1128,9 @@ static void spi_print_seq_register( spi_t *spi, uint32_t reg )
 
 
 
-static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
+static bool spi_repl_reg_query( spi_t *spi, const char *cmd, environment_t *environment )
 {
+
   /*
     repl query low-level registers
 
@@ -1136,6 +1139,10 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
     or move to, src/device/spi-fpga0.c   or support.c ?
   */
+
+	assert( spi);
+
+  assert( environment && environment->magic == ENVIRONMENT_MAGIC);
 
 
   uint32_t u0;
@@ -1211,8 +1218,10 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
     || strcmp(cmd, "aper?") == 0
   ) {
 
+
+
     uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE);
-    aperture_print( aperture,  line_freq);
+    aperture_print( aperture,  environment->line_freq);
   }
 
   else if( strcmp(cmd, "reset?") == 0) {
@@ -1245,6 +1254,9 @@ bool app_repl_statement( app_t *app,  const char *cmd)
       ----
 
   */
+
+
+  assert( app->environment && app->environment->magic == ENVIRONMENT_MAGIC);
 
 
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
@@ -1446,7 +1458,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( app_transfer_repl_statement( app, cmd)) { }
 
-  else if( mode_repl_statement( app->mode, cmd, *app->line_freq )) { }
+  else if( mode_repl_statement( app->mode, cmd, app->environment )) { }
 
   else if( cal_repl_statement( app->cal, cmd)) { }
 
@@ -1454,7 +1466,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( buffer_repl_statement( app->buffer, cmd )) { }
 
-  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, *app->line_freq)) { }
+  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->environment)) { }
 
   else if( app_test_repl_statement( app, cmd )) { }
 

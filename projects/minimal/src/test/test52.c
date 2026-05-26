@@ -41,6 +41,7 @@
 #include <mode.h>
 #include <app.h>
 #include <support.h> // nplc_to_aperture()
+#include <environment.h>
 
 
 #include <test/test.h>
@@ -76,7 +77,7 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
   // mode_ch2_set_lts( mode);
 
   // nplc to use
-  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, *app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->environment->line_freq ));
 
 
   ////////////////////
@@ -231,7 +232,7 @@ static void test( app_t *app)
   gpio_write( app->gpio_trigger, false);
 
   // set nplc
-  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, *app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->environment->line_freq ));
 
 
   app_transition_state( app);
@@ -311,7 +312,7 @@ static void test( app_t *app)
 
   {
     // nplc
-    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, *app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->environment->line_freq ));
 
     /*
       expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.

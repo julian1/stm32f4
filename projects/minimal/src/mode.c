@@ -8,6 +8,7 @@
 
 
 #include <support.h> // str_decode_uint
+#include <environment.h>
 
 
 #include <lib3/format.h>      // str_format_bits()
@@ -1027,16 +1028,23 @@ void mode_ch2_set( _mode_t *mode, const char *s0)
 
 
 
-
-
-
+/*
 bool mode_repl_statement(
   _mode_t     *mode,
   const char  *cmd,
-  const uint32_t line_freq
-)
 
+  // why not pass environmental state.
+  const uint32_t line_freq
+) {
+*/
+
+bool mode_repl_statement( _mode_t *mode, const char  *cmd, environment_t *environment)
 {
+
+  assert( mode && mode->magic == MODE_MAGIC);
+  assert( environment) ;
+  assert( environment->line_freq == 50) ;
+
 
   char s0[ 100 + 1];
   char s1[ 100 + 1];
@@ -1125,9 +1133,9 @@ bool mode_repl_statement(
     } else {
 
       // should be called cc_aperture or similar.
-      uint32_t aperture = nplc_to_aperture( f0, line_freq );
+      uint32_t aperture = nplc_to_aperture( f0, environment->line_freq);
 
-      aperture_print( aperture,  line_freq);
+      aperture_print( aperture,  environment->line_freq);
 
       adc_aperture_set( &mode->adc, aperture );
 
@@ -1144,7 +1152,7 @@ bool mode_repl_statement(
     // printf("set aperture\n");
     uint32_t aperture = period_to_aperture( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-    aperture_print( aperture,  line_freq);
+    aperture_print( aperture,  environment->line_freq);
     mode->adc.p_aperture = aperture;
   }
 
