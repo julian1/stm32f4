@@ -1038,12 +1038,11 @@ bool mode_repl_statement(
 ) {
 */
 
-bool mode_repl_statement( _mode_t *mode, const char  *cmd, environment_t *environment)
+bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *environment)
 {
 
   assert( mode && mode->magic == MODE_MAGIC);
-  assert( environment) ;
-  assert( environment->line_freq == 50) ;
+  assert( environment && environment->magic == ENVIRONMENT_MAGIC) ;
 
 
   char s0[ 100 + 1];

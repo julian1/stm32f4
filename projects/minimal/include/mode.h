@@ -337,7 +337,7 @@ typedef struct _mode_t
 void mode_init(_mode_t *mode);
 void mode_reset(_mode_t *mode);
 
-bool mode_repl_statement( _mode_t     *mode, const char  *cmd, environment_t *environment);
+bool mode_repl_statement( _mode_t *mode, const char *cmd, const environment_t *environment);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
