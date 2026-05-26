@@ -258,6 +258,19 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_partial_reset( mode);
 
+  /*
+    ranging should set
+      - front-end relays.
+      - amplifier
+      - az. input channel
+      - invert dac.
+      - input muxes
+
+      - leave everything else. reset() that is .
+      - rangin
+
+  */
+
 
   // TODO remove this as default.
   // it becomes confusing to interpret stdout. when set and reset.

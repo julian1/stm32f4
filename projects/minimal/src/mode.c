@@ -452,7 +452,7 @@ void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
 
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));
+    sa->decode_ctx = malloc( sizeof( decode_t));    // TODO FIXME memory
     decode_init( sa->decode_ctx);
   }
 
@@ -511,7 +511,8 @@ void sa_set( sa_state_t *sa, const char *s /* bool noaz, bool ar  */)
 
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));
+    sa->decode_ctx = malloc( sizeof( decode_t));  // TODO FIXME memory
+
     decode_init( sa->decode_ctx);
   }
 

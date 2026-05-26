@@ -192,8 +192,8 @@ void _4094_state_clear_relays(_4094_state_t *state);
 typedef struct sa_state_t
 {
 
-
   uint32_t p_trig_delay;
+
   uint32_t p_precharge;
 
   // conversion terms. consider naming  - terms, elts, phases
@@ -219,6 +219,8 @@ typedef struct sa_state_t
     -
     BUT it is not strictly board state.  a bit similar to the decode strategy function.
 
+
+    noaz. and 10Meg.  are driving state. they control how other fields work.
   */
 
   // bool   noaz;
