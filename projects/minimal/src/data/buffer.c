@@ -112,8 +112,6 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     // push buffer.
 
     // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
-    if(buffer->show)
-      printf("(%u, %u), ", buffer->i, buffer->count);
 
     // record value
     buffer->values[ buffer->i ] = data->reading;
@@ -132,10 +130,11 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     char buf[100 + 1];
 
     if(buffer->show) {
-      // printf( "(n %u) ", buffer->count);
-      printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
+
+      printf( "mean %s ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
       // printf( "%s, ", range->unit );
 
+      printf("(n=%u/%u), ", buffer->i, buffer->count);
 
       // this includes the unit
       printf( "stddev %s", str_format_value_dynamic( buf, 100, buffer->stddev, 4 ));
