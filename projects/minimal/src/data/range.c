@@ -136,7 +136,7 @@ static void range_ref_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
 }
 
 
-static void range_lo2( const range_t *range, _mode_t *mode, bool range_10Meg)
+static void range_star_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
 {
   // sample star-lo switched straight into the azmux
   // for both values.
@@ -295,6 +295,50 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
 
 
 
+static void range_dcv2( const range_t *range, _mode_t *mode, bool range_10Meg)
+{
+  assert( strcasecmp( range->name, "dcv") == 0);
+
+  mode_reset_inputs( mode);
+
+  // close external terminal input relay
+  mode->serial.K402 = SR_SET;
+
+  mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
+  sa_set( &mode->sa, "ch1" );
+
+
+  mode->serial.U423 = D1;      // drive com-lc from mdac output
+  mode->serial.U426 = D1;      // BOOT-CH1
+
+  uint16_t  val = 0xfff;        // full.
+  mode_invert_dac_set( mode, val);
+
+
+  if(strcasecmp( range->arg, "20") == 0) {
+
+    mode_gain_set( mode, 1);
+  }
+  else if(strcasecmp( range->arg, "2") == 0) {
+
+    mode_gain_set( mode, 10);
+  }
+  else if(strcasecmp( range->arg, "0.2") == 0) {
+
+    mode_gain_set( mode, 100);
+  }
+  else if(strcasecmp( range->arg, "0.02") == 0) {
+
+    mode_gain_set( mode, 1000);
+  }
+  else
+    assert( 0);
+}
+
+
+/////////////////////////////////////
+
+
 ///////////////////////////
 
 /* we may need to pass whether the front or rear terminal inputs
@@ -318,12 +362,16 @@ static double range_reading_normal( const range_t *range, const cal_t *cal, doub
 
     return cal->b * count_sum_norm;
   }
-  else if(strcasecmp( range->arg, "1") == 0)
+  else if(strcasecmp( range->arg, "1") == 0
+       || strcasecmp( range->arg, "2") == 0)
   {
     // may want default count_sum_norms
     // or express as or cal->b * cal->b10.
     return cal->b10 * count_sum_norm;
   }
+
+
+
   else if(strcasecmp( range->arg, "0.1") == 0)
   {
     return cal->b100 * count_sum_norm;
@@ -547,34 +595,37 @@ size_t ranges_init( range_t *ranges, size_t sz)
 
   const range_t temp[] = {
 
-    // magic        name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
-    { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,      range_reading_normal, range_reading_format,   NULL,             },
+    // magic        name        arg     sentinels         set_mode        convert to reading    format                  autorange predicate
+    { RANGE_MAGIC,  "REF",      "",     true,   true,     range_ref,      range_reading_normal, range_reading_format,   NULL,             },
 
-    { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO",   "1",    false,  false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO",   "10",   false,  true,     range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "REF-LO",   "0.01", true,   false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "REF-LO",   "0.1",  false,  false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "REF-LO",   "1",    false,  false,    range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "REF-LO",   "10",   false,  true,     range_ref_lo,   range_reading_normal, range_reading_format,   NULL,             },
 
-    { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO2",  "1",    false,  false,    range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LO2",  "10",   false,  true,     range_lo2,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR-LO",  "0.01", true,   false,    range_star_lo,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR_LO",  "0.1",  false,  false,    range_star_lo,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR_LO",  "1",    false,  false,    range_star_lo,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR_LO",  "10",   false,  true,     range_star_lo,  range_reading_normal, range_reading_format,   NULL,             },
 
 
 
-    { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "1",    false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "10",   false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "100",  false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-    { RANGE_MAGIC,  "DCV",  "1000", false,  true,     range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
 
-    { RANGE_MAGIC,  "TEMP", "",     true,   true,     range_temp,     range_reading_temp,   range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "DCV",      "0.01", true,   false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",      "0.1",  false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",      "1",    false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
 
-    { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },  // better name, LTS or DCV LTS.
-    { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LTS",  "1",    false,  false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },
-    { RANGE_MAGIC,  "LTS",  "10",   false,  true,     range_lts,      range_reading_normal, range_reading_format,   NULL,             }
+    { RANGE_MAGIC,  "DCV",      "2",    false,  false,    range_dcv2,     range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",      "10",   false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",      "100",  false,  false,    range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",      "1000", false,  true,     range_dcv,      range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+
+    { RANGE_MAGIC,  "TEMP",     "",     true,   true,     range_temp,     range_reading_temp,   range_reading_format,   NULL,             },
+
+    { RANGE_MAGIC,  "LTS",      "0.01", true,   false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },  // better name, LTS or DCV LTS.
+    { RANGE_MAGIC,  "LTS",      "0.1",  false,  false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LTS",      "1",    false,  false,    range_lts,      range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LTS",      "10",   false,  true,     range_lts,      range_reading_normal, range_reading_format,   NULL,             }
 
   };
 
