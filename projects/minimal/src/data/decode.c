@@ -422,73 +422,124 @@ void decode_init(
 
 
 
-/*
-  if( seq_elt.hi) {
-
-    printf( buf );
-  } else {
-
-    // ignore for LO
-    // just use pad spaces
-    printf("%*s", strlen( buf), "");
-  }
-*/
-
-/*
-  // factor all this into a function
-
-  printf( "{");
-  printf( "azmux %2u(%s), ",  seq_elt.azmux, str_from_mux( buf, 100, seq_elt.azmux));
-  printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt.pc_protect));
-  printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt.pc_sample));
-  printf( "next-idx %u, ",    seq_elt.next_idx );
-  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt.hi));
-  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt.convert));
-  printf( "oob %c ",          BIT_TO_CHAR( seq_elt.oob_aperture));
-  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt.zgjc));
-  printf( "dither %c ",       BIT_TO_CHAR( seq_elt.cm_dac_dither));
-  printf( "}, ");
-*/
-
-
-/*
-  uint32_t    convert       : 1;  // 17     // convert to reading on this input
-  uint32_t                  : 6;  // 18 + 6 =  24
-  uint32_t    oob_aperture  : 1;  // 24     // oob.   use oob aperture.
-  uint32_t    zgjc : 1;  // 24     // for setting zgjc, cm_dither, zero in noaz
-*/
-
-
-  /* other ways to format
-    printf( "%c ", seq_elt.hi ? 'H' : 'L');
-    printf( status.sample.oob ? "oob " : "    " );
-  */
-
-
 
 
 #if 0
 
-may 2026.
-  after returning seq_elt
+may 17, 2026.
+dcv-10 - noise is really good.  with the LO. averaging.  may be 160nV. RMS.   with lt1021. reference. and only gnd shield. not bottom analog guard.
 
-> DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,79(0, 0), mean   0.000,000,79, stddev +0.000a
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,70(1, 1), mean   0.000,000,74, stddev +43.67n
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,26(2, 2), mean   0.000,000,58, stddev +229.3n
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,96(3, 3), mean   0.000,000,68, stddev +257.5n
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,70(4, 4), mean   0.000,000,68, stddev +230.4n
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,87(5, 5), mean   0.000,000,71, stddev +222.2n
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s1), pc 1, next-idx 1, hi 1 convert 0 oob 0 },  sigmux 4000001
-DCV-10,                                        {idx=1, first=0}, {azmux 9 (s5), pc 0, next-idx 0, hi 0 convert 1 oob 0 },  sigmux 4000001 read 0.000,000,61(6, 6), mean   0.000,000,70, stddev +208.8n
-DCV-10, {zero=01 ovld=10 unld=10 ch1=1 ch2=1}, {idx=0, first=0}, {azmux 1 (s
 
-#endif
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976344 neg 2025613 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976350 neg 2025619 sig 4000001}, lo read 0.000,000,75(5, 10), mean   0.000,000,65, stddev +126.2n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976347 neg 2025616 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976353 neg 2025622 sig 4000001}, lo read 0.000,000,39(6, 10), mean   0.000,000,63, stddev +148.0n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976348 neg 2025617 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976349 neg 2025618 sig 4000001}, lo read 0.000,000,26(7, 10), mean   0.000,000,56, stddev +158.7n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976346 neg 2025615 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976351 neg 2025620 sig 4000001}, lo read 0.000,000,35(8, 10), mean   0.000,000,55, stddev +170.1n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976343 neg 2025612 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976351 neg 2025620 sig 4000001}, lo read 0.000,000,70(9, 10), mean   0.000,000,58, stddev +170.6n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976345 neg 2025614 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976352 neg 2025621 sig 4000001}, lo read 0.000,000,57(0, 10), mean   0.000,000,58, stddev +170.6n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976345 neg 2025614 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976315 neg 2025583 sig 4000001}, lo read 0.000,000,75(1, 10), mean   0.000,000,59, stddev +176.8n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976346 neg 2025615 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976351 neg 2025620 sig 4000001}, lo read 0.000,000,61(2, 10), mean   0.000,000,57, stddev +169.5n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976346 neg 2025615 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976353 neg 2025622 sig 4000001}, lo read 0.000,000,52(3, 10), mean   0.000,000,56, stddev +169.6n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976345 neg 2025614 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976352 neg 2025621 sig 4000001}, lo read 0.000,000,66(4, 10), mean   0.000,000,56, stddev +161.9n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976347 neg 2025616 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976315 neg 2025583 sig 4000001}, lo read 0.000,000,57(5, 10), mean   0.000,000,54, stddev +149.5n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976346 neg 2025615 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976352 neg 2025621 sig 4000001}, lo read 0.000,000,66(6, 10), mean   0.000,000,56, stddev +144.8n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976346 neg 2025615 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976353 neg 2025622 sig 4000001}, lo read 0.000,000,57(7, 10), mean   0.000,000,60, stddev +104.3n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976345 neg 2025614 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976352 neg 2025621 sig 4000001}, lo read 0.000,000,66(8, 10), mean   0.000,000,63, stddev +65.31n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976348 neg 2025617 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976317 neg 2025585 sig 4000001}, lo read 0.000,000,57(9, 10), mean   0.000,000,61, stddev +62.21n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976351 neg 2025620 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976315 neg 2025583 sig 4000001}, lo read 0.000,000,44(0, 10), mean   0.000,000,60, stddev +80.02n
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976345 neg 2025614 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976317 neg 2025585 sig 4000001}, lo read 0.000,000,97(1, 10), mean   0.000,000,62, stddev +131.3n
+
+
+
+dcv 0.1
+
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977868 neg 2022984 sig 4000001}, lo read 0.000,000,82(6, 10), mean   0.000,000,67, stddev +152.2n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977842 neg 2022982 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977842 neg 2022965 sig 4000001}, lo read 0.000,000,73(7, 10), mean   0.000,000,67, stddev +153.1n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977837 neg 2022983 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977839 neg 2022966 sig 4000001}, lo read 0.000,000,74(8, 10), mean   0.000,000,68, stddev +154.2n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977823 neg 2022969 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977840 neg 2022968 sig 4000001}, lo read 0.000,000,66(9, 10), mean   0.000,000,72, stddev +65.36n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977828 neg 2022975 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977842 neg 2022974 sig 4000001}, lo read 0.000,000,61(0, 10), mean   0.000,000,71, stddev +73.73n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977850 neg 2022993 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977850 neg 2022976 sig 4000001}, lo read 0.000,000,49(1, 10), mean   0.000,000,68, stddev +93.95n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977839 neg 2022986 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977830 neg 2022960 sig 4000001}, lo read 0.000,000,67(2, 10), mean   0.000,000,67, stddev +90.68n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977815 neg 2022962 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977853 neg 2022980 sig 4000001}, lo read 0.000,000,67(3, 10), mean   0.000,000,67, stddev +90.48n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977848 neg 2022988 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977861 neg 2022981 sig 4000001}, lo read 0.000,000,59(4, 10), mean   0.000,000,67, stddev +90.73n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977847 neg 2022984 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977853 neg 2022972 sig 4000001}, lo read 0.000,000,62(5, 10), mean   0.000,000,66, stddev +87.34n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977856 neg 2022992 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977862 neg 2022983 sig 4000001}, lo read 0.000,000,56(6, 10), mean   0.000,000,63, stddev +72.99n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977824 neg 2022966 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977862 neg 2022981 sig 4000001}, lo read 0.000,000,80(7, 10), mean   0.000,000,64, stddev +85.18n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977836 neg 2022981 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977847 neg 2022976 sig 4000001}, lo read 0.000,000,75(8, 10), mean   0.000,000,64, stddev +86.76n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977817 neg 2022954 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977859 neg 2022988 sig 4000001}, lo read 0.000,000,31(9, 10), mean   0.000,000,61, stddev +130.9n
+DCV-0.1, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1977826 neg 2022972 sig 4000001}, hi
+DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977842 neg 2022971 sig 4000001}, lo read 0.000,000,62(0, 10), mean   0.000,000,61, stddev +131.0n
+
+
+
+1nplc.  around 500nV RMS.
+
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198447 neg  203394 sig  400001}, lo read 0.000,000,47(3, 10), mean   0.000,000,58, stddev +502.1n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198407 neg  203353 sig  400001}, lo read 0.000,000,03(4, 10), mean   0.000,000,63, stddev +420.0n
+missed data interrupth
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,50(5, 10), mean   0.000,000,59, stddev +413.3n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198446 neg  203393 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198448 neg  203395 sig  400001}, lo read 0.000,001,78(6, 10), mean   0.000,000,73, stddev +539.3n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198446 neg  203393 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198447 neg  203394 sig  400001}, lo read 0.000,001,31(7, 10), mean   0.000,000,72, stddev +532.3n
+missed data interrupth
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198447 neg  203394 sig  400001}, lo read -0.000,000,00(8, 10), mean   0.000,000,63, stddev +570.3n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,47(9, 10), mean   0.000,000,68, stddev +530.5n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,93(0, 10), mean   0.000,000,74, stddev +526.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,93(1, 10), mean   0.000,000,74, stddev +526.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,93(2, 10), mean   0.000,000,74, stddev +526.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198408 neg  203354 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198409 neg  203355 sig  400001}, lo read 0.000,000,44(3, 10), mean   0.000,000,73, stddev +528.3nh
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198408 neg  203354 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,44(4, 10), mean   0.000,000,77, stddev +486.7n
+missed data interrupt
+
 
 
 #if 0
