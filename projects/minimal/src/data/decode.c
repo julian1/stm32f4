@@ -427,9 +427,15 @@ void decode_init(
 #if 0
 
 may 17, 2026.
-dcv-10 - noise is really good.  with the LO. averaging.  may be 160nV. RMS.   with lt1021. reference. and only gnd shield. not bottom analog guard.
 
+noise is really good.  with the LO. averaging.
+    may be 160nV. RMS.
+    with lt1021. reference. no filter cap.
+    and only gnd shield cover. no top/bottom analog guard.
 
+dcv-10 may be 160nV. RMS.
+
+n = 10
 DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976344 neg 2025613 sig 4000001}, hi
 DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1976350 neg 2025619 sig 4000001}, lo read 0.000,000,75(5, 10), mean   0.000,000,65, stddev +126.2n
 DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos 1976347 neg 2025616 sig 4000001}, hi
