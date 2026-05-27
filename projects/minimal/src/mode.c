@@ -205,7 +205,7 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
 
   // clear memory
   _Static_assert( sizeof( sa->terms) == sizeof( term_t) * 4);
-  memset( &sa->terms, 0, sizeof( sa->terms));
+  memset( sa->terms, 0, sizeof( sa->terms));
 
 
 
@@ -254,7 +254,7 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
       .next_idx     = 2,                      // jump to 2.
       },
     };
-    memcpy( &sa->terms, &terms, sizeof( terms));
+    memcpy( sa->terms, terms, sizeof( terms));
 
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
@@ -409,7 +409,7 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
 
   // clear memory
   _Static_assert( sizeof( sa->terms) == sizeof( term_t) * 4);
-  memset( &sa->terms, 0, sizeof( sa->terms));
+  memset( sa->terms, 0, sizeof( sa->terms));
 
 
   bool is_ch1 = strcmp( sa->input, "ch1") == 0;
@@ -452,7 +452,7 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
       .next_idx     = 3,                      // repeat
       },
     };
-    memcpy( &sa->terms, &terms, sizeof( terms));
+    memcpy( sa->terms, terms, sizeof( terms));
 
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_noaz_lo_first;
