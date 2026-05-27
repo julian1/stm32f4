@@ -179,40 +179,24 @@ typedef struct sa_state_t
 
 
   /*
+    driver state. used to compile/build the low-level conversion terms, and decode funcs.
 
-  // driver state. used to build the low-level board state terms, and decode.
-  // need a rebuild() func to call when any item is modified.
-  bool oob;       // no_oob.
   */
   char input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
   bool noaz;
+  // bool oob;       // no_oob.
 
   // conversion terms. consider name - terms, elts, phases
   seq_elt_t p_seq_elt [ 4] ;
 
   /*
     not strictly board state.
-    this is the associated decode strategy handler for the p_seq_elts.
-    - but managing it here, localizes info in one place.  and noting that must be updated together.
+    the associated decode strategy for the p_seq_elts.
+    - managing all in one place localizes.
   */
   void (*decode_strategy)( void *ctx, data_t *data);
   void *decode_ctx;
 
-
-  /*
-    EXTR.
-    TODO.
-    reconsider.
-
-    add the noaz flag here. and persisting.  would simplfy a lot of argument passing/handling down from app..
-    because the setup of the sequence elts - depends on knowing this flag.
-    also ranging functions must change input channels from ch1, or ch2 , which means must know this flag etc.
-    -
-    BUT it is not strictly board state.  a bit similar to the decode strategy function.
-
-
-    noaz. and 10Meg.  are driving state. they control how other fields work.
-  */
 
 
 } sa_state_t;

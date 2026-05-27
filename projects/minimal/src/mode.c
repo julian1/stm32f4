@@ -239,7 +239,6 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     decode_init( sa->decode_ctx);
   }
 
-
   else if( strcmp( sa->input, "ch1") == 0
     || strcmp( sa->input, "ch2") == 0) {
 
@@ -287,7 +286,6 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
 
     decode_init( sa->decode_ctx);
   }
-
 
   else if( strcmp( sa->input, "ratio") == 0 ) {
 
@@ -582,7 +580,7 @@ void sa_set( sa_state_t *sa, const char *s )
     || strcmp( s, "ratio") == 0);
 
 
-  strncpy( sa->input , s,  sizeof( sa->input));
+  strncpy( sa->input, s, sizeof( sa->input));
   sa->input[ sizeof( sa->input) - 1] = 0;
 
   compile_sa( sa);
