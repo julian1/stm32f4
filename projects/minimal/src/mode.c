@@ -208,73 +208,49 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
   memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
 
 
-  if(strcmp( sa->input, "0") == 0) {
 
-    /*  use star-ground, for both readings
-        use for noise test, and low-leakage input during adc weight calculation
-        bypasses pc switching
-    */
+  bool is_ch1 = strcmp( sa->input, "ch1") == 0;
+  bool is_ch2 = strcmp( sa->input, "ch2") == 0;
+  bool is_0   = strcmp( sa->input, "0") == 0;
 
-    /* important - no need to add a OOB reading here.
-      unlikely to be using auto-ranging
-    */
-    const seq_elt_t  seq_elts[ 4] =  {
-      { // 0
-      .azmux        = LO_STAR,            // treat as hi
-      .pc_sample    = 0b00,
-      .zgjc         = true,               // set zgjc, cm-dither
-      .next_idx     = 1,
-      },
-      { // 1
-      .azmux        = LO_STAR,            // treat as zero
-      .pc_sample    = 0b00,
-      .next_idx     = 0,                  // jump back to 0 for next zero.
-      }
-    };
-    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
-
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));    // TODO FIXME memory
-    decode_init( sa->decode_ctx);
-  }
-
-  else if( strcmp( sa->input, "ch1") == 0
-    || strcmp( sa->input, "ch2") == 0) {
+  if( is_ch1 || is_ch2 || is_0) {
 
     /*
       normal az operation.
       HI/input first
       with oob reading included for fast auto-ranging.
     */
-    bool is_ch1 = strcmp( sa->input, "ch1") == 0;
+
+    uint32_t hi = is_ch1 ? HI_CH1 : is_ch2 ? HI_CH2 : LO_STAR ;
+    uint32_t pc = is_ch1 ? 0b01   : is_ch2 ? 0b10   : 0b00;
+    uint32_t lo = is_ch1 ? COM_LC : is_ch2 ? LO_CH2 : LO_STAR;
+
 
     const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {
-      {
+
       // oob reading, az mode.  hi first
-      // 0
-      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
-      .pc_sample    = is_ch1 ? 0b01   : 0b10,   // pc1 select ch1 input
+      { // 0
+      .azmux        = hi,
+      .pc_sample    = pc,
       .oob_aperture = true,                   // use fast/constant aperture
-      .zgjc         = true,                    // indicate set zgjc here, also cm-dither, zero for noaz.
+      .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 1,
       },
-
       { // 1
-      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .azmux        = lo,
       .oob_aperture = true,
       .next_idx     = 2,
       },
 
       // normal reading, az mode, hi first
       { // 2
-      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
-      .pc_sample    = is_ch1 ? 0b01   : 0b10,   // pc1 select ch1 input
-      .zgjc         = true,                    // indicate set zgjc here, also cm-dither, zero for noaz.
+      .azmux        = hi,
+      .pc_sample    = pc,
+      .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 3,
       },
       { // 3
-      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .azmux        = lo,
       .next_idx     = 2,                      // jump to 2.
       },
     };
@@ -378,7 +354,9 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
     /*
       consider if want to handle normalization here.
-      perhaps for ratio-metric, may want to divide by (data->adc_sigmux * 2);
+
+      Yes. for ratio-metric,  for AR.
+      And may want to divide by (data->adc_sigmux * 2);
 
       // normalized count
       data->count_sum_norm = data->count_sum  / data->adc_sigmux;
@@ -412,60 +390,43 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
   memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
 
 
-  if(strcmp( sa->input, "0") == 0) {
+  bool is_ch1 = strcmp( sa->input, "ch1") == 0;
+  bool is_ch2 = strcmp( sa->input, "ch2") == 0;
+  bool is_0   = strcmp( sa->input, "0") == 0;
 
-    const seq_elt_t  seq_elts[ 4] =  {
-      { // 0
-      .azmux        = LO_STAR,                // treat as zero
-      .pc_sample    = 0b00,
-      .zgjc         = true,                      // set for zgjc, cm-dither, zero for noaz.
-      .next_idx     = 1,
-      },
-      { // 1
-      .azmux        = LO_STAR,                // treat as hi
-      .pc_sample    = 0b00,
-      .next_idx     = 1,                      // repeat. jump to 1.
-      }
-    };
-    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
 
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_noaz_lo_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));    // TODO FIXME memory
-    decode_init( sa->decode_ctx);
-  }
+  if( is_ch1 || is_ch2 || is_0) {
 
-  else if( strcmp( sa->input, "ch1") == 0
-    || strcmp( sa->input, "ch2") == 0) {
+    uint32_t hi = is_ch1 ? HI_CH1 : is_ch2 ? HI_CH2 : LO_STAR ;
+    uint32_t pc = is_ch1 ? 0b01   : is_ch2 ? 0b10   : 0b00;
+    uint32_t lo = is_ch1 ? COM_LC : is_ch2 ? LO_CH2 : LO_STAR;
 
-    bool is_ch1 = strcmp( sa->input, "ch1") == 0;
 
-    const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {     // conversion terms
-      {
+    const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {
+
       // oob reading, is still az mode, hi first
-      // 0
-      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
-      .pc_sample    = is_ch1 ? 0b01   : 0b10,   // pc1 select ch1 input
+      { // 0
+      .azmux        = hi,
+      .pc_sample    = pc,
       .oob_aperture = true,                     // use fast/constant aperture
       .zgjc         = true,                     // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 1,
       },
       { // 1
-      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .azmux        = lo,
       .oob_aperture = true,
       .next_idx     = 2
       },
 
-
       // normal reading, noaz mode, lo first
       { // 2
-      .azmux        = is_ch1 ? COM_LC : LO_CH2,
+      .azmux        = lo,
       .zgjc         = true,
       .next_idx     = 3,
       },
       { // 3
-      .azmux        = is_ch1 ? HI_CH1 : HI_CH2,
-      .pc_sample    = is_ch1 ? 0b01 : 0b10,   // pc1 select ch1 input
+      .azmux        = hi,
+      .pc_sample    = pc,
       .next_idx     = 3,                      // repeat
       },
     };
