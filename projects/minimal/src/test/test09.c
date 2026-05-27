@@ -64,8 +64,8 @@ bool app_test09( app_t *app , const char *cmd)
     // may 2026
     // sa->p_seq_n = 2;
     assert( 0);
-    sa->p_seq_elt[ 0].azmux = S1;
-    sa->p_seq_elt[ 0].pc_sample = 0b01;
+    sa->terms[ 0].azmux = S1;
+    sa->terms[ 0].pc_sample = 0b01;
 
 
 

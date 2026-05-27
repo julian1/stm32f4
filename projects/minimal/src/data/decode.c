@@ -177,38 +177,38 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 #define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
 
-static void printf_seq_elt( const seq_elt_t *seq_elt)
+static void printf_term( const term_t *term)
 {
 // factor all this into a function
 
   char buf[ 100];
 
   printf( "{");
-  printf( "azmux %2u(%s), ",  seq_elt->azmux, str_from_mux( buf, 100, seq_elt->azmux));
-  printf( "pc_protect %s, ",  str_format_bits( buf, 2, seq_elt->pc_protect));
-  printf( "pc_sample %s, ",   str_format_bits( buf, 2, seq_elt->pc_sample));
-  printf( "next-idx %u, ",    seq_elt->next_idx );
-  printf( "oob %c ",          BIT_TO_CHAR( seq_elt->oob_aperture));
-  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt->zgjc));
-  printf( "dither %c ",       BIT_TO_CHAR( seq_elt->cm_dac_dither));
+  printf( "azmux %2u(%s), ",  term->azmux, str_from_mux( buf, 100, term->azmux));
+  printf( "pc_protect %s, ",  str_format_bits( buf, 2, term->pc_protect));
+  printf( "pc_sample %s, ",   str_format_bits( buf, 2, term->pc_sample));
+  printf( "next-idx %u, ",    term->next_idx );
+  printf( "oob %c ",          BIT_TO_CHAR( term->oob_aperture));
+  printf( "zglc %c ",         BIT_TO_CHAR( term->zgjc));
+  printf( "dither %c ",       BIT_TO_CHAR( term->cm_dac_dither));
   printf( "}, ");
 
-  // printf( "hi %c ",           BIT_TO_CHAR( seq_elt->hi));
-  // printf( "convert %c ",      BIT_TO_CHAR( seq_elt->convert));
+  // printf( "hi %c ",           BIT_TO_CHAR( term->hi));
+  // printf( "convert %c ",      BIT_TO_CHAR( term->convert));
 }
 
 
 
-static void printf_seq_elt_brief( const seq_elt_t *seq_elt)
+static void printf_term_brief( const term_t *term)
 {
 // factor all this into a function
 
   char buf[ 100];
 
   printf( "{");
-  printf( "azmux %2u(%s), ",  seq_elt->azmux, str_from_mux( buf, 100, seq_elt->azmux));
-  printf( "oob %c ",          BIT_TO_CHAR( seq_elt->oob_aperture));
-  printf( "zglc %c ",         BIT_TO_CHAR( seq_elt->zgjc));
+  printf( "azmux %2u(%s), ",  term->azmux, str_from_mux( buf, 100, term->azmux));
+  printf( "oob %c ",          BIT_TO_CHAR( term->oob_aperture));
+  printf( "zglc %c ",         BIT_TO_CHAR( term->zgjc));
   printf( "}, ");
 }
 
@@ -245,7 +245,7 @@ static void printf_status_cmpr( const reg_sr_t status)
 
 /*
 
-  if( seq_elt.hi) {
+  if( term.hi) {
 
     printf( buf );
   } else {
@@ -314,11 +314,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
   // read the seq-elt
-  _Static_assert ( sizeof( data->seq_elt) == 4);
-  spi_ice40_reg_read_n( spi, REG_SA_SEQ_ELT, &data->seq_elt, sizeof( data->seq_elt));
+  _Static_assert ( sizeof( data->term) == 4);
+  spi_ice40_reg_read_n( spi, REG_SA_SEQ_ELT, &data->term, sizeof( data->term));
 
   // east syntax
-  // const seq_elt_t       seq_elt = data->seq_elt;
+  // const term_t       term = data->term;
 
 
 
@@ -342,9 +342,9 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   // printf_status_cmpr( status );
 
-  // printf_seq_elt( &data->seq_elt );
+  // printf_term( &data->term );
 
-  printf_seq_elt_brief( &data->seq_elt );
+  printf_term_brief( &data->term );
 
 
 
@@ -546,6 +546,7 @@ DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198408 neg
 DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,44(4, 10), mean   0.000,000,77, stddev +486.7n
 missed data interrupt
 
+#endif
 
 
 #if 0

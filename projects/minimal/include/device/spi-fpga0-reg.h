@@ -83,7 +83,7 @@ reg_cr_t
   /* adc - whether to switch the input sigmux
     used for initial cal weighting
 
-    consider move seq_elt_t
+    consider move term_t
     or place in a common structure
   */
   uint8_t     adc_p_active_sigmux : 1;
@@ -185,7 +185,7 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 /*
-  consider rename seq_elt_t.
+  consider rename term_t.
 
     to term_t. or conversion_term_t.  or   conv_term_t
     seq_term_t
@@ -193,7 +193,7 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 */
 
 typedef struct __attribute__((__packed__))
-seq_elt_t
+term_t
 {
 
   uint32_t    code          : 4;  // 0      // unused/reserved
@@ -239,9 +239,9 @@ seq_elt_t
 
 
 
-} seq_elt_t;
+} term_t;
 
-_Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
+_Static_assert (sizeof(term_t) == 4, "bad typedef size");
 
 
 
@@ -352,7 +352,7 @@ reg_direct_t
 
 */
 
-  // should be the same as seq_elt_t
+  // should be the same as term_t
   uint8_t   pc_o              : 2;                // 14
   // uint8_t   pc_ch1_o       : 1;                // 14
   // uint8_t   pc_ch2_o       : 1;                // 15

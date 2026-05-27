@@ -91,7 +91,7 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
   */
 
   const reg_sr_t status = data->status;
-  const seq_elt_t term  = data->seq_elt;
+  const term_t term  = data->term;
   double cal_w          = data->cal->w;
   assert( cal_w);
 
@@ -204,8 +204,8 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
   assert( !sa->noaz);
 
   // clear memory
-  _Static_assert( sizeof( sa->p_seq_elt) == sizeof( seq_elt_t) * 4);
-  memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
+  _Static_assert( sizeof( sa->terms) == sizeof( term_t) * 4);
+  memset( &sa->terms, 0, sizeof( sa->terms));
 
 
 
@@ -226,7 +226,7 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     uint32_t lo = is_ch1 ? COM_LC : is_ch2 ? LO_CH2 : LO_STAR;
 
 
-    const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {
+    const term_t  terms[ 4] =  /*( const wrapper_t ) */ {
 
       // oob reading, az mode.  hi first
       { // 0
@@ -254,7 +254,7 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
       .next_idx     = 2,                      // jump to 2.
       },
     };
-    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+    memcpy( &sa->terms, &terms, sizeof( terms));
 
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
@@ -295,7 +295,7 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 
   const reg_sr_t status = data->status;
-  const seq_elt_t term  = data->seq_elt;
+  const term_t term  = data->term;
   // uint32_t azmux        = term.azmux;
   double cal_w          = data->cal->w;
   assert( cal_w);
@@ -408,8 +408,8 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
   assert( sa->noaz);
 
   // clear memory
-  _Static_assert( sizeof( sa->p_seq_elt) == sizeof( seq_elt_t) * 4);
-  memset( &sa->p_seq_elt, 0, sizeof( sa->p_seq_elt));
+  _Static_assert( sizeof( sa->terms) == sizeof( term_t) * 4);
+  memset( &sa->terms, 0, sizeof( sa->terms));
 
 
   bool is_ch1 = strcmp( sa->input, "ch1") == 0;
@@ -424,7 +424,7 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
     uint32_t lo = is_ch1 ? COM_LC : is_ch2 ? LO_CH2 : LO_STAR;
 
 
-    const seq_elt_t  seq_elts[ 4] =  /*( const wrapper_t ) */ {
+    const term_t  terms[ 4] =  /*( const wrapper_t ) */ {
 
       // oob reading, is still az mode, hi first
       { // 0
@@ -452,7 +452,7 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
       .next_idx     = 3,                      // repeat
       },
     };
-    memcpy( &sa->p_seq_elt, &seq_elts, sizeof( seq_elts));
+    memcpy( &sa->terms, &terms, sizeof( terms));
 
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_noaz_lo_first;
@@ -480,7 +480,7 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
 
   const reg_sr_t status = data->status;
-  const seq_elt_t term  = data->seq_elt;
+  const term_t term  = data->term;
   double cal_w          = data->cal->w;
   assert( cal_w);
 
@@ -1616,7 +1616,7 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 
     // hi/val/input
-    sa->p_seq_elt[ 0] = (const seq_elt_t ) {
+    sa->terms[ 0] = (const term_t ) {
 
       .azmux        = S3,       // PC-CH2-OUT
       .pc_sample    = 0b10,     // pc2 active
@@ -1632,12 +1632,12 @@ void mode_az_set(_mode_t *mode, const char *s)
 /*
     char buf[ 100];
     uint32_t  val;
-    memcpy( &val, &sa->p_seq_elt[ 0], sizeof(val));
-    printf("p_seq_elt[0] %s\n",  str_format_bits( buf, 32, val));
+    memcpy( &val, &sa->terms[ 0], sizeof(val));
+    printf("terms[0] %s\n",  str_format_bits( buf, 32, val));
     assert(0);
 */
     // lo/zero
-    sa->p_seq_elt[ 1] = (const seq_elt_t) {
+    sa->terms[ 1] = (const term_t) {
 
       .azmux        = S7,    // CH2-LO
       .pc_sample    = 0b00,
@@ -1659,16 +1659,16 @@ void mode_az_set(_mode_t *mode, const char *s)
     // sa->p_seq_n = 2;
 
     // val
-    sa->p_seq_elt[ 0].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 0].pc_sample    = 0b00;        // this doesn't look right.
+    sa->terms[ 0].azmux = S6;     // A400-1
+    sa->terms[ 0].pc_sample    = 0b00;        // this doesn't look right.
 
     // zero
-    sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
+    sa->terms[ 1] = sa->terms[ 0];
 
 /*
     // zero
-    sa->p_seq_elt[ 1].azmux = S6;     // A400-1
-    sa->p_seq_elt[ 1].pc_sample    = 0b00;
+    sa->terms[ 1].azmux = S6;     // A400-1
+    sa->terms[ 1].pc_sample    = 0b00;
 */
 
     // could set a catcher handler/closure here
@@ -1676,7 +1676,7 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 
 // typedef struct { int data[3]; } ArrayWrapper;
-// typedef struct wrapper_t { seq_elt_t data[4]; } wrapper_t ;
+// typedef struct wrapper_t { term_t data[4]; } wrapper_t ;
 
 
 
@@ -1932,12 +1932,12 @@ void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
 
 /*
   // zero serial
-  sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
-  sa->p_seq_elt[ 0].pc = 0b00;
+  sa->terms[ 0].azmux  = S6;     // A400-1
+  sa->terms[ 0].pc = 0b00;
 
   // val
-  sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
-  sa->p_seq_elt[ 1].pc = 0b10;
+  sa->terms[ 1].azmux  = S3;     // CH2-IN
+  sa->terms[ 1].pc = 0b10;
 
 
   // could set the LS drive. serial input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.

@@ -335,11 +335,11 @@ void app_transition_state( app_t  *app)
 
   // use write_n to work around strict aliasing
   // consider - consolidate to a single register
-  _Static_assert ( sizeof( seq_elt_t) == 4);
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ3, &mode->sa.p_seq_elt[ 3], sizeof( seq_elt_t));
+  _Static_assert ( sizeof( term_t) == 4);
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.terms[ 0], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.terms[ 1], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.terms[ 2], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ3, &mode->sa.terms[ 3], sizeof( term_t));
 
 
   ///////////////
@@ -1687,8 +1687,8 @@ void app_repl_statements(app_t *app,  const char *s)
 
     sa_state_t *sa = &app->mode->sa;
     sa->p_seq_n = 1;
-    sa->p_seq_elt[ 0].azmux = S1;
-    sa->p_seq_elt[ 0].pc = 0b01;
+    sa->terms[ 0].azmux = S1;
+    sa->terms[ 0].pc = 0b01;
 
     // sa->p_trig = 1;
 
@@ -1835,9 +1835,9 @@ void app_update_simple_with_data(app_t *app)
 
 #if 0
   //////////////
-    assert( sizeof(seq_elt_t) == 4);
+    assert( sizeof(term_t) == 4);
 
-    seq_elt_t x;
+    term_t x;
     memset(&x, 0, sizeof(x));
 
     x.azmux = S1;

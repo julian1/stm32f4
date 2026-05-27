@@ -187,11 +187,11 @@ typedef struct sa_state_t
   // bool oob;       // no_oob.
 
   // conversion terms. consider name - terms, elts, phases
-  seq_elt_t p_seq_elt [ 4] ;
+  term_t terms [ 4] ;
 
   /*
     not strictly board state.
-    the associated decode strategy for the p_seq_elts.
+    the associated decode strategy for the termss.
     - managing all in one place localizes.
   */
   void (*decode_strategy)( void *ctx, data_t *data);

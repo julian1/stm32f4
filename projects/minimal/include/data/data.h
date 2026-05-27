@@ -68,7 +68,7 @@ struct data_t
 
   reg_sr_t      status;
 
-  seq_elt_t     seq_elt;
+  term_t     term;
 
   uint32_t adc_refmux_pos;
   uint32_t adc_refmux_neg;

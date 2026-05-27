@@ -76,7 +76,7 @@ static void mode_reset_inputs( _mode_t *mode)
 
   // az, input channel
   // leave precharge, trig_delay
-  memset( &mode->sa.p_seq_elt, 0, sizeof( mode->sa.p_seq_elt));
+  memset( &mode->sa.terms, 0, sizeof( mode->sa.terms));
 
   mode->sa.decode_strategy  = NULL;
   mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
