@@ -169,7 +169,6 @@ void _4094_state_clear_relays( _4094_state_t *state);
   conversion terms.
 */
 
-
 typedef struct sa_state_t
 {
 
@@ -182,12 +181,12 @@ typedef struct sa_state_t
     driver state. used to compile/build the low-level conversion terms, and decode funcs.
 
   */
-  char input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
-  bool noaz;
+  char    input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
+  bool    noaz;
   // bool oob;       // no_oob.
 
   // conversion terms. consider name - terms, elts, phases
-  term_t terms [ 4] ;
+  term_t  terms[ 4];
 
   /*
     not strictly board state.
@@ -220,12 +219,10 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
   adc control state
 */
 
-
-
 typedef struct adc_state_t
 {
 
-  // 'p' implies its a paraameter
+  // 'p' for control paraameter
   // consider prefix with cc. clock_count
 
   uint32_t  p_aperture;     // p_cc_aperture

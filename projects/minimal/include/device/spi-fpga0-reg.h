@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 /*
-  fpga specific registers and structure
+  firmware/ fpga specific registers and structure
 
 */
 
@@ -33,7 +33,7 @@
 #define REG_SA_P_CLK_COUNT_TRIG_DELAY     19
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
-#define REG_SA_P_SEQ_N                    21
+// #define REG_SA_P_SEQ_N                    21
 #define REG_SA_P_SEQ0                     22
 #define REG_SA_P_SEQ1                     23
 #define REG_SA_P_SEQ2                     24
@@ -128,13 +128,12 @@ reg_sr_t
   struct {
 
     uint8_t   idx           : 3;
-    /* we need first...
-      to know to clear the buffers... after retrigger
-    */
+
 
     /*
       naming is not clear.
       this is the first conversion after a re/trigger event.
+      to know to clear the buffers... after retrigger
     */
     uint8_t  first          : 1;
     // uint8_t  first_sequence   : 1;      // can use a register indexed by idx to cal this.
