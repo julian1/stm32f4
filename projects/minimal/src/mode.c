@@ -309,9 +309,9 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     // clear state after re/trigger action
     printf( "clear ");
     // decode_reset()
-    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_refmux_pos_hi = 0;
     decode->adc_refmux_neg_hi = 0;
-    decode->adc_refmux_pos_lo = 0; // UINT32_MAX
+    decode->adc_refmux_pos_lo = 0;
     decode->adc_refmux_neg_lo = 0;
   }
 
@@ -345,17 +345,39 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
   }
   else {
 
-    // TODO. add the zero. average.
     // LO convert value
     printf( "lo ");
+
+    // if( decode->adc_refmux_pos_lo) printf( "have prior pos ");
+    // if( decode->adc_refmux_neg_lo) printf( "have prior neg ");
+
+    /*
+      if have prior LO if available, use average with this Lo.
+    */
+    double lo_pos =
+      decode->adc_refmux_pos_lo
+      ? (data->adc_refmux_pos + decode->adc_refmux_pos_lo ) / 2.
+      : data->adc_refmux_pos;
+
+    double lo_neg =
+      decode->adc_refmux_neg_lo
+      ? (data->adc_refmux_neg + decode->adc_refmux_neg_lo ) / 2.
+      : data->adc_refmux_neg;
+
     data->count_sum =
         ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
-      - ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg));
+      - ((double) lo_pos                    - (cal_w * lo_neg ));
+
+
+    // record/update LO. for next time
+    decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_lo     = data->adc_refmux_neg;
+
 
     /*
       consider if want to handle normalization here.
 
-      Yes. for ratio-metric,  for AR.
+      Yes. for ratio-metric,  because autoranging/ OV detection needs something sensible to display.
       And may want to divide by (data->adc_sigmux * 2);
 
       // normalized count
@@ -467,9 +489,9 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
     // clear state after re/trigger action
     printf( "clear ");
     // decode_reset()
-    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_refmux_pos_hi = 0;
     decode->adc_refmux_neg_hi = 0;
-    decode->adc_refmux_pos_lo = 0; // UINT32_MAX
+    decode->adc_refmux_pos_lo = 0;
     decode->adc_refmux_neg_lo = 0;
   }
 
