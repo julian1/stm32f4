@@ -88,6 +88,9 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
 {
   /*
     oob. is hi first by convention.
+    comparators get a look at the input in priority.
+    to check for oscillation detection/strong OVLD,UNDL condition.
+    even if comparators are not used for ranging control.
   */
 
   const reg_sr_t status = data->status;
@@ -134,11 +137,16 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
   EXTR.
   - instead of mallocing, could just make a union structure.
   for differrent representations.
-
-  - otherwise pre-allocate and put and put on stack in main.c
-  and then pass as pointer on mode creation.
-  like every other object we create.
+  - then pre-allocate on stack in main.c
+  - and pass to mode_t on init()
+  same as other objects we create.
   -----------
+
+  - but malloc() is nice. because it completely localizes the decode strategy.
+    proper strategy pattern, and can be created anywhere in the codebase for custom behavior.
+
+  - alternatively if we dont want to pre-code the structures using union types -
+    then allocate/ and store against the module (eg. like decode,buffer ).
 
   - ratiometric - difficult for auto-ranging.  because of nominal value.
   - one way to handle.  would just be to take the max of the two readings.
