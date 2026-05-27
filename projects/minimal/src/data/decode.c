@@ -151,7 +151,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     if(decode->show_reading) {
 
 //      printf( "%s-%s, ", range->name, range->arg );
-      printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
+      printf( "read %s ", str_format_float_with_commas(buf, 100, 8, data->reading ));
       // printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
     }
@@ -184,7 +184,9 @@ static void printf_term( const term_t *term)
   char buf[ 100];
 
   printf( "{");
-  printf( "azmux %2u(%s), ",  term->azmux, str_from_mux( buf, 100, term->azmux));
+  // printf( "azmux %2u(%s), ",  term->azmux, str_from_mux( buf, 100, term->azmux));
+  // printf( "azmux %s (%2u), ", str_from_mux( buf, 100, term->azmux), term->azmux);
+  printf( "azmux %s, ",       str_from_mux( buf, 100, term->azmux));
   printf( "pc_protect %s, ",  str_format_bits( buf, 2, term->pc_protect));
   printf( "pc_sample %s, ",   str_format_bits( buf, 2, term->pc_sample));
   printf( "next-idx %u, ",    term->next_idx );
@@ -429,9 +431,13 @@ void decode_init(
 may 17, 2026.
 
 noise is really good.  with the LO. averaging.
-    may be 160nV. RMS.
-    with lt1021. reference. no filter cap.
+    10nplc. 160nV. RMS.
+    with lt1021/7V. reference.
+    no ref LP filter.
     and only gnd shield cover. no top/bottom analog guard.
+
+    removed some combinatorial logic (Mealy state-machine) on the outputs for integrator reset, signal.
+    and using 74lvc74d for the ref muxes.
 
 dcv-10 may be 160nV. RMS.
 
