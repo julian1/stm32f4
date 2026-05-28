@@ -103,14 +103,6 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-
-
-
-
-
-
-
-
 #define HI_CH1  S1
 #define HI_CH2  S3
 
@@ -122,14 +114,11 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-
 typedef struct decode_t
 {
   // uint32_t    magic;
 
-  // decode_oob_t    oob;
-
-  // persist...  for AZ. from last reading
+  // persist values across conversions
   uint32_t adc_refmux_pos_hi;
   uint32_t adc_refmux_neg_hi;
 
@@ -138,8 +127,6 @@ typedef struct decode_t
 
 
 } decode_t;
-
-
 
 
 
@@ -159,8 +146,6 @@ static void decode_reset( decode_t *decode)
   decode->adc_refmux_neg_lo = 0;
 
 }
-
-
 
 
 
@@ -205,7 +190,6 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
 static void decode_az_hi_first( decode_t *decode, data_t *data)
 {
-
   assert( decode);
   assert( data && data->magic == DATA_MAGIC);
 
@@ -266,6 +250,10 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 
 
+// still need somewhere to store this memory...
+
+#define DECODE_X_MAGIC 23782191
+
 
 
 typedef struct decode_x_t
@@ -278,17 +266,13 @@ typedef struct decode_x_t
 
   decode_t    normal;
 
-  decode_t    second; // for ratio
+  decode_t    second; // second channel for ratio
 
 
 } decode_x_t;
 
 
 
-
-#define DECODE_X_MAGIC 23782191
-
-// still need somewhere to store this memory...
 
 
 static void decode_x_init( decode_x_t *decode, bool hi_first)
@@ -303,10 +287,6 @@ static void decode_x_init( decode_x_t *decode, bool hi_first)
   decode_reset( &decode->second);
 
 }
-
-
-
-
 
 
 
@@ -362,8 +342,8 @@ static void decode_x( decode_x_t *decode, data_t *data)
 
 
   /*
-    if the type is ratio.  then look at the index, to distinguish.
-    and ddelegate appropriately  for the normal, or second data
+    if the type is ratio.  then can use index, to distinguish first or second channel.
+    and delegate appropriately
 
   */
 
