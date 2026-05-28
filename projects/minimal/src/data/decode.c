@@ -444,9 +444,9 @@ DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198446 neg  2
 missed data interrupt
 
 
-starlo
-
+star-lo
 nplc 10
+
 STARLO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos 1976332 neg 2025600 sig 4000001}, lo read 0.000,000,04 mean 0.000,000,00 (n=100/100), stddev +174.3n
 STARLO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos 1976330 neg 2025598 sig 4000001}, hi
 
@@ -455,6 +455,10 @@ STARLO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos 1976342 neg
 
 STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos 1976334 neg 2025604 sig 4000001}, hi
 STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos 1976334 neg 2025604 sig 4000001}, lo read -0.000,000,00 mean -0.000,000,01 (n=100/100), stddev +154.4n
+
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos 1976329 neg 2025602 sig 4000001}, (hi first)hi
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos 1976329 neg 2025602 sig 4000001}, (hi first)lo read 0.000,000,04 mean -0.000,000,03 (n=100/100), stddev +157.8n
+
 
 
 nplc 1
@@ -466,6 +470,9 @@ STARLO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  198411 neg
 
 STARLO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  198411 neg  203357 sig  400001}, hi
 STARLO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  198411 neg  203357 sig  400001}, lo read -0.000,000,00 mean 0.000,000,04 (n=100/100), stddev +527.6n
+
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  198432 neg  203379 sig  400001}, (hi first)hi
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  198432 neg  203379 sig  400001}, (hi first)lo read -0.000,000,00 mean -0.000,000,02 (n=100/100), stddev +487.8n
 
 
 ref

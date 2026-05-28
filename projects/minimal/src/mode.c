@@ -68,7 +68,7 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-
+#if 0
 typedef struct decode_oob_t
 {
   /*
@@ -82,9 +82,13 @@ typedef struct decode_oob_t
 
 } decode_oob_t;
 
+#endif
 
 
-static void decode_oob( decode_oob_t *decode, data_t *data)
+
+#if 0
+
+static void decode( decode_t *decode, data_t *data)
 {
   /*
     oob. is hi first by convention.
@@ -131,6 +135,8 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
   }
 }
 
+#endif
+
 
 
 /*
@@ -160,40 +166,14 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
       this make the decode structures basically the same/repeated.
       consider - just nest the second measurement counts.. eg. the same way we handle the oob.
       - the issue is to clear everything on the first time.
+
+    - OR. just maintain pointers to the same shared structure -. for normal,oob, and ratio_snd.
+      then can have the same code work.
 */
 
-typedef struct decode_t
-{
-  uint32_t    magic;
-
-  decode_oob_t    oob;
-
-  // persist...  for AZ. from last reading
-  uint32_t adc_refmux_pos_hi;
-  uint32_t adc_refmux_neg_hi;
-
-  uint32_t adc_refmux_pos_lo;
-  uint32_t adc_refmux_neg_lo;
-
-
-} decode_t;
 
 
 
-
-
-
-
-#define DECODE_MAGIC 23782191
-
-// still need somewhere to store this memory...
-
-static void decode_init( decode_t *decode)
-{
-  memset( decode, 0, sizeof( decode_t ));
-  decode->magic = DECODE_MAGIC;
-
-}
 
 
 
@@ -211,7 +191,270 @@ static void decode_init( decode_t *decode)
 
 
 
-static void decode_az_hi_first( decode_t *decode, data_t *data);
+
+
+typedef struct decode_t
+{
+  // uint32_t    magic;
+
+  // decode_oob_t    oob;
+
+  // persist...  for AZ. from last reading
+  uint32_t adc_refmux_pos_hi;
+  uint32_t adc_refmux_neg_hi;
+
+  uint32_t adc_refmux_pos_lo;
+  uint32_t adc_refmux_neg_lo;
+
+
+} decode_t;
+
+
+
+
+
+
+static void decode_reset( decode_t *decode)
+{
+  assert( decode);
+
+  // base case
+  // clear state for re/trigger
+
+  printf( "clear ");
+  // decode_reset()
+  decode->adc_refmux_pos_hi = 0;
+  decode->adc_refmux_neg_hi = 0;
+  decode->adc_refmux_pos_lo = 0;
+  decode->adc_refmux_neg_lo = 0;
+
+}
+
+
+
+
+
+static void decode_noaz_lo_first( decode_t *decode, data_t *data)
+{
+  assert( decode);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  const reg_sr_t status = data->status;
+  // const term_t term  = data->term;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+
+  // this is the recursive case
+  // we do not handle the reset/base case here.
+
+
+  if( status.sample.idx % 2 == 0) {
+
+    // LO   record counts.
+    printf( "lo ");
+    decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_lo     = data->adc_refmux_neg;
+    assert( data->reading_valid == false);
+  }
+  else {
+
+    // HI convert value
+    printf( "hi ");
+    data->count_sum =
+        ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg))
+      - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
+
+    data->reading_valid     = true;
+  }
+}
+
+
+
+
+static void decode_az_hi_first( decode_t *decode, data_t *data)
+{
+
+  assert( decode);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  const reg_sr_t status = data->status;
+  // const term_t term     = data->term;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+
+  // this is the recursive case
+  // we do not handle the reset/base case here.
+
+
+  if( status.sample.idx % 2 == 0) {
+
+    // HI.  record counts.
+    printf( "hi ");
+    decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
+    assert( data->reading_valid == false);
+  }
+  else {
+
+    // LO convert value
+    printf( "lo ");
+
+    // if( decode->adc_refmux_pos_lo) printf( "have prior pos ");
+    // if( decode->adc_refmux_neg_lo) printf( "have prior neg ");
+
+    /*
+      if have prior LO if available, use average with this Lo.
+    */
+    double lo_pos =
+      decode->adc_refmux_pos_lo
+      ? (data->adc_refmux_pos + decode->adc_refmux_pos_lo ) / 2.
+      : data->adc_refmux_pos;
+
+    double lo_neg =
+      decode->adc_refmux_neg_lo
+      ? (data->adc_refmux_neg + decode->adc_refmux_neg_lo ) / 2.
+      : data->adc_refmux_neg;
+
+    data->count_sum =
+        ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
+      - ((double) lo_pos                    - (cal_w * lo_neg ));
+
+
+    // record/update LO. for next time
+    decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_lo     = data->adc_refmux_neg;
+
+
+    data->reading_valid     = true;
+  }
+}
+
+
+
+
+
+
+typedef struct decode_x_t
+{
+  uint32_t    magic;
+
+  bool        hi_first;
+
+  decode_t    oob;
+
+  decode_t    normal;
+
+  decode_t    second; // for ratio
+
+
+} decode_x_t;
+
+
+
+
+#define DECODE_X_MAGIC 23782191
+
+// still need somewhere to store this memory...
+
+
+static void decode_x_init( decode_x_t *decode, bool hi_first)
+{
+  memset( decode, 0, sizeof( decode_x_t));
+  decode->magic = DECODE_X_MAGIC;
+
+  decode->hi_first = hi_first;
+
+  decode_reset( &decode->oob);
+  decode_reset( &decode->normal);
+  decode_reset( &decode->second);
+
+}
+
+
+
+
+
+
+
+
+static void decode_x( decode_x_t *decode, data_t *data)
+{
+  /*
+
+    functions localize all behavior for hi/lo/ ratiometric handling, needed to output a reading.
+    (although final reading needs cal).
+
+    probably don't want strategy detail (hi,lo, ratiometric etc)
+    to escape this context.
+
+    note. that az_high_first generalizes decode, without regard to azmux, oob or zgjc.
+  */
+
+  assert( decode && decode->magic == DECODE_X_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  const reg_sr_t status = data->status;
+  const term_t term     = data->term;
+
+
+  if( status.sample.first) {
+
+    // base case/ re-trigger
+    decode_reset( &decode->oob);
+    decode_reset( &decode->normal);
+    decode_reset( &decode->second);
+  }
+
+
+  if( term.oob_aperture) {
+
+    printf( "(oob)     ");
+    // delegate to oob conversion handler
+    decode_az_hi_first( &decode->oob , data);
+    return;
+  }
+
+
+  if( decode->hi_first) {
+    printf( "(hi first)");
+    decode_az_hi_first( &decode->normal, data);
+  }
+
+  else {
+    printf( "(lo first)");
+    decode_noaz_lo_first( &decode->normal, data);
+  }
+
+
+  /*
+    if the type is ratio.  then look at the index, to distinguish.
+    and ddelegate appropriately  for the normal, or second data
+
+  */
+
+
+  /*
+    consider if want to handle normalization here.
+
+    Yes. for ratio-metric,  because autoranging/ OV detection needs something sensible to display.
+    And may want to divide by (data->adc_sigmux * 2);
+
+    // normalized count
+    data->count_sum_norm = data->count_sum  / data->adc_sigmux;
+  */
+
+
+}
+
+
+
+
+
 
 static void compile_sa_az_hi_first( sa_state_t *sa)
 {
@@ -271,11 +514,14 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     };
     memcpy( sa->terms, terms, sizeof( terms));
 
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));  // TODO FIXME memory
 
-    decode_init( sa->decode_ctx);
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_x;
+    sa->decode_ctx      = malloc( sizeof( decode_x_t));  // TODO FIXME memory
+
+    // init and set high first
+    decode_x_init( sa->decode_ctx, true );
+
   }
 
   else if( strcmp( sa->input, "ratio") == 0 ) {
@@ -291,125 +537,9 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
 
 
 
-
-static void decode_az_hi_first( decode_t *decode, data_t *data)
-{
-  /*
-
-    these functions localize all the behaviors around hi/lo/ ratiometric handling, needed to output a reading.
-    (although final reading needs cal).
-
-    information about terms (hi,lo, ratiometric etc) should not escape outside this context.
-
-    high_first az generalizes handling, without regard to azmux, or oob or zgjc.
-  */
-
-
-  assert( decode && decode->magic == DECODE_MAGIC);
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  const reg_sr_t status = data->status;
-  const term_t term  = data->term;
-  // uint32_t azmux        = term.azmux;
-  double cal_w          = data->cal->w;
-  assert( cal_w);
-
-
-  ///////////////////////////
-  // similar to base case/ and recursive case
-
-  if( status.sample.first) {
-
-    // clear state after re/trigger action
-    printf( "clear ");
-    // decode_reset()
-    decode->adc_refmux_pos_hi = 0;
-    decode->adc_refmux_neg_hi = 0;
-    decode->adc_refmux_pos_lo = 0;
-    decode->adc_refmux_neg_lo = 0;
-  }
-
-  if( term.oob_aperture) {
-
-    // delegate to oob conversion handler
-    decode_oob( &decode->oob, data);
-    return;
-  }
-  // normal reading
-  assert( !term.oob_aperture);
-
-  /*
-    many ways to distinguish/generalize how we handle conversions here
-    - can use the sample.idx, or check term.azmux, or use the zgjc flag which is the HI/LO
-    eg.
-      if( term.zgjc ) {       // first in sequence
-      if( term.azmux == S1 || term.azmux == S3)  {    // azmux hi
-
-    sample.idx will work for any hi-first sequence
-    also no reason to care about the azmux state here
-  */
-
-  if( status.sample.idx % 2 == 0) {
-
-    // HI.  record counts.
-    printf( "hi ");
-    decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
-    decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
-    assert( data->reading_valid == false);
-  }
-  else {
-
-    // LO convert value
-    printf( "lo ");
-
-    // if( decode->adc_refmux_pos_lo) printf( "have prior pos ");
-    // if( decode->adc_refmux_neg_lo) printf( "have prior neg ");
-
-    /*
-      if have prior LO if available, use average with this Lo.
-    */
-    double lo_pos =
-      decode->adc_refmux_pos_lo
-      ? (data->adc_refmux_pos + decode->adc_refmux_pos_lo ) / 2.
-      : data->adc_refmux_pos;
-
-    double lo_neg =
-      decode->adc_refmux_neg_lo
-      ? (data->adc_refmux_neg + decode->adc_refmux_neg_lo ) / 2.
-      : data->adc_refmux_neg;
-
-    data->count_sum =
-        ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
-      - ((double) lo_pos                    - (cal_w * lo_neg ));
-
-
-    // record/update LO. for next time
-    decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
-    decode->adc_refmux_neg_lo     = data->adc_refmux_neg;
-
-
-    /*
-      consider if want to handle normalization here.
-
-      Yes. for ratio-metric,  because autoranging/ OV detection needs something sensible to display.
-      And may want to divide by (data->adc_sigmux * 2);
-
-      // normalized count
-      data->count_sum_norm = data->count_sum  / data->adc_sigmux;
-    */
-
-    data->reading_valid     = true;
-  }
-}
-
-
-
-
 ////////////////////////////
 
 
-static void decode_noaz_lo_first( decode_t *decode, data_t *data);
 
 
 static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz, bool oob  */)
@@ -469,11 +599,15 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
     };
     memcpy( sa->terms, terms, sizeof( terms));
 
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_noaz_lo_first;
-    sa->decode_ctx = malloc( sizeof( decode_t));  // TODO FIXME memory
 
-    decode_init( sa->decode_ctx);
+    // set decode strategy
+    sa->decode_strategy = (void (*)( void *, data_t *)) decode_x;
+    sa->decode_ctx      = malloc( sizeof( decode_x_t));  // TODO FIXME memory
+
+    // init and set lo first
+    decode_x_init( sa->decode_ctx, false);
+
+
   }
   else if( strcmp( sa->input, "ratio") == 0 ) {
 
@@ -486,58 +620,6 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
 
 }
 
-
-
-static void decode_noaz_lo_first( decode_t *decode, data_t *data)
-{
-  assert( decode && decode->magic == DECODE_MAGIC);
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  const reg_sr_t status = data->status;
-  const term_t term  = data->term;
-  double cal_w          = data->cal->w;
-  assert( cal_w);
-
-  if( status.sample.first) {
-
-    // clear state after re/trigger action
-    printf( "clear ");
-    // decode_reset()
-    decode->adc_refmux_pos_hi = 0;
-    decode->adc_refmux_neg_hi = 0;
-    decode->adc_refmux_pos_lo = 0;
-    decode->adc_refmux_neg_lo = 0;
-  }
-
-  if( term.oob_aperture) {
-
-    // delegate to oob conversion handler
-    decode_oob( &decode->oob, data);
-    return;
-  }
-  // normal reading
-  assert( !term.oob_aperture);
-
-  if( status.sample.idx % 2 == 0) {
-
-    // LO   record counts.
-    printf( "lo ");
-    decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
-    decode->adc_refmux_neg_lo     = data->adc_refmux_neg;
-    assert( data->reading_valid == false);
-  }
-  else {
-
-    // HI convert value
-    printf( "hi ");
-    data->count_sum =
-        ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg))
-      - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
-
-    data->reading_valid     = true;
-  }
-}
 
 
 

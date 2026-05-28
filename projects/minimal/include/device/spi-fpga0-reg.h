@@ -33,6 +33,8 @@
 #define REG_SA_P_CLK_COUNT_TRIG_DELAY     19
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
+
+// TODO. rename SEQ to TERM.
 // #define REG_SA_P_SEQ_N                    21
 #define REG_SA_P_SEQ0                     22
 #define REG_SA_P_SEQ1                     23
