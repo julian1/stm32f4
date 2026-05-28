@@ -32,8 +32,9 @@
 
 
 /*
-  consider, just use a wrapped c++ stl deque.
-  contiguous.  -
+  consider, just use a C-api wrapped c++ stl deque.
+  contiguous.
+  but it will allocate/deallocate behind the scenes
 
   and maintain order rather than a modul
   and ability to resize as we are working.
