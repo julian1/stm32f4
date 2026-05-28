@@ -343,7 +343,7 @@ static void decode_x( decode_x_t *decode, data_t *data)
 
   if( term.oob_aperture) {
 
-    printf( "(oob)     ");
+    printf( "(oob)      ");
     // delegate to oob conversion handler
     decode_az_hi_first( &decode->oob , data);
     return;
@@ -351,12 +351,12 @@ static void decode_x( decode_x_t *decode, data_t *data)
 
 
   if( decode->hi_first) {
-    printf( "(hi first)");
+    printf( "(hi first) ");
     decode_az_hi_first( &decode->normal, data);
   }
 
   else {
-    printf( "(lo first)");
+    printf( "(lo first) ");
     decode_noaz_lo_first( &decode->normal, data);
   }
 
