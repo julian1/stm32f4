@@ -134,7 +134,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
       printf( "mean %s ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
       // printf( "%s, ", range->unit );
 
-      printf("(n=%u/%u), ", buffer->i, buffer->count);
+      printf("(n=%u/%u), ", buffer->count, buffer->size);
 
       // this includes the unit
       printf( "stddev %s", str_format_value_dynamic( buf, 100, buffer->stddev, 4 ));
@@ -169,23 +169,24 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
     buffer->show = false;
 
 
-
-
-  if( sscanf(cmd, "buffer size %lu", &u0 ) == 1) {
+  else if( sscanf(cmd, "buffer %lu", &u0 ) == 1) {
 
     assert(u0 < buffer->max_sz);
 
-    buffer->size = 10;
+    buffer->size  = u0;
 
-    // reset buffer, by clearing the index and count...
-    // preserving buffer contents on resize is tricky with modulo index
-    buffer->i = 0;
+    /* just reset buffer, by clearing the index and count for now.
+      preserving current buffer contents on resize action is tricky with modulo index
+    */
+    buffer->i     = 0;
     buffer->count = 0;
 
   }
+  else
+    return 0;
 
 
-  return 0;
+  return 1;
 }
 
 

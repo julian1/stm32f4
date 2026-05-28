@@ -281,11 +281,12 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
   else if( n = sscanf(cmd, "%100s %100s", name, arg), n == 2 || n == 1) {
 
+    printf("range lookup %s %s\n", name, arg);
 
     // signed for error handling
     signed long range_idx = range_get_idx( ranging->ranges, ranging->ranges_sz, name, arg);
 
-    printf("here0 range idx %ld\n", range_idx);
+    printf("range idx %ld\n", range_idx);
 
     assert( range_idx <  (signed long) ranging->ranges_sz);
 

@@ -429,7 +429,27 @@ void decode_init(
 
 #if 0
 
-may 17, 2026.
+
+may 28.
+
+n == 100
+
+nplc 10
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos 1976339 neg 2025610 sig 4000001}, hi
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos 1976344 neg 2025615 sig 4000001}, lo read 0.000,000,39 mean 0.000,000,15 (n=100/100), stddev +157.8n
+
+nplc 1
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198445 neg  203392 sig  400001}, hi
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198446 neg  203393 sig  400001}, lo read 0.000,000,87 mean 0.000,000,40 (n=100/100), stddev +620.4n
+missed data interrupt
+
+
+
+
+
+
+
+may 27, 2026.
 
 noise is really good.  with the LO. averaging.
     10nplc. 160nV. RMS.
