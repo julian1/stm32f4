@@ -19,9 +19,6 @@ typedef struct buffer_t
   double *values;
   size_t max_sz;    // max memory to work size
                     // change name max_sz or sz_max?
-
-
-
   size_t i;         // next index/ modulus
   size_t size;      // limit size of full buffer.  rename sz? consistent with stl.
   size_t count;     // current count of elements present.
@@ -32,7 +29,6 @@ typedef struct buffer_t
   double min, max;
 
 
-  // bool show_buffer;
   bool show;
 
 } buffer_t;

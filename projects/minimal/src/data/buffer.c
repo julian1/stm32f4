@@ -17,14 +17,13 @@
 #include <string.h>     // memcmp
 
 
-#include <lib3/util.h>      // UNUSED, ARRAY_SIZE
+#include <lib3/util.h>      // MIN
 #include <lib3/stats.h>
 #include <lib3/format.h>  // format_with_commas
 
 
 
 #include <data/data.h>
-// #include <data/range.h>
 #include <data/buffer.h>
 
 #include <support.h>      // str_format
@@ -58,15 +57,11 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
 
   *buffer = (const buffer_t) {
 
-    .magic = BUFFER_MAGIC,
-
+    .magic  = BUFFER_MAGIC,
     .values = values,
     .max_sz = max_sz,
-
-    // initial buffer size
-    .size = 10,
-
-    .show = true,
+    .size   = 10,
+    .show   = true,
   };
 
 }
@@ -88,29 +83,22 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
   assert( data && data->magic == DATA_MAGIC );
 
 
-  if( !data->status.isr.adc)
-    return;
-
 
   if( data->status.sample.first) {
-
-    // first reading may now be valid...
-    // although perhaps out of band
-
-    // assert(!data->reading_valid);
-
-    // could clear data
-    // memset( buffer->values, 0, sizeof(double) * buffer->max_sz );
 
     // clear the current buffer
     buffer->i     = 0;
     buffer->count = 0;
   }
 
-  if( data->reading_valid) {
 
-    // assert(!data->status.sample.first);
-    // push buffer.
+  if( data->term.oob_aperture)
+    return;
+
+
+
+
+  if( data->reading_valid) {
 
     // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
 

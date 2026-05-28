@@ -77,7 +77,7 @@
 // #include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
-// #include <data/aggregate.h>
+#include <data/aggregate.h>
 #include <ranging.h>
 #include <environment.h>
 
@@ -424,7 +424,14 @@ static int main_f429(void)
   double values[ 1000];
 
   buffer_t     buffer;
-  buffer_init( &buffer, values, ARRAY_SIZE(values));
+  buffer_init( &buffer, values, ARRAY_SIZE( values));
+
+
+
+  double a_values[ 1000];
+
+  aggregate_t     aggregate;
+  aggregate_init( &aggregate, a_values, ARRAY_SIZE( a_values));
 
 
 
@@ -510,6 +517,8 @@ static int main_f429(void)
 
     .decode             = &decode,
     .buffer             = &buffer,
+    .aggregate          = &aggregate,
+
 
     .vfd0               = &vfd0,        // needed because in app_t. because init() called only after init.
     .display_vfd        = &display_vfd,

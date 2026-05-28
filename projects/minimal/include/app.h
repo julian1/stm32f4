@@ -58,6 +58,7 @@ typedef struct _mode_t _mode_t;
 typedef struct ranging_t ranging_t;
 typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
+typedef struct aggregate_t aggregate_t;
 
 typedef struct environment_t environment_t;
 
@@ -257,13 +258,12 @@ typedef struct app_t
   cal_t         *cal;
 
   decode_t      *decode;
-
   buffer_t      *buffer;
+  aggregate_t   *aggregate;
 
 
   // not sure belongs here
   // bool verbose;
-
 
   // state variable persists
   bool          repl_trigger_val;

@@ -53,6 +53,8 @@
 #include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
+#include <data/aggregate.h>
+
 #include <data/range.h>
 #include <ranging.h>
 #include <environment.h>
@@ -969,6 +971,7 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
     buffer_update_data( app->buffer, &data);
 
+    aggregate_update_data( app->aggregate, &data);
 
 
     // if( data.status.isr.adc) {
