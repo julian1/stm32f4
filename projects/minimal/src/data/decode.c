@@ -429,6 +429,11 @@ void decode_init(
 
 #if 0
 
+nplc 1/ aggregate 10  - actually worse. interesting
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  198434 neg  203381 sig  400001}, (hi first) hi
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  198433 neg  203380 sig  400001}, (hi first) lo read -0.000,000,87 mean -0.000,000,03 (n=100/100), stddev +190.9n
+
+
 
 may 28.
 

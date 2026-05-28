@@ -969,10 +969,9 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
     decode_update_data( app->decode, &data /* range_t *range */);
 
-    buffer_update_data( app->buffer, &data);
-
     aggregate_update_data( app->aggregate, &data);
 
+    buffer_update_data( app->buffer, &data);
 
     // if( data.status.isr.adc) {
       // always delegate to ranging update
