@@ -152,7 +152,14 @@ static void decode_oob( decode_oob_t *decode, data_t *data)
   - one way to handle.  would just be to take the max of the two readings.
       and use that for auto-ranging.
       else only use 10V range.
+  ----------
 
+  - for ratio metric.
+      may want to treat as two seperate measurements.   eg. 0,1   and 2,3.  with no oob.
+
+      this make the decode structures basically the same/repeated.
+      consider - just nest the second measurement counts.. eg. the same way we handle the oob.
+      - the issue is to clear everything on the first time.
 */
 
 typedef struct decode_t
