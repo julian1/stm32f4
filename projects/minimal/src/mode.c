@@ -68,76 +68,6 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-#if 0
-typedef struct decode_oob_t
-{
-  /*
-    oob reading. is always the same.  regardless az,noaz. or dither etc.
-    so just factor into  one place
-  */
-
-  // persist...  for AZ. from last reading
-  uint32_t adc_refmux_pos_hi;
-  uint32_t adc_refmux_neg_hi;
-
-} decode_oob_t;
-
-#endif
-
-
-
-#if 0
-
-static void decode( decode_t *decode, data_t *data)
-{
-  /*
-    oob. is hi first by convention.
-    comparators get a look at the input in priority.
-    to check for oscillation detection/strong OVLD,UNDL condition.
-    even if comparators are not used for ranging control.
-  */
-
-  const reg_sr_t status = data->status;
-  const term_t term  = data->term;
-  double cal_w          = data->cal->w;
-  assert( cal_w);
-
-  assert( term.oob_aperture);
-
-  if( status.sample.first) {
-
-    printf( "clear ");
-
-    // clear state after a re/trigger action
-    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
-    decode->adc_refmux_neg_hi = 0;
-  }
-
-  if( status.sample.idx % 2 == 0) {
-
-    printf( "hi ");
-
-    // HI.  record counts.
-    decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
-    decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
-    assert( data->reading_valid == false);
-  }
-  else {
-
-    printf( "lo ");
-
-    // LO convert value
-    data->count_sum =
-        ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
-      - ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg));
-
-    data->reading_valid     = true;
-  }
-}
-
-#endif
-
-
 
 /*
   EXTR.
@@ -533,11 +463,6 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     assert( 0);
   }
 }
-
-
-
-
-////////////////////////////
 
 
 
@@ -1625,6 +1550,82 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
   return 1;
 }
 
+
+
+
+
+
+
+
+
+#if 0
+typedef struct decode_oob_t
+{
+  /*
+    oob reading. is always the same.  regardless az,noaz. or dither etc.
+    so just factor into  one place
+  */
+
+  // persist...  for AZ. from last reading
+  uint32_t adc_refmux_pos_hi;
+  uint32_t adc_refmux_neg_hi;
+
+} decode_oob_t;
+
+#endif
+
+
+
+#if 0
+
+static void decode( decode_t *decode, data_t *data)
+{
+  /*
+    oob. is hi first by convention.
+    comparators get a look at the input in priority.
+    to check for oscillation detection/strong OVLD,UNDL condition.
+    even if comparators are not used for ranging control.
+  */
+
+  const reg_sr_t status = data->status;
+  const term_t term  = data->term;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+  assert( term.oob_aperture);
+
+  if( status.sample.first) {
+
+    printf( "clear ");
+
+    // clear state after a re/trigger action
+    decode->adc_refmux_pos_hi = 0; // UINT32_MAX
+    decode->adc_refmux_neg_hi = 0;
+  }
+
+  if( status.sample.idx % 2 == 0) {
+
+    printf( "hi ");
+
+    // HI.  record counts.
+    decode->adc_refmux_pos_hi     = data->adc_refmux_pos;
+    decode->adc_refmux_neg_hi     = data->adc_refmux_neg;
+    assert( data->reading_valid == false);
+  }
+  else {
+
+    printf( "lo ");
+
+    // LO convert value
+    data->count_sum =
+        ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
+      - ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg));
+
+    data->reading_valid     = true;
+  }
+}
+
+#endif
 
 
 
