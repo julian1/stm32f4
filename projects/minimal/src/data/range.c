@@ -117,7 +117,7 @@ static void range_mode_ref_lo( const range_t *range, _mode_t *mode, bool range_1
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  assert(strcasecmp( range->name, "lo") == 0);
+  assert(strcasecmp( range->name, "REF-LO") == 0);
 
   mode_reset_inputs( mode);
   sa_set( &mode->sa, "ch2" );
@@ -145,7 +145,7 @@ static void range_mode_star_lo( const range_t *range, _mode_t *mode, bool range_
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  assert(strcasecmp( range->name, "lo2") == 0);
+  assert(strcasecmp( range->name, "STAR-LO") == 0);
 
   mode_reset_inputs( mode);
 
@@ -503,11 +503,13 @@ static void range_format(
   }
   else if(strcasecmp( range->arg, "") == 0
     || strcasecmp( range->arg, "10") == 0
+    || strcasecmp( range->arg, "20") == 0
   ) {
     val->leading = 2;
     val->m = ' ';
   }
-  else if(strcasecmp( range->arg, "1") == 0)
+  else if(strcasecmp( range->arg, "1") == 0
+    || strcasecmp( range->arg, "2") == 0)
   {
     val->leading = 1;
     val->m = ' ';
@@ -604,9 +606,9 @@ size_t ranges_init( range_t *ranges, size_t sz)
     { RANGE_MAGIC,  "REF-LO",   "10",   false,  true,     range_mode_ref_lo,   range_reading_normal, range_format,   NULL,             },
 
     { RANGE_MAGIC,  "STAR-LO",  "0.01", true,   false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "STAR_LO",  "0.1",  false,  false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "STAR_LO",  "1",    false,  false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "STAR_LO",  "10",   false,  true,     range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR-LO",  "0.1",  false,  false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR-LO",  "1",    false,  false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
+    { RANGE_MAGIC,  "STAR-LO",  "10",   false,  true,     range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
 
 
 

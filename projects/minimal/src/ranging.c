@@ -274,12 +274,18 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
 #endif
 
-  /* regex is very catchall-y
-    should return false - if the range is not match
+  /* this regexy is very catchall-y
+    should return false, if the range does not match
     rather than a relaxed error message
+    ----------
+
+
   */
 
-  else if( n = sscanf(cmd, "%100s %100s", name, arg), n == 2 || n == 1) {
+  // else if( n = sscanf(cmd, "%100s %100s", name, arg), n == 2 || n == 1) {
+
+
+  else if( n = sscanf(cmd, "%100[a-zA-Z-] %100s", name, arg), n == 2 || n == 1) {
 
     printf("range lookup %s %s\n", name, arg);
 
@@ -299,6 +305,8 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
       // neg
 
       printf("range not found\n");
+      // needed
+      return false;
     }
 
   }
