@@ -107,12 +107,14 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
   */
   const sa_state_t *sa = &decode->mode->sa;
-
+  assert( sa);
+  assert( sa->decode_ctx);
   assert( sa->decode_strategy);
   assert( sa->decode_ctx);
 
-  sa->decode_strategy( sa->decode_ctx, data );
 
+  // convert counts to count_sum
+  sa->decode_strategy( sa->decode_ctx, data );
 
 
 
@@ -125,24 +127,20 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
       printf("sum %.2f, ", data->count_sum);
 
 
-
-    // normalized count
+    // normalize count
     data->count_sum_norm = data->count_sum  / data->adc_sigmux;
 
-    // printf("cal %p\n", cal);
-    // printf("cal->w %lf\n", cal->w);
 
-    // calculate reading for current range
-
-
-    // for ranging
+    // nominal reading
     data->reading_nominal = cal->b * data->count_sum_norm;
+
 
 
     // range should already be set.
     const range_t *range = data->range;
     assert(range && range->magic == RANGE_MAGIC);
 
+    // with range
     data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
 
 
@@ -150,8 +148,10 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     if(decode->show_reading) {
 
+      printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
+
 //      printf( "%s-%s, ", range->name, range->arg );
-      printf( "read %s ", str_format_float_with_commas(buf, 100, 8, data->reading ));
+      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading));
       // printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
     }

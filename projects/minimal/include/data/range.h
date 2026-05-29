@@ -83,14 +83,13 @@ struct range_t
   // bool ignore;
 
 
+	double fs_nominal;
+
   ///////////////////
 
-  // consider make a function. it doefor
-  // const char  *unit;
 
   /*
-    can use a structure to pass arguments here,
-    if passing the range_10Meg. is considered to onerous
+    if argument passing is too onerous, just combine in a structure here,
   */
 
   // set the range, by manipulating the mode
@@ -100,10 +99,27 @@ struct range_t
   // convert normalized count to a reading according to calibration
   double (*range_reading_convert)( const range_t *range, const cal_t *, double count_sum_norm);
 
-
-  // convert value to string
-
+  // formatting
   void (*range_reading_format)( const range_t *range, format_val_t *fval, unsigned ndigits, double value);
+
+};
+
+
+
+
+
+size_t ranges_init( range_t *ranges, size_t sz);
+
+
+
+
+
+
+
+  // consider make a function. it doefor
+  // const char  *unit;
+
+
 
   // void (*range_reading_format)( const range_t *range, char *s, size_t sz, char *m, char *u, unsigned ndigits, double value);
   // void (*range_reading_format)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
@@ -117,14 +133,6 @@ struct range_t
 
 
   // autoranging predicate test here also
-  int32_t (*range_ar_predicate)( range_t *range, /*status_reg, */ double v);
+  // int32_t (*range_ar_predicate)( range_t *range, /*status_reg, */ double v);
 
-  //
-};
-
-
-
-
-
-size_t ranges_init( range_t *ranges, size_t sz);
 

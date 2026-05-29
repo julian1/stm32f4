@@ -117,19 +117,19 @@ static void range_mode_ref_lo( const range_t *range, _mode_t *mode, bool range_1
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  assert(strcasecmp( range->name, "REF-LO") == 0);
+  assert( strcasecmp( range->name, "REF-LO") == 0);
 
   mode_reset_inputs( mode);
   sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
-  if(strcasecmp( range->arg, "10") == 0)
+  if( strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
-  else if(strcasecmp( range->arg, "1") == 0)
+  else if( strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
-  else if(strcasecmp( range->arg, "0.1") == 0)
+  else if( strcasecmp( range->arg, "0.1") == 0)
     mode_gain_set(mode, 100);
-  else if(strcasecmp( range->arg, "0.01") == 0)
+  else if( strcasecmp( range->arg, "0.01") == 0)
     mode_gain_set(mode, 1000);
   else
     assert(0);
@@ -145,20 +145,20 @@ static void range_mode_star_lo( const range_t *range, _mode_t *mode, bool range_
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  assert(strcasecmp( range->name, "STAR-LO") == 0);
+  assert( strcasecmp( range->name, "STAR-LO") == 0);
 
   mode_reset_inputs( mode);
 
   // sample A400 gnd directly from the azmux.
   sa_set( &mode->sa, "0" );
 
-  if(strcasecmp( range->arg, "10") == 0)
+  if( strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
-  else if(strcasecmp( range->arg, "1") == 0)
+  else if( strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
-  else if(strcasecmp( range->arg, "0.1") == 0)
+  else if( strcasecmp( range->arg, "0.1") == 0)
     mode_gain_set(mode, 100);
-  else if(strcasecmp( range->arg, "0.01") == 0)
+  else if( strcasecmp( range->arg, "0.01") == 0)
     mode_gain_set(mode, 1000);
   else
     assert(0);
@@ -180,7 +180,7 @@ static void range_ref( const range_t *range, _mode_t *mode, bool range_10Meg)
     only 1x gain applies
   */
 
-  assert(strcasecmp( range->name, "ref") == 0);
+  assert( strcasecmp( range->name, "ref") == 0);
 
   mode_reset_inputs( mode);
   sa_set( &mode->sa, "ch2" );
@@ -214,13 +214,13 @@ static void range_mode_lts( const range_t *range, _mode_t *mode, bool range_10Me
   mode_ch2_set( mode, "lts");
 
 
-  if(strcasecmp( range->arg, "10") == 0)
+  if( strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
-  else if(strcasecmp( range->arg, "1") == 0)
+  else if( strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
-  else if(strcasecmp( range->arg, "0.1") == 0)
+  else if( strcasecmp( range->arg, "0.1") == 0)
     mode_gain_set(mode, 100);
-  else if(strcasecmp( range->arg, "0.01") == 0)
+  else if( strcasecmp( range->arg, "0.01") == 0)
     mode_gain_set(mode, 1000);
   else
     assert( 0);
@@ -251,39 +251,39 @@ static void range_mode_dcv( const range_t *range, _mode_t *mode, bool range_10Me
 
   printf("dcv range_10Meg state is %u\n", range_10Meg );
 
-  if(strcasecmp( range->arg, "1000") == 0) {
+  if( strcasecmp( range->arg, "1000") == 0) {
 
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 1);
     mode_ch2_set( mode, "div");
     sa_set( &mode->sa, "ch2" );
   }
-  else if(strcasecmp( range->arg, "100") == 0) {
+  else if( strcasecmp( range->arg, "100") == 0) {
 
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 10);
     mode_ch2_set( mode, "div");
     sa_set( &mode->sa, "ch2" );
   }
-  else if(strcasecmp( range->arg, "10") == 0) {
+  else if( strcasecmp( range->arg, "10") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1);
     sa_set( &mode->sa, "ch1" );
   }
-  else if(strcasecmp( range->arg, "1") == 0) {
+  else if( strcasecmp( range->arg, "1") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 10);
     sa_set( &mode->sa, "ch1" );
   }
-  else if(strcasecmp( range->arg, "0.1") == 0) {
+  else if( strcasecmp( range->arg, "0.1") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
     sa_set( &mode->sa, "ch1" );
   }
-  else if(strcasecmp( range->arg, "0.01") == 0) {
+  else if( strcasecmp( range->arg, "0.01") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
@@ -315,19 +315,19 @@ static void range_mode_dcv2( const range_t *range, _mode_t *mode, bool range_10M
   mode_invert_dac_set( mode, val);
 
 
-  if(strcasecmp( range->arg, "20") == 0) {
+  if( strcasecmp( range->arg, "20") == 0) {
 
     mode_gain_set( mode, 1);
   }
-  else if(strcasecmp( range->arg, "2") == 0) {
+  else if( strcasecmp( range->arg, "2") == 0) {
 
     mode_gain_set( mode, 10);
   }
-  else if(strcasecmp( range->arg, "0.2") == 0) {
+  else if( strcasecmp( range->arg, "0.2") == 0) {
 
     mode_gain_set( mode, 100);
   }
-  else if(strcasecmp( range->arg, "0.02") == 0) {
+  else if( strcasecmp( range->arg, "0.02") == 0) {
 
     mode_gain_set( mode, 1000);
   }
@@ -356,14 +356,15 @@ static double range_reading_normal( const range_t *range, const cal_t *cal, doub
   // for ref and lts.
   // consider
 
-  if(strcasecmp( range->arg, "") == 0       // for ref/ temp has no argument.
+  if( strcasecmp( range->arg, "") == 0       // for ref/ temp has no argument.
     || strcasecmp( range->arg, "10") == 0   // lts, daq etc.
+    || strcasecmp( range->arg, "20") == 0
   ) {
 
     return cal->b * count_sum_norm;
   }
-  else if(strcasecmp( range->arg, "1") == 0
-       || strcasecmp( range->arg, "2") == 0)
+  else if( strcasecmp( range->arg, "1") == 0
+       ||  strcasecmp( range->arg, "2") == 0)
   {
     // may want default count_sum_norms
     // or express as or cal->b * cal->b10.
@@ -372,11 +373,11 @@ static double range_reading_normal( const range_t *range, const cal_t *cal, doub
 
 
 
-  else if(strcasecmp( range->arg, "0.1") == 0)
+  else if( strcasecmp( range->arg, "0.1") == 0)
   {
     return cal->b100 * count_sum_norm;
   }
-  else if(strcasecmp( range->arg, "0.01") == 0)
+  else if( strcasecmp( range->arg, "0.01") == 0)
   {
     return cal->b1000 * count_sum_norm;
   }
@@ -396,13 +397,13 @@ static double range_reading_dcv( const range_t *range, const cal_t *cal, double 
   // eg. with input terminl offset
 
 
-  if(strcasecmp( range->arg, "1000") == 0) {
+  if( strcasecmp( range->arg, "1000") == 0) {
 
     // TODO add front or rear terminal offset.
     // but not if using internal...
     return cal->div1000 * count_sum_norm;
   }
-  if(strcasecmp( range->arg, "100") == 0) {
+  if( strcasecmp( range->arg, "100") == 0) {
 
     return cal->div100 * count_sum_norm;
   }
@@ -428,35 +429,6 @@ static double range_reading_temp( const range_t *range, const cal_t *cal, double
   // return cal->b * count_sum_norm * 100;
 
   return range_reading_normal( range, cal, count_sum_norm) * 100.f;
-}
-
-
-
-
-
-
-
-static int32_t range_pred_dcv( range_t *range, /*reg_status */ double v)
-{
-/* autoranging predicate test here also
-      return value 1,0,-1  for up,stay,no change.
-  */
-
-  // we could pass some extra state here.
-  // if needed.
-
-  assert(range && range->magic == RANGE_MAGIC);
-
-  assert( strcasecmp( range->name, "dcv") == 0);
-
-  // we just assume > 10 , then switch the range.
-  // So. use the count_sum_norm. * b;
-  // rather than the specific range.
-  // or else we an use arg. to  work out the value we want.
-
-  UNUSED(v);
-
-  return 0;
 }
 
 
@@ -493,28 +465,28 @@ static void range_format(
   */
 
 
-  if(strcasecmp( range->arg, "1000") == 0) {
+  if( strcasecmp( range->arg, "1000") == 0) {
     val->leading = 4;
     val->m = ' ';
   }
-  else if(strcasecmp( range->arg, "100") == 0) {
+  else if( strcasecmp( range->arg, "100") == 0) {
     val->leading = 3;
     val->m = ' ';
   }
-  else if(strcasecmp( range->arg, "") == 0
+  else if( strcasecmp( range->arg, "") == 0
     || strcasecmp( range->arg, "10") == 0
     || strcasecmp( range->arg, "20") == 0
   ) {
     val->leading = 2;
     val->m = ' ';
   }
-  else if(strcasecmp( range->arg, "1") == 0
+  else if( strcasecmp( range->arg, "1") == 0
     || strcasecmp( range->arg, "2") == 0)
   {
     val->leading = 1;
     val->m = ' ';
   }
-  else if(strcasecmp( range->arg, "0.1") == 0)
+  else if( strcasecmp( range->arg, "0.1") == 0)
   {
     val->leading = 3;
     value *= 1000.;
@@ -522,7 +494,7 @@ static void range_format(
     // can change unit to "mV"
     // have to add 'm'
   }
-  else if(strcasecmp( range->arg, "0.01") == 0)
+  else if( strcasecmp( range->arg, "0.01") == 0)
   {
     val->leading = 2;
     value *= 1000.;
@@ -554,6 +526,59 @@ static void range_format(
   );
 
 }
+
+
+
+
+
+
+size_t ranges_init( range_t *ranges, size_t sz)
+{
+
+  const range_t temp[] = {
+
+    // magic        name        arg     sentinels             set_mode        convert to reading    format                  autorange predicate
+    { RANGE_MAGIC,  "REF",      "",     true,   true,     0.,   range_ref,      range_reading_normal, range_format,         },
+
+    { RANGE_MAGIC,  "REF-LO",   "0.01", true,   false,    11,   range_mode_ref_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "0.1",  false,  false,    11,   range_mode_ref_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "1",    false,  false,    11,   range_mode_ref_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "10",   false,  true,     0,    range_mode_ref_lo,   range_reading_normal, range_format,    },
+
+    { RANGE_MAGIC,  "STAR-LO",  "0.01", true,   false,    11,   range_mode_star_lo,  range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "0.1",  false,  false,    11,   range_mode_star_lo,  range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "1",    false,  false,    11,   range_mode_star_lo,  range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "10",   false,  true,     0,    range_mode_star_lo,  range_reading_normal, range_format,    },
+
+
+    { RANGE_MAGIC,  "DCV",      "0.01", true,   false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "0.1",  false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "1",    false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "2",    false,  false,    22,   range_mode_dcv2,     range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "10",   false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "20",   false,  false,    22,   range_mode_dcv2,     range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "100",  false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "1000", false,  true,     0,    range_mode_dcv,      range_reading_dcv,    range_format,    },
+
+    { RANGE_MAGIC,  "TEMP",     "",     true,   true,     0,    range_mode_temp,     range_reading_temp,   range_format,    },
+
+    { RANGE_MAGIC,  "LTS",      "0.01", true,   false,    11,   range_mode_lts,      range_reading_normal, range_format,    },  // better name, LTS or DCV LTS.
+    { RANGE_MAGIC,  "LTS",      "0.1",  false,  false,    11,   range_mode_lts,      range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "LTS",      "1",    false,  false,    11,   range_mode_lts,      range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "LTS",      "10",   false,  true,     0,    range_mode_lts,      range_reading_normal, range_format,    }
+
+  };
+
+
+  printf( "ranges sz %u,  max %u\n", ARRAY_SIZE( temp), sz);
+
+  assert( ARRAY_SIZE( temp) < sz);
+
+  memcpy( ranges, &temp, sizeof( temp));
+
+  return ARRAY_SIZE( temp);
+}
+
 
 
 
@@ -592,55 +617,31 @@ static void range_format(
 
 
 
-size_t ranges_init( range_t *ranges, size_t sz)
+#if 0
+static int32_t range_pred_dcv( range_t *range, /*reg_status */ double v)
 {
+/* autoranging predicate test here also
+      return value 1,0,-1  for up,stay,no change.
+  */
 
-  const range_t temp[] = {
+  // we could pass some extra state here.
+  // if needed.
 
-    // magic        name        arg     sentinels         set_mode        convert to reading    format                  autorange predicate
-    { RANGE_MAGIC,  "REF",      "",     true,   true,     range_ref,      range_reading_normal, range_format,   NULL,             },
+  assert(range && range->magic == RANGE_MAGIC);
 
-    { RANGE_MAGIC,  "REF-LO",   "0.01", true,   false,    range_mode_ref_lo,   range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "REF-LO",   "0.1",  false,  false,    range_mode_ref_lo,   range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "REF-LO",   "1",    false,  false,    range_mode_ref_lo,   range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "REF-LO",   "10",   false,  true,     range_mode_ref_lo,   range_reading_normal, range_format,   NULL,             },
+  assert( strcasecmp( range->name, "dcv") == 0);
 
-    { RANGE_MAGIC,  "STAR-LO",  "0.01", true,   false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "STAR-LO",  "0.1",  false,  false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "STAR-LO",  "1",    false,  false,    range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "STAR-LO",  "10",   false,  true,     range_mode_star_lo,  range_reading_normal, range_format,   NULL,             },
+  // we just assume > 10 , then switch the range.
+  // So. use the count_sum_norm. * b;
+  // rather than the specific range.
+  // or else we an use arg. to  work out the value we want.
 
+  UNUSED(v);
 
-
-
-    { RANGE_MAGIC,  "DCV",      "0.01", true,   false,    range_mode_dcv,      range_reading_dcv,    range_format,   range_pred_dcv,   },
-    { RANGE_MAGIC,  "DCV",      "0.1",  false,  false,    range_mode_dcv,      range_reading_dcv,    range_format,   range_pred_dcv,   },
-    { RANGE_MAGIC,  "DCV",      "1",    false,  false,    range_mode_dcv,      range_reading_dcv,    range_format,   range_pred_dcv,   },
-
-    { RANGE_MAGIC,  "DCV",      "2",    false,  false,    range_mode_dcv2,     range_reading_dcv,    range_format,   range_pred_dcv,   },
-    { RANGE_MAGIC,  "DCV",      "10",   false,  false,    range_mode_dcv,      range_reading_dcv,    range_format,   range_pred_dcv,   },
-    { RANGE_MAGIC,  "DCV",      "100",  false,  false,    range_mode_dcv,      range_reading_dcv,    range_format,   range_pred_dcv,   },
-    { RANGE_MAGIC,  "DCV",      "1000", false,  true,     range_mode_dcv,      range_reading_dcv,    range_format,   range_pred_dcv,   },
-
-    { RANGE_MAGIC,  "TEMP",     "",     true,   true,     range_mode_temp,     range_reading_temp,   range_format,   NULL,             },
-
-    { RANGE_MAGIC,  "LTS",      "0.01", true,   false,    range_mode_lts,      range_reading_normal, range_format,   NULL,             },  // better name, LTS or DCV LTS.
-    { RANGE_MAGIC,  "LTS",      "0.1",  false,  false,    range_mode_lts,      range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "LTS",      "1",    false,  false,    range_mode_lts,      range_reading_normal, range_format,   NULL,             },
-    { RANGE_MAGIC,  "LTS",      "10",   false,  true,     range_mode_lts,      range_reading_normal, range_format,   NULL,             }
-
-  };
-
-
-  printf( "ranges sz %u,  max %u\n", ARRAY_SIZE( temp), sz);
-
-  assert( ARRAY_SIZE( temp) < sz);
-
-  memcpy( ranges, &temp, sizeof( temp));
-
-  return ARRAY_SIZE( temp);
+  return 0;
 }
 
+#endif
 
 
 /*

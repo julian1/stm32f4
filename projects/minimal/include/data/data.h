@@ -105,6 +105,14 @@ struct data_t
   double  reading;
 
 
+  /*
+    consider - instead of a single reading_valid flag to indicate to the display functions.
+    just use reading != NAN.  for the different stages.
+
+    not sure. the reading_valid is very clear. for the code that needs to check this
+
+    reading_nominal, reading_normal, reading_aggregate  etc.
+  */
 
 } ;
 

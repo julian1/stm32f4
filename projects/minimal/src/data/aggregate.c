@@ -60,6 +60,16 @@ void aggregate_update_data( aggregate_t *aggregate, /*const */ data_t *data)
       data->reading = mean( aggregate->values, aggregate->size);
       aggregate->i = 0;
 
+      /*
+      instead of clearing  the reading_valid flag.
+      could just check this, and then read it, when need to consider whether to display the value.
+
+      data->aggregate_valid = true;
+
+      alternatively just have a aggregate_reading.  that is set to NAN.
+      and forget the flags.
+      */
+
     } else {
 
       // clear data for this update
