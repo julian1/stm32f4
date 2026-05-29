@@ -132,7 +132,8 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
     // nominal reading
-    data->reading_nominal = cal->b * data->count_sum_norm;
+    // data->reading_nominal = cal->b * data->count_sum_norm;
+    // double reading_nominal = cal->b * data->count_sum_norm;
 
 
 
@@ -148,7 +149,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
     if(decode->show_reading) {
 
-      printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
+      // printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
 
 //      printf( "%s-%s, ", range->name, range->arg );
       printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading));
@@ -297,6 +298,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   data->range     = range;
   data->cal       = cal;
+
+  // could just set a copy of the environment...
   data->line_freq = environment->line_freq;
 
 

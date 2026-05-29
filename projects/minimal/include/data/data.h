@@ -98,7 +98,7 @@ struct data_t
 
   // for ranging
   // for amp-out
-  double reading_nominal;
+  // double reading_nominal;
 
 
   // reading adjusted by cal, and range

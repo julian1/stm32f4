@@ -529,7 +529,11 @@ static void range_format(
 
 
 
+/*
+  EXTR. should advertise the fs. for top ranges.
+    to allow display of OL.
 
+*/
 
 
 size_t ranges_init( range_t *ranges, size_t sz)
@@ -538,34 +542,36 @@ size_t ranges_init( range_t *ranges, size_t sz)
   const range_t temp[] = {
 
     // magic        name        arg     sentinels             set_mode        convert to reading    format                  autorange predicate
-    { RANGE_MAGIC,  "REF",      "",     true,   true,     0.,   range_ref,      range_reading_normal, range_format,         },
+    { RANGE_MAGIC,  "REF",      "",     true,   true,     11.,    range_ref,            range_reading_normal, range_format,         },
 
-    { RANGE_MAGIC,  "REF-LO",   "0.01", true,   false,    11,   range_mode_ref_lo,   range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "REF-LO",   "0.1",  false,  false,    11,   range_mode_ref_lo,   range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "REF-LO",   "1",    false,  false,    11,   range_mode_ref_lo,   range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "REF-LO",   "10",   false,  true,     0,    range_mode_ref_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "0.01", true,   false,    0.011,  range_mode_ref_lo,    range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "0.1",  false,  false,    0.11,   range_mode_ref_lo,    range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "1",    false,  false,    1.1,    range_mode_ref_lo,    range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "REF-LO",   "10",   false,  true,     11,     range_mode_ref_lo,    range_reading_normal, range_format,    },
 
-    { RANGE_MAGIC,  "STAR-LO",  "0.01", true,   false,    11,   range_mode_star_lo,  range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "STAR-LO",  "0.1",  false,  false,    11,   range_mode_star_lo,  range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "STAR-LO",  "1",    false,  false,    11,   range_mode_star_lo,  range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "STAR-LO",  "10",   false,  true,     0,    range_mode_star_lo,  range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "0.01", true,   false,    0.011,  range_mode_star_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "0.1",  false,  false,    0.11,   range_mode_star_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "1",    false,  false,    1.1,    range_mode_star_lo,   range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "STAR-LO",  "10",   false,  true,     11,     range_mode_star_lo,   range_reading_normal, range_format,    },
 
 
-    { RANGE_MAGIC,  "DCV",      "0.01", true,   false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "0.1",  false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "1",    false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "2",    false,  false,    22,   range_mode_dcv2,     range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "10",   false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "20",   false,  false,    22,   range_mode_dcv2,     range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "100",  false,  false,    11,   range_mode_dcv,      range_reading_dcv,    range_format,    },
-    { RANGE_MAGIC,  "DCV",      "1000", false,  true,     0,    range_mode_dcv,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "0.01", true,   false,    0.011,  range_mode_dcv,       range_reading_dcv,    range_format,    },
+//  { RANGE_MAGIC,  "DCV",      "0.02", false,  false,    0.022,  range_mode_dcv2,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "0.1",  false,  false,    0.11,   range_mode_dcv,       range_reading_dcv,    range_format,    },
+//  { RANGE_MAGIC,  "DCV",      "0.2",  false,  false,    0.22,   range_mode_dcv2,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "1",    false,  false,    1.1,    range_mode_dcv,       range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "2",    false,  false,    2.2,    range_mode_dcv2,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "10",   false,  false,    11,     range_mode_dcv,       range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "20",   false,  false,    22.0,   range_mode_dcv2,      range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "100",  false,  false,    110,    range_mode_dcv,       range_reading_dcv,    range_format,    },
+    { RANGE_MAGIC,  "DCV",      "1000", false,  true,     1100,   range_mode_dcv,       range_reading_dcv,    range_format,    },
 
-    { RANGE_MAGIC,  "TEMP",     "",     true,   true,     0,    range_mode_temp,     range_reading_temp,   range_format,    },
+    { RANGE_MAGIC,  "TEMP",     "",     true,   true,     0,      range_mode_temp,      range_reading_temp,   range_format,    },
 
-    { RANGE_MAGIC,  "LTS",      "0.01", true,   false,    11,   range_mode_lts,      range_reading_normal, range_format,    },  // better name, LTS or DCV LTS.
-    { RANGE_MAGIC,  "LTS",      "0.1",  false,  false,    11,   range_mode_lts,      range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "LTS",      "1",    false,  false,    11,   range_mode_lts,      range_reading_normal, range_format,    },
-    { RANGE_MAGIC,  "LTS",      "10",   false,  true,     0,    range_mode_lts,      range_reading_normal, range_format,    }
+    { RANGE_MAGIC,  "LTS",      "0.01", true,   false,    0.011,  range_mode_lts,       range_reading_normal, range_format,    },  // better name, LTS or DCV LTS.
+    { RANGE_MAGIC,  "LTS",      "0.1",  false,  false,    0.11,   range_mode_lts,       range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "LTS",      "1",    false,  false,    1.1,    range_mode_lts,       range_reading_normal, range_format,    },
+    { RANGE_MAGIC,  "LTS",      "10",   false,  true,     11,     range_mode_lts,       range_reading_normal, range_format,    }
 
   };
 

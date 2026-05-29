@@ -83,7 +83,7 @@ struct range_t
   // bool ignore;
 
 
-	double fs_nominal;
+	double fs;
 
   ///////////////////
 

@@ -1,14 +1,10 @@
 
 
-
-
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <strings.h>      // strcasecmp
 #include <math.h>         // fabs
-
-
 
 
 
@@ -81,39 +77,20 @@ void ranging_init(
 
 const range_t * ranging_range_active_get( const ranging_t *ranging)
 {
-  assert( ranging && ranging->magic == RANGING_MAGIC);
-  // printf("active range %u\n" ,   ranging->range_idx );
+  // simple accessor, with basic checks.
 
+  assert( ranging && ranging->magic == RANGING_MAGIC);
   assert( ranging->range_idx < ranging->ranges_sz);
-  const range_t *range  = & ranging->ranges[ ranging->range_idx];
-  return range;
-}
 
-
-/*
-  rather than return a bool here.
-  a better interface would just return the new range_idx,
-  or else negative, if no range.
-
-  more succinct, and allows more control to skip inactive/disabled ranges.
-
-*/
-
-static bool ranging_range_dir_valid( ranging_t *ranging, uint32_t range_idx, bool dir)    // 1 up. 0 down
-{
-  assert( ranging && ranging->magic == RANGING_MAGIC);
-  assert( range_idx < ranging->ranges_sz );   // watch out for signess casts.
-
-
-  const range_t *range = &ranging->ranges[ range_idx];
-
-  return (dir == 1 && !range->top_sentinal)
-    || (dir == 0 && !range->bot_sentinal);
+  return & ranging->ranges[ ranging->range_idx];
 }
 
 
 
-static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
+
+
+
+static void ranging_range_set_by_idx( ranging_t *ranging, uint32_t range_idx)
 {
   assert(ranging && ranging->magic == RANGING_MAGIC);
 
@@ -141,8 +118,8 @@ static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
 void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char *arg)
 {
   /*
-    support external callers
-    expects and asserts that the range will exist
+    convenience for external callers
+    expects and asserts the range exists
   */
 
   assert( ranging && ranging->magic == RANGING_MAGIC);
@@ -150,38 +127,8 @@ void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char
   int32_t range_idx = range_get_idx( ranging->ranges, ranging->ranges_sz, name, arg);
   assert( range_idx >= 0 && range_idx < (int) ranging->ranges_sz);
 
-  ranging_range_set( ranging, range_idx);
+  ranging_range_set_by_idx( ranging, range_idx);
 }
-
-
-
-
-#if 0
-
-// consider something like this...
-
-static bool ranging_maybe_change( ranging_t *ranging, bool dir)
-{
-
-    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, dir);
-    if(ret) {
-
-      if( dir)
-        ++ranging->range_idx;
-      else
-        --ranging->range_idx;
-
-
-      ranging_range_set( ranging, ranging->range_idx);
-
-      return true;
-    }
-
-
-  return false;
-}
-
-#endif
 
 
 
@@ -221,7 +168,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
     // re-apply range function
     // which may modify the mode
-    ranging_range_set( ranging, ranging->range_idx);
+    ranging_range_set_by_idx( ranging, ranging->range_idx);
 
     // board state will be update/transferred on repl '\r'
   }
@@ -241,12 +188,15 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
   else if(strcmp(cmd, "u") == 0) {
 
     printf("got u\n");
+    // not nominal
 
-    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
-    if(ret) {
+    const range_t *range =  ranging_range_active_get( ranging);
+    if( !range->top_sentinal) {
+
       ++ranging->range_idx;
-      ranging_range_set( ranging, ranging->range_idx);
+      ranging_range_set_by_idx( ranging, ranging->range_idx);
     }
+
 
     // state will be transferred at repl '\r'
   }
@@ -256,12 +206,207 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
     printf("got d\n");
 
+    const range_t *range =  ranging_range_active_get( ranging);
+    if( !range->bot_sentinal) {
+
+      --ranging->range_idx;
+      ranging_range_set_by_idx( ranging, ranging->range_idx);
+
+    }
+  }
+
+
+
+  else if( n = sscanf(cmd, "%100[a-zA-Z-] %100s", name, arg), n == 2 || n == 1) {
+
+    printf("range lookup %s %s\n", name, arg);
+
+    // signed for error handling
+    signed long range_idx = range_get_idx( ranging->ranges, ranging->ranges_sz, name, arg);
+
+    printf("range idx %ld\n", range_idx);
+
+    assert( range_idx <  (signed long) ranging->ranges_sz);
+
+    if( range_idx >= 0) {
+      // pos
+      printf("calling range switch\n");
+      ranging_range_set_by_idx( ranging, range_idx);
+    }
+    else {
+      // neg
+
+      printf("range not found\n");
+
+      // required/needed
+      return false;
+    }
+
+  }
+  else
+    return false;
+
+
+
+  return true;
+
+}
+
+
+
+
+bool ranging_update_data( ranging_t *ranging, const data_t *data)
+{
+  assert( ranging && ranging->magic == RANGING_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  /*
+    note, that this decision-making can be delegated back to the ranging
+    functions, for more fine-grain control, if needed.
+
+  */
+
+
+  // not ar, then dont care.
+  if( !ranging->ar)
+    return false;
+
+
+  // must have a valid reading
+  if( !data->reading_valid)
+    return false;
+
+
+
+  // the current range...
+  const range_t *range = &ranging->ranges[ ranging->range_idx];
+
+  // current range is also stamped on the data.
+  assert( range == data->range);
+
+
+  // get the lower range if available
+  const range_t *lower_range =
+      range
+      && !range->bot_sentinal
+      ? &ranging->ranges[ ranging->range_idx - 1]
+      : NULL;
+
+
+
+  double hysteresis = 0.95;
+
+  // autorange up
+  if( range
+    && !range->top_sentinal
+    && range->fs != 0
+    && fabs( data->reading) > range->fs
+    ) {      // second bit indicates above threshold
+
+
+    // not nominal
+    printf("\nswitch up\nreading %f\n", data->reading);
+
+    ++ranging->range_idx;
+    ranging_range_set_by_idx( ranging, ranging->range_idx);
+
+    /*
+      note - can set the second aperture.
+      for fast ranging measurement.
+      Or just hardcode.
+    */
+    return true;
+  }
+
+  // autorange down
+  else if(
+    lower_range
+    && lower_range->fs != 0
+    && fabs( data->reading) <= (lower_range->fs * hysteresis)) {
+
+
+    --ranging->range_idx;
+    ranging_range_set_by_idx( ranging, ranging->range_idx);
+
+    return true;
+
+  }
+
+  return false;
+}
+
+
+
+
+
+
+
+/*
+  rather than return a bool here.
+  a better interface would just return the new range_idx,
+  or else negative, if no range.
+
+  more succinct, and allows more control to skip inactive/disabled ranges.
+
+*/
+#if 0
+static bool ranging_range_dir_valid( ranging_t *ranging, uint32_t range_idx, bool dir)    // 1 up. 0 down
+{
+/*
+    try to deprecate. -   too much boilerplate.
+
+    just test range->top_sentinel.
+    etc.
+*/
+
+  assert( ranging && ranging->magic == RANGING_MAGIC);
+  assert( range_idx < ranging->ranges_sz );   // watch out for signess casts.
+
+
+  const range_t *range = &ranging->ranges[ range_idx];
+
+  return (dir == 1 && !range->top_sentinal)
+    || (dir == 0 && !range->bot_sentinal);
+}
+#endif
+
+
+#if 0
+
+// consider something like this...
+
+static bool ranging_maybe_change( ranging_t *ranging, bool dir)
+{
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, dir);
+    if(ret) {
+
+      if( dir)
+        ++ranging->range_idx;
+      else
+        --ranging->range_idx;
+
+
+      ranging_range_set( ranging, ranging->range_idx);
+
+      return true;
+    }
+
+
+  return false;
+}
+
+#endif
+
+#if 0
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
     if(ret) {
       --ranging->range_idx;
       ranging_range_set( ranging, ranging->range_idx);
     }
-  }
+#endif
+
 
 
   /////////////////
@@ -285,129 +430,10 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
   // else if( n = sscanf(cmd, "%100s %100s", name, arg), n == 2 || n == 1) {
 
 
-  else if( n = sscanf(cmd, "%100[a-zA-Z-] %100s", name, arg), n == 2 || n == 1) {
-
-    printf("range lookup %s %s\n", name, arg);
-
-    // signed for error handling
-    signed long range_idx = range_get_idx( ranging->ranges, ranging->ranges_sz, name, arg);
-
-    printf("range idx %ld\n", range_idx);
-
-    assert( range_idx <  (signed long) ranging->ranges_sz);
-
-    if( range_idx >= 0) {
-      // pos
-      printf("calling range switch\n");
-      ranging_range_set( ranging, range_idx);
-    }
-    else {
-      // neg
-
-      printf("range not found\n");
-      // needed
-      return false;
-    }
-
-  }
-  else
-    return false;
 
 
 
-  return true;
 
-}
-
-
-/*
-  TODO - consider using strategy.
-    field function pointer.
-    to change change strategy.
-
-*/
-
-
-
-bool ranging_update_data( ranging_t *ranging, const data_t *data)
-{
-  assert( ranging && ranging->magic == RANGING_MAGIC);
-  assert( data && data->magic == DATA_MAGIC);
-
-  reg_sr_t  status = data->status;
-
-  UNUSED( status);
-
-  /*
-    this decision-making can be delegated back to the ranging
-    functions, for more fine-grain control, if needed.
-
-  */
-
-
-  // not ar, then dont care.
-  if( !ranging->ar)
-    return false;
-
-
-  /*
-      must have full AZ cycle value
-  */
-  if( !data->reading_valid)
-    return false;
-
-
-
-  if( fabs( data->reading_nominal) > 11.0 ) {      // second bit indicates above threshold
-
-    // 11 -> 1.1
-
-    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
-    if(ret) {
-
-      printf("\nnominal %f\n", data->reading_nominal);
-      printf(", ovld and have valid u range");
-
-      ++ranging->range_idx;
-      ranging_range_set( ranging, ranging->range_idx);
-
-      /*
-        the range - can set the second aperture.
-        for fast ranging measurement.
-        Or just hardcode.
-      */
-      return  true;
-    }
-    else {
-
-      // printf(", ovld and no valid u range - ignore");
-    }
-  }
-
-
-  else if( fabs( data->reading_nominal) <= 1.0 ) {
-
-    // 1.0 -> 10.0
-
-    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
-    if(ret) {
-
-      printf("\nnominal %f\n", data->reading_nominal);
-      printf(", unld and have valid d range");
-      --ranging->range_idx;
-      ranging_range_set( ranging, ranging->range_idx);
-
-      return  true;
-    }
-    else  {
-
-      // printf(", unld and no valid d range - ignore");
-    }
-
-  }
-
-  return false;
-}
 
 
 #if 0
@@ -489,4 +515,13 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
 
 
 
+
+#if  0
+
+    bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
+    if(ret) {
+      ++ranging->range_idx;
+      ranging_range_set( ranging, ranging->range_idx);
+    }
+#endif
 

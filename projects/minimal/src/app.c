@@ -973,11 +973,8 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
     buffer_update_data( app->buffer, &data);
 
-    // if( data.status.isr.adc) {
-      // always delegate to ranging update
-      // in case we want to use the reading.
 
-    // event source is data, leading to need for state transition
+    // must have ordinary reading available.
     bool result = ranging_update_data( app->ranging, &data);
     if(result) {
 
