@@ -490,18 +490,23 @@ REF-, {idx=3, first=0}, {azmux s7, oob 0, zglc 0 }, {counts pos 1975951 neg 2025
 
 
 
-
 may 27, 2026.
 
 noise is really good.  with the LO. averaging.
+
     10nplc. 160nV. RMS.
     - with lt1021/7V. reference.
-    - no ref LP filter.
-    - shielding - only gnd shield cover over power-supply. no cans, no top/bottom analog guard.
+    - no LP ref filter.
+    - minimal shielding - just one cover over power supply.
 
-    - removed some combinatorial logic (Mealy state-machine) on the outputs for integrator reset, signal.
-    - clk delay. between switching signal. and refmuxes.  should not matter.
-    - and using 74lvc74d for the ref muxes. instead of 273.
+    - previos experiments substituting - low-jitter xtals.  current-liimit resistors (zfoil, orn, lt5400) and values (40k,50k).
+         FF. 175,  273,  574. and logic, and shieilding, power supplies, low-pass filterinig the ref.
+
+    - currently  -
+        - voltagtes kept close. eg. 3v3 for clk, gpio. and 3v5 for lvc DFF, lv 4053 switch.
+        - removed some combinatorial logic on the fgpa register outputs for integrator reset, signal (doubtful made a difference).
+        - data handling, only AZ difference. no nominal conversions (doubtful made a difference).
+        - reinstate average LO code, for AZ. HI-first conversions (default). really helps.
 
 
 dcv-10 may be 160nV. RMS.

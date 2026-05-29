@@ -1466,6 +1466,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( decode_repl_statement( app->decode, cmd )) { }
 
+  else if( aggregate_repl_statement( app->aggregate, cmd )) { }
+
   else if( buffer_repl_statement( app->buffer, cmd )) { }
 
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->environment)) { }

@@ -251,6 +251,15 @@ typedef struct _mode_t
 
   uint32_t      magic;
 
+/*
+    can have an incrementing mode idx. and write it to board register.
+    then confirm that it matches on receipt of data.
+    if have issues around state synchronization.
+
+  uint16_t      idx;    // increment on change.
+*/
+
+
   // all state needed to achive a dmm function.
   // but not enough for different states.
 

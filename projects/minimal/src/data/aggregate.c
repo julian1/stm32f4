@@ -5,7 +5,6 @@
 #include <assert.h>
 
 
-#include <lib3/util.h>      // UNUSED, ARRAY_SIZE
 #include <lib3/stats.h>
 
 
@@ -22,7 +21,7 @@ void aggregate_init( aggregate_t *aggregate, double *values, size_t max_sz )
     .magic  = AGGREGATE_MAGIC,
     .values = values,
     .max_sz = max_sz,
-    .size   = 10,
+    .size   = 1,
   };
 }
 
@@ -32,8 +31,6 @@ void aggregate_update_data( aggregate_t *aggregate, /*const */ data_t *data)
   assert( aggregate && aggregate->magic == AGGREGATE_MAGIC);
   assert( data && data->magic == DATA_MAGIC );
 
-  // disable
-  return;
 
   if( data->status.sample.first) {
 
@@ -45,18 +42,22 @@ void aggregate_update_data( aggregate_t *aggregate, /*const */ data_t *data)
     return;
 
 
+  if( aggregate->size == 0
+    || aggregate->size == 1)
+    return;
+
 
 
   if( data->reading_valid) {
 
     // store/record value
-    aggregate->values[ aggregate->i ] = data->reading;
+    aggregate->values[ aggregate->i] = data->reading;
 
 
     if( aggregate->i == aggregate->size - 1) {
 
       // buffer full, so compute mean, and override the value
-      data->reading = mean(   aggregate->values, aggregate->size);
+      data->reading = mean( aggregate->values, aggregate->size);
       aggregate->i = 0;
 
     } else {
