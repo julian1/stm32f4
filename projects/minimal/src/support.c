@@ -116,22 +116,6 @@ char * str_from_mux( char *buf, size_t n, unsigned val)
 
 
 
-#if 0
-static void set_seq( uint32_t *val,  uint32_t pc, uint32_t azmux)
-{
-      // would be handy to have in a function. or else return
-      //uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
-  assert(pc <= 0b11);
-  assert(azmux <= 0b1111);
-
-  // *val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
-  *val =  pc << 4 |  azmux ;
-}
-
-#endif
-
-
-
 static unsigned str_decode_mux( const char *s, uint32_t *val  )
 {
 
@@ -483,6 +467,29 @@ char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigit
   return s;
 }
 
+
+
+
+
+
+
+
+
+
+
+#if 0
+static void set_seq( uint32_t *val,  uint32_t pc, uint32_t azmux)
+{
+      // would be handy to have in a function. or else return
+      //uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+  assert(pc <= 0b11);
+  assert(azmux <= 0b1111);
+
+  // *val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+  *val =  pc << 4 |  azmux ;
+}
+
+#endif
 
 
 

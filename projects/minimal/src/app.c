@@ -1118,6 +1118,19 @@ static void spi_print_seq_register( spi_t *spi, uint32_t reg )
   char buf2[ 100];
   // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
 
+
+  /*
+  // Use printf_term() to decompose fields
+
+    see, in decode.c
+    static void printf_term( const term_t *term);
+
+  */
+  assert( 0);
+
+
+
+
   printf("r %lu   pc:%s   azmux:%s\n",  reg,
       str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
       // mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
