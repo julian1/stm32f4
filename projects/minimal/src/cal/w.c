@@ -108,7 +108,7 @@ void app_cal_w( app_t *app)
   decode->show_reading = false;
 
   // fill decode
-  app_fill_buffer1( app, pos_values, neg_values, ARRAY_SIZE( pos_values));
+  app_fill_buffer( app, NULL, pos_values, neg_values, ARRAY_SIZE( pos_values));
 
   double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
   double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));

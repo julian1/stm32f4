@@ -136,7 +136,9 @@ void app_transfer( app_t *app, transfer_t *transfer)
   memset(values, 0, sizeof(values));
 
   decode ->show_reading = true;
-  app_fill_buffer( app, values, ARRAY_SIZE(values));
+
+  app_fill_buffer( app, values, NULL, NULL, ARRAY_SIZE(values));
+
   double mean0    = mean( values, ARRAY_SIZE(values));
   double stddev0  = stddev( values, ARRAY_SIZE(values));
   printf("mean0 %f,  stddev0 %.9f\n", mean0, stddev0);
@@ -151,7 +153,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   //
   decode->show_reading = false;
-  app_fill_buffer( app, values, ARRAY_SIZE(values));
+  app_fill_buffer( app, values, NULL, NULL, ARRAY_SIZE(values));
   double mean1    = mean( values, ARRAY_SIZE(values));
   double stddev1  = stddev( values, ARRAY_SIZE(values));
   printf("mean1 %f,  stddev1 %.9f\n", mean1, stddev1);
@@ -164,7 +166,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   // print some values using cal to confirm
   decode->show_reading = true;
-  app_fill_buffer( app, values, ARRAY_SIZE(values));
+  app_fill_buffer( app, values, NULL, NULL, ARRAY_SIZE(values));
 
   // app_cal_finish( app);
 }
@@ -182,7 +184,8 @@ void app_transfer( app_t *app, transfer_t *transfer)
 */
 
 
-void app_fill_buffer( app_t *app, double *values, size_t n)
+void app_fill_buffer( app_t *app, double *values, double *pos_values, double *neg_values, size_t n)
+// void app_fill_buffer( app_t *app, double *values, size_t n)
 {
   decode_t *decode = app->decode;
   assert( decode && decode->magic == DECODE_MAGIC);
@@ -209,7 +212,13 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
     decode_update_data( decode, &data);
     if( data.reading_valid) {
 
-      values[ i] = data.count_sum_norm;
+      if( values)
+        values[ i]    = data.count_sum_norm;
+      if( pos_values)
+        pos_values[i] = data.adc_refmux_pos;
+      if( neg_values)
+        neg_values[i] = data.adc_refmux_neg;
+
       ++i;
     }
 
@@ -222,6 +231,9 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
 
 
 
+
+
+#if 0
 
 void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
 {
@@ -265,6 +277,7 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
 
 }
 
+#endif
 
 
 #if 0
