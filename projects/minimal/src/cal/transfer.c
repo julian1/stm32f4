@@ -133,12 +133,13 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   app_transition_state( app);
 
+  // countsum norm...
   double values[ 2 ];
-  memset(values, 0, sizeof(values));
+  memset(values, 0, sizeof( values));
 
   decode ->show_reading = true;
 
-  app_fill_buffer( app, values, NULL, NULL, ARRAY_SIZE(values));
+  app_fill_buffer( app, values, NULL, NULL, NULL, ARRAY_SIZE(values));
 
   double mean0    = mean( values, ARRAY_SIZE(values));
   double stddev0  = stddev( values, ARRAY_SIZE(values));
@@ -154,7 +155,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   //
   decode->show_reading = false;
-  app_fill_buffer( app, values, NULL, NULL, ARRAY_SIZE(values));
+  app_fill_buffer( app, values, NULL, NULL, NULL, ARRAY_SIZE(values));
   double mean1    = mean( values, ARRAY_SIZE(values));
   double stddev1  = stddev( values, ARRAY_SIZE(values));
   printf("mean1 %f,  stddev1 %.9f\n", mean1, stddev1);
@@ -167,127 +168,12 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   // print some values using cal to confirm
   decode->show_reading = true;
-  app_fill_buffer( app, values, NULL, NULL, ARRAY_SIZE(values));
+  app_fill_buffer( app, values, NULL, NULL, NULL, ARRAY_SIZE(values));
 
   // app_cal_finish( app);
 }
 
 
-
-
-/*
-  - using data->count_norm is flexible.  and independent of range.
-  - could pass in the transfer function to use.
-  - OR. can just apply the transform on the result.
-
-  - eg. add function to stats.c  to scale the buffer.
-
-*/
-
-
-void app_fill_buffer( app_t *app, double *values, double *pos_values, double *neg_values, size_t n)
-// void app_fill_buffer( app_t *app, double *values, size_t n)
-{
-  decode_t *decode = app->decode;
-  assert( decode && decode->magic == DECODE_MAGIC);
-
-
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-  // obs loop
-  for( unsigned i = 0; i < n; )
-  {
-    printf("i %u, ", i);
-
-    // wait for adc decode
-    while( !app->data_interrupt_valid )
-      app_yield( app);
-
-    app->data_interrupt_valid = false;
-
-    data_t  data;
-    data_init( &data);
-
-    // get and compute counts
-    decode_update_data( decode, &data);
-
-
-    if( !data.reading_valid)
-      continue;
-
-    if( data.term.oob_aperture)
-      continue;
-
-
-    assert( data.reading_valid && !data.term.oob_aperture);
-
-
-    if( values)
-      values[ i]    = data.count_sum_norm;
-    if( pos_values)
-      pos_values[i] = data.adc_refmux_pos;
-    if( neg_values)
-      neg_values[i] = data.adc_refmux_neg;
-
-    ++i;
-
-    printf("\n");
-  }
-
-  // stop sampling
-  gpio_write( app->gpio_trigger, false);
-}
-
-
-
-
-
-#if 0
-
-void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
-{
-  decode_t *decode = app->decode;
-  assert( decode && decode->magic == DECODE_MAGIC);
-
-
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-  // take obs loop
-  for( size_t i = 0; i < n; )
-  {
-    printf("i %u, ", i);
-
-    // wait for adc decode
-    while( !app->data_interrupt_valid )
-      app_yield( app);
-
-    app->data_interrupt_valid = false;
-
-    data_t  data;
-    data_init( &data);
-
-    // get and compute counts
-    decode_update_data( decode, &data);
-
-    // we take both hi and lo readings, since they have the same
-    // ignore decode->valid
-
-    pos_values[i] = data.adc_refmux_pos;
-    neg_values[i] = data.adc_refmux_neg;
-
-    ++i;
-
-    printf("\n");
-  }
-
-  // sampling off
-  gpio_write( app->gpio_trigger, false);
-
-}
-
-#endif
 
 
 #if 0

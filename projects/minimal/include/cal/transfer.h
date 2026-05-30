@@ -60,11 +60,4 @@ void app_cal_div1000( app_t *app);
 void app_cal_all( app_t *app);
 
 
-// void app_fill_buffer( app_t *app, double *values, size_t n);
-// void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n);
-
-void app_fill_buffer( app_t *app, double *values, double *pos_values, double *neg_values, size_t n);
-// void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n);
-
-
 

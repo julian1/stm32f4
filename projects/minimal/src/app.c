@@ -1077,6 +1077,173 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
 
 
+/*
+  - using data->count_norm is flexible.  and independent of range.
+  - could pass in the transfer function to use.
+  - OR. can just apply the transform on the result.
+
+  - eg. add function to stats.c  to scale the buffer.
+  -------------------
+
+  - should move to top level.  so that can use for tests
+  - and include the
+
+*/
+
+/*
+typedef struct  data_values_t
+{
+  // struct of arrays. not array of structs.
+  // to reduce mem. and as convenience to caller. because we are normally only interested in one field
+
+  // issue. w.c expects/wants double values for counts, to calc mean().
+
+  double *count_sum_norm;
+  double *reading;
+
+
+  uint32_t *adc_refmux_pos_;
+  uint32_t *adc_refmux_neg_;
+  // sigmux
+
+  // can include uint32_t as well.
+  double *adc_refmux_pos;
+  double *adc_refmux_neg;
+  // double *sigmux;
+
+
+} data_values_t;
+*/
+
+
+
+/*
+  if this function can return the reading,
+  then it becomes very useful for tests.
+
+
+// void app_fill_buffer( app_t *app, double *values, size_t n)
+*/
+
+
+void app_fill_buffer( app_t *app,
+  double *count_sum_norm,
+  double *reading,
+  double *adc_refmux_pos,
+  double *adc_refmux_neg,
+  size_t n
+)
+{
+  assert( app && app->magic == APP_MAGIC);
+  assert( app->decode && app->decode->magic == DECODE_MAGIC);
+
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
+
+  // obs loop
+  for( unsigned i = 0; i < n; )
+  {
+    printf("i %u, ", i);
+
+    // wait for adc decode
+    while( !app->data_interrupt_valid )
+      app_yield( app);
+
+    app->data_interrupt_valid = false;
+
+    data_t  data;
+    data_init( &data);
+
+    // get and compute counts
+    decode_update_data( app->decode, &data);
+
+
+    if( !data.reading_valid
+      || data.term.oob_aperture) {
+
+      printf( "ignore");
+      printf( "\n");
+      continue;
+    }
+
+
+    assert( data.reading_valid && !data.term.oob_aperture);
+
+
+    if( count_sum_norm)
+      count_sum_norm[ i]  = data.count_sum_norm;
+
+    if( reading)
+      reading[ i]         = data.reading;
+
+    // uint32_t convert to double here, as convenience to caller
+    if( adc_refmux_pos)
+      adc_refmux_pos[ i] = data.adc_refmux_pos;
+
+    if( adc_refmux_neg)
+      adc_refmux_neg[ i] = data.adc_refmux_neg;
+
+    ++i;
+
+    printf("\n");
+  }
+
+  // stop sampling
+  gpio_write( app->gpio_trigger, false);
+}
+
+
+
+
+
+#if 0
+
+void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
+{
+  decode_t *decode = app->decode;
+  assert( decode && decode->magic == DECODE_MAGIC);
+
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
+
+  // take obs loop
+  for( size_t i = 0; i < n; )
+  {
+    printf("i %u, ", i);
+
+    // wait for adc decode
+    while( !app->data_interrupt_valid )
+      app_yield( app);
+
+    app->data_interrupt_valid = false;
+
+    data_t  data;
+    data_init( &data);
+
+    // get and compute counts
+    decode_update_data( decode, &data);
+
+    // we take both hi and lo readings, since they have the same
+    // ignore decode->valid
+
+    pos_values[i] = data.adc_refmux_pos;
+    neg_values[i] = data.adc_refmux_neg;
+
+    ++i;
+
+    printf("\n");
+  }
+
+  // sampling off
+  gpio_write( app->gpio_trigger, false);
+
+}
+
+#endif
+
+
 
 
 

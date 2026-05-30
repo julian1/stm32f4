@@ -95,25 +95,25 @@ void app_cal_w( app_t *app)
 
 
   // need double for mean()
-  double pos_values[ 10 ];
-  double neg_values[ 10 ];
+  double adc_refmux_pos[ 10 ];
+  double adc_refmux_neg[ 10 ];
 
-  memset(pos_values, 0, sizeof(pos_values));
-  memset(neg_values, 0, sizeof(neg_values));
+  memset(adc_refmux_pos, 0, sizeof(adc_refmux_pos));
+  memset(adc_refmux_neg, 0, sizeof(adc_refmux_neg));
 
-  _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "array sizes do not match");
+  _Static_assert(ARRAY_SIZE(adc_refmux_pos) == ARRAY_SIZE(adc_refmux_neg), "array sizes do not match");
 
 
   decode->show_counts  = true;
   decode->show_reading = false;
 
   // fill decode
-  app_fill_buffer( app, NULL, pos_values, neg_values, ARRAY_SIZE( pos_values));
+  app_fill_buffer( app, NULL, NULL, adc_refmux_pos, adc_refmux_neg, ARRAY_SIZE( adc_refmux_pos));
 
-  double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
-  double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));
-  double pos_stddev = stddev( pos_values, ARRAY_SIZE(pos_values));
-  double neg_stddev = stddev( neg_values, ARRAY_SIZE(neg_values));
+  double pos_mean   = mean(   adc_refmux_pos, ARRAY_SIZE( adc_refmux_pos));
+  double neg_mean   = mean(   adc_refmux_neg, ARRAY_SIZE( adc_refmux_neg));
+  double pos_stddev = stddev( adc_refmux_pos, ARRAY_SIZE( adc_refmux_pos));
+  double neg_stddev = stddev( adc_refmux_neg, ARRAY_SIZE( adc_refmux_neg));
 
   char buf[100 + 1];
 

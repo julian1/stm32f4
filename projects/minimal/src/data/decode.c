@@ -150,13 +150,14 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     if(decode->show_reading) {
 
       // printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
+
+      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading));
+
+      if( data->reading > range->fs )
+        printf("OL");
+
       // printf( "%s-%s, ", range->name, range->arg );
-
-      printf( "read %s ", str_format_float_with_commas(buf, 100, 8, data->reading));
-
-      printf( "%s,", data->reading > range->fs ? "OL" : "  ");
-
-
+      // printf( "%s,", data->reading > range->fs ? "OL" : "  ");
       // printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
     }
@@ -663,5 +664,4 @@ DCV-0.1, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos 1977842 ne
   first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
   first=0 idx=1 seq_n=2, counts pos 1976317 neg 2025596 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (1, 10), mean   -0.000,000,65V, stddev 0.000,000,17V,
 #endif
-
 

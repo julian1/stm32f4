@@ -320,6 +320,24 @@ bool app_test_repl_statement( app_t *app,  const char *cmd);
 
 
 
+void app_fill_buffer( app_t *app,
+  double *count_sum_norm,
+  double *reading,
+  double *adc_refmux_pos,
+  double *adc_refmux_neg,
+  size_t n
+);
+
+
+
+// void app_fill_buffer( app_t *app, double *values, size_t n);
+// void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n);
+// this is using double when should be int.
+// void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n);
+
+
+
+
 
 
 
