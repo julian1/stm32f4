@@ -17,6 +17,8 @@
 // TODO. should open file once in main. and pass as dependency
 #include <lib3/file-flash.h>
 
+#include <lib3/format.h>  // format_with_commas
+
 #include <flash/file-blob.h>
 
 #include <data/cal.h>
@@ -60,9 +62,12 @@ void cal_init(
 void cal_show( cal_t *cal)
 {
 
+  char buf[ 100];
+
   // simple print
   printf("id      %u\n", cal->id);
-  printf("w       %f\n", cal->w);
+  // printf("w       %f\n", cal->w);
+  printf("w       %s\n", str_format_float_with_commas(buf, 100, 9, cal->w));
   printf("b       %f\n", cal->b);
   printf("b10     %f\n", cal->b10);
   printf("b100    %f\n", cal->b100);
