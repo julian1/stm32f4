@@ -333,15 +333,15 @@ void app_transition_state( app_t  *app)
   spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE,  mode->sa.p_precharge);
 
 
-  // spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
+  // spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_TERM_N,  mode->sa.p_seq_n );
 
   // use write_n to work around strict aliasing
   // consider - consolidate to a single register
   _Static_assert ( sizeof( term_t) == 4);
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.terms[ 0], sizeof( term_t));
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.terms[ 1], sizeof( term_t));
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.terms[ 2], sizeof( term_t));
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ3, &mode->sa.terms[ 3], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_TERM0, &mode->sa.terms[ 0], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_TERM1, &mode->sa.terms[ 1], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_TERM2, &mode->sa.terms[ 2], sizeof( term_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_TERM3, &mode->sa.terms[ 3], sizeof( term_t));
 
 
   ///////////////
@@ -1191,23 +1191,23 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, environment_t *envi
 /*
   else if( strcmp( cmd, "seqn?") == 0) {
 
-    spi_print_register( spi, REG_SA_P_SEQ_N);
+    spi_print_register( spi, REG_SA_P_TERM_N);
   }
 */
 
   else if( strcmp( cmd, "seq0?") == 0) {
 
     // TODO consider decode.
-    spi_print_seq_register( spi, REG_SA_P_SEQ0);
+    spi_print_seq_register( spi, REG_SA_P_TERM0);
   }
   else if( strcmp( cmd, "seq1?") == 0) {
-    spi_print_seq_register( spi, REG_SA_P_SEQ1);
+    spi_print_seq_register( spi, REG_SA_P_TERM1);
   }
   else if( strcmp( cmd, "seq2?") == 0) {
-    spi_print_seq_register( spi, REG_SA_P_SEQ2);
+    spi_print_seq_register( spi, REG_SA_P_TERM2);
   }
   else if( strcmp( cmd, "seq3?") == 0) {
-    spi_print_seq_register( spi, REG_SA_P_SEQ3);
+    spi_print_seq_register( spi, REG_SA_P_TERM3);
   }
 
   /////////////////////

@@ -214,7 +214,7 @@ void display_vfd_update_data( display_vfd_t *display, const data_t *data)
 
 
 /*
-  if(status_seq_mode == SEQ_MODE_RATIO)
+  if(status_seq_mode == TERM_MODE_RATIO)
     printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->reading));
   else
     printf(" meas %sV", buf );

@@ -1899,7 +1899,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
     // boot mode - might be particularly useful when sampling.
 
-    case SEQ_MODE_BOOT: {
+    case TERM_MODE_BOOT: {
       // sample a hi, but don't switch the pc switch, generally only used for electrometer, very high input impedance.
 
       mode->sa.p_seq_n = 1;
@@ -1919,7 +1919,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     // if it's a hi - then switch the PC - for symmetry. if lo. then don't bother.
     */
 
-    case SEQ_MODE_NOAZ: {
+    case TERM_MODE_NOAZ: {
       // clearer - to express as another mode, rather than as a bool.
       // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
 
@@ -1943,7 +1943,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 
 
-    case SEQ_MODE_AZ: {
+    case TERM_MODE_AZ: {
     // write the seq
 
       mode->sa.p_seq_n = 2;
@@ -1983,7 +1983,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     }
 
 /*
-    case SEQ_MODE_ELECTRO: {
+    case TERM_MODE_ELECTRO: {
 
       // same as no az, except don't switch the precharge
       mode->sa.p_seq_n = 1;
@@ -1992,8 +1992,8 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     }
 */
 
-    case SEQ_MODE_AG:
-    case SEQ_MODE_RATIO: {
+    case TERM_MODE_AG:
+    case TERM_MODE_RATIO: {
       // 4 cycle, producing single output
       // Issue - is for internal - we need to set the common lo. eg. ref-lo. or start
 
@@ -2006,7 +2006,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     }
 
 /*
-    case SEQ_MODE_AG: {
+    case TERM_MODE_AG: {
       // auto-gain 4 cycle - same as ratio. producing a single output
 
 
@@ -2020,7 +2020,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       break;
     }
 */
-    case SEQ_MODE_DIFF: {
+    case TERM_MODE_DIFF: {
       // 2 cycle, hi- hi2, with both precharge switches switches. single output.
       mode->sa.p_seq_n = 2;
       mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
@@ -2028,7 +2028,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       break;
     }
 
-    case SEQ_MODE_SUM_DELTA: {    // change name.  SUM_DELTA. 0w
+    case TERM_MODE_SUM_DELTA: {    // change name.  SUM_DELTA. 0w
 
       // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
       // advantage of a single sequence - is that flicker noise should cancel some.
@@ -2139,33 +2139,33 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
   else if( sscanf(cmd, "boot%100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    mode_seq_set( mode, SEQ_MODE_BOOT, u0, 0 );
+    mode_seq_set( mode, TERM_MODE_BOOT, u0, 0 );
   }
   else if( sscanf(cmd, "noazero %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    mode_seq_set( mode, SEQ_MODE_NOAZ, u0, 0 );
+    mode_seq_set( mode, TERM_MODE_NOAZ, u0, 0 );
   }
   else if( sscanf(cmd, "azero %100s %100s", s0, s1) == 2
     && str_decode_uint( s0, &u0)
     && str_decode_uint( s1, &u1)) {
 
-    mode_seq_set( mode, SEQ_MODE_AZ, u0, u1 );
+    mode_seq_set( mode, TERM_MODE_AZ, u0, u1 );
   }
 
     // ratio is hardcoded to use lomux at the moment. and not star-lo.
   else if(strcmp(cmd, "ratio") == 0) {
-    mode_seq_set( mode, SEQ_MODE_RATIO, 0,0 );
+    mode_seq_set( mode, TERM_MODE_RATIO, 0,0 );
   }
 
   else if(strcmp(cmd, "ag") == 0)
-    mode_seq_set( mode, SEQ_MODE_AG, 0, 0 );
+    mode_seq_set( mode, TERM_MODE_AG, 0, 0 );
 
   else if(strcmp(cmd, "diff") == 0)
-    mode_seq_set( mode, SEQ_MODE_DIFF, 0 , 0);
+    mode_seq_set( mode, TERM_MODE_DIFF, 0 , 0);
 
   else if(strcmp(cmd, "sum-test") == 0)
-    mode_seq_set( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
+    mode_seq_set( mode, TERM_MODE_SUM_DELTA, 0, 0 );
 
 #endif
 

@@ -325,7 +325,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   // read the seq-elt
   _Static_assert ( sizeof( data->term) == 4);
-  spi_ice40_reg_read_n( spi, REG_SA_SEQ_ELT, &data->term, sizeof( data->term));
+  spi_ice40_reg_read_n( spi, REG_SA_TERM_ELT, &data->term, sizeof( data->term));
 
   // east syntax
   // const term_t       term = data->term;

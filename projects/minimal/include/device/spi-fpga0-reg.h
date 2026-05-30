@@ -34,14 +34,14 @@
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
 
-// TODO. rename SEQ to TERM.
-// #define REG_SA_P_SEQ_N                    21
-#define REG_SA_P_SEQ0                     22
-#define REG_SA_P_SEQ1                     23
-#define REG_SA_P_SEQ2                     24
-#define REG_SA_P_SEQ3                     25
+// TODO. rename TERM to TERM.
+// #define REG_SA_P_TERM_N                    21
+#define REG_SA_P_TERM0                     22
+#define REG_SA_P_TERM1                     23
+#define REG_SA_P_TERM2                     24
+#define REG_SA_P_TERM3                     25
 
-#define REG_SA_SEQ_ELT                    26
+#define REG_SA_TERM_ELT                    26
 
 
 ///////////////////////
@@ -177,11 +177,11 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 /*
-`define SEQ_CODE_SLICE        0 +: 4
-`define SEQ_PC_PROTECT_SLICE  4 +: 2
-`define SEQ_PC_SAMPLE_SLICE   6 +: 2
-`define SEQ_AZMUX_SLICE       8 +: 4
-`define SEQ_NEXT_IDX_SLICE    12 +: 3
+`define TERM_CODE_SLICE        0 +: 4
+`define TERM_PC_PROTECT_SLICE  4 +: 2
+`define TERM_PC_SAMPLE_SLICE   6 +: 2
+`define TERM_AZMUX_SLICE       8 +: 4
+`define TERM_NEXT_IDX_SLICE    12 +: 3
 */
 
 
