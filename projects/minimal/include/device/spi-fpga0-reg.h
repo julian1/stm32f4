@@ -223,8 +223,11 @@ term_t
   uint32_t                  : 8;  // 18 + 6 =  24
 
   /////////////////////////////
-  // conversion control flags
-  // keep specific function. eg. 'zgjc' instead of 'first_in_sequence'.
+  /*
+      conversion control flags
+      keep field name and function specific .
+      eg. 'zgjc' instead of 'first_in_sequence'.
+  */
 
   uint32_t    oob_aperture  : 1;  // 24     // use oob aperture for conversion
 
