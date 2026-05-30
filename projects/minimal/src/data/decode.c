@@ -168,9 +168,6 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
 
-
-
-
 /*
   - consider add a short (8 bit) transaction id field to the status register.
     - to check consistency of register reads
@@ -182,9 +179,9 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 #define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
 
-static void printf_term( const term_t *term)
+static void print_term( const term_t *term)
 {
-// factor all this into a function
+  assert( term);
 
   char buf[ 100];
 
@@ -206,9 +203,9 @@ static void printf_term( const term_t *term)
 
 
 
-static void printf_term_brief( const term_t *term)
+static void print_term_brief( const term_t *term)
 {
-// factor all this into a function
+  assert( term);
 
   char buf[ 100];
 
@@ -222,7 +219,7 @@ static void printf_term_brief( const term_t *term)
 
 
 
-static void printf_status_cmpr( const reg_sr_t status)
+static void print_status_cmpr( const reg_sr_t status)
 {
 
   char buf[100];
@@ -350,11 +347,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     BIT_TO_CHAR( status.sample.first)
   );
 
-  // printf_status_cmpr( status );
+  // print_status_cmpr( status );
 
-  // printf_term( &data->term );
+  // print_term( &data->term );
 
-  printf_term_brief( &data->term );
+  print_term_brief( &data->term );
 
 
 

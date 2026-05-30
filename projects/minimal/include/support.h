@@ -29,7 +29,7 @@ uint32_t period_to_aperture(  double period);
 
 bool nplc_valid( double nplc );
 
-void aperture_print( uint32_t aperture,  uint32_t lfreq);
+void print_aperture( uint32_t aperture,  uint32_t lfreq);
 
 //
 

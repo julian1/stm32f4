@@ -1233,7 +1233,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, environment_t *envi
 
 
     uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE);
-    aperture_print( aperture,  environment->line_freq);
+    print_aperture( aperture,  environment->line_freq);
   }
 
   else if( strcmp(cmd, "reset?") == 0) {
