@@ -277,6 +277,10 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   if( !data->reading_valid)
     return false;
 
+  /*
+    we could actually stamp
+
+  */
 
 
   // the current range...

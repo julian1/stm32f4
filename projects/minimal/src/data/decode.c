@@ -150,9 +150,13 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
     if(decode->show_reading) {
 
       // printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
+      // printf( "%s-%s, ", range->name, range->arg );
 
-//      printf( "%s-%s, ", range->name, range->arg );
-      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading));
+      printf( "read %s ", str_format_float_with_commas(buf, 100, 8, data->reading));
+
+      printf( "%s,", data->reading > range->fs ? "OL" : "  ");
+
+
       // printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
     }
