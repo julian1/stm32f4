@@ -26,30 +26,6 @@
 
 
 
-static int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name, const char *arg )
-{
-  // TODO consider rename  lookup..  range_find_idx.
-
-  for( size_t i = 0; i < sz; ++i) {
-
-    const range_t *range = & ranges[ i];
-
-    if( strcasecmp( name, range->name) == 0
-      && strcasecmp( arg, range->arg) == 0
-    ) {
-
-      printf("found %s-%s\n", range->name, range->arg );
-      return i ;
-    }
-  }
-
-  return -1;
-}
-
-
-
-
-
 
 void ranging_init(
   ranging_t     *ranging,
@@ -64,7 +40,6 @@ void ranging_init(
     .mode         = mode,
     .ranges       = ranges,
     .ranges_sz    = ranges_sz,     // note const
-
     .range_idx    = 0,
   };
 
@@ -85,6 +60,30 @@ const range_t * ranging_range_active_get( const ranging_t *ranging)
   return & ranging->ranges[ ranging->range_idx];
 }
 
+
+
+
+
+
+static int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name, const char *arg )
+{
+  // TODO consider rename  lookup..  range_find_idx.
+
+  for( size_t i = 0; i < sz; ++i) {
+
+    const range_t *range = & ranges[ i];
+
+    if( strcasecmp( name, range->name) == 0
+      && strcasecmp( arg, range->arg) == 0
+    ) {
+
+      printf("found %s-%s\n", range->name, range->arg );
+      return i ;
+    }
+  }
+
+  return -1;
+}
 
 
 
@@ -277,10 +276,6 @@ bool ranging_update_data( ranging_t *ranging, const data_t *data)
   if( !data->reading_valid)
     return false;
 
-  /*
-    we could actually stamp
-
-  */
 
 
   // the current range...
