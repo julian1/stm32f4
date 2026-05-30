@@ -51,12 +51,13 @@ static void step1( app_t *app)
 
 
   /* may 30. 2026.
-    why not just set the range here....
-    a more generalized way to guarantee correct input setup
+    just set the ref range here....
+    a more generalized way to guarantee correct mode and input sampling setup
   */
 
   // reference range
   ranging_range_set_by_name( app->ranging, "REF", "");
+
 
 }
 

@@ -126,6 +126,15 @@ typedef struct decode_t
   uint32_t adc_refmux_neg_lo;
 
 
+  /*
+    - do we need to maintain all these terms, or should we simplify before weighting here.
+    we just have a sum. of weight terms and signs.
+  */
+
+  // uint32_t count_aggregate;    // if handle aggregation here
+  // uint32_t adc_sigmux ;        // summed across
+  // uint32_t adc_sigmux_lo/hi;   // if maintain separate counts.
+
 } decode_t;
 
 
@@ -233,6 +242,7 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
       ? (data->adc_refmux_neg + decode->adc_refmux_neg_lo ) / 2.
       : data->adc_refmux_neg;
 
+    // we dont need to organize terms like this
     data->count_sum =
         ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
       - ((double) lo_pos                    - (cal_w * lo_neg ));

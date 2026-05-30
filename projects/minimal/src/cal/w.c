@@ -79,11 +79,15 @@ void app_cal_w( app_t *app)
 
   ///////////////////////////////
 
+  /* IMPORTANT. limit code dependencies for this basic cal function
+    so configure the mode manually here.
+    rather than use a the star-lo range
+  */
 
   // disable sigmux. required to calc relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
 
-  // special sample acquisition mode, just sampling lo
+  // special sample acquisition mode, to sample star-lo directly
   sa_set( &mode->sa, "0" );
 
   // set ch2 input to LO, to reduce leakage on adc input mux.

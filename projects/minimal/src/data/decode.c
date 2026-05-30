@@ -506,10 +506,10 @@ noise is really good.  with the LO. averaging.
          FF. 175,  273,  574. and logic, and shieilding, power supplies, low-pass filterinig the ref.
 
     - currently  -
-        - voltagtes kept close. eg. 3v3 for clk, gpio. and 3v5 for lvc DFF, lv 4053 switch.
+        - voltagtes kept close/ little level shifting - from 3v3 for clk, gpio bank. and 3v5 for lvc DFF, lv4053 switch.
         - removed some combinatorial logic on the fgpa register outputs for integrator reset, signal (doubtful made a difference).
-        - data handling, only AZ difference. no nominal conversions (doubtful made a difference).
-        - reinstate average LO code, for AZ. HI-first conversions (default). really helps.
+        - data handling, no nominal conversions (doubtful made a difference).
+        - reinstate average LO code, suggested by Kleinstein for AZ HI-first conversions (default). really helps.
 
 
 dcv-10 may be 160nV. RMS.
