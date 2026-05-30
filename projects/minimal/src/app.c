@@ -572,9 +572,12 @@ void app_configure( app_t *app )
 }
 
 
+
+
+
 static void spi_print_register( spi_t *spi, uint32_t reg );
 
-static void spi_print_seq_register( spi_t *spi, uint32_t reg );
+static void spi_print_term_register( spi_t *spi, uint32_t reg );
 
 
 
@@ -1079,16 +1082,15 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
 
 /*
-  move this spi_ prefixed code to top-level support.h ?
+  consider move this spi_ prefixed code to top-level support.h ?
     or spi.h.
-
   or even to
 
   ./include/device/spi-fpga0-reg.h
 
 */
 
-static void spi_print_register( spi_t *spi, uint32_t reg )
+static void spi_print_register( spi_t *spi, uint32_t reg)
 {
   // TODO this code does not here in app.c
   // move to /src/device/fpga0-reg.c ?
@@ -1105,37 +1107,32 @@ static void spi_print_register( spi_t *spi, uint32_t reg )
 
 
 
-static void spi_print_seq_register( spi_t *spi, uint32_t reg )
+#define BIT_TO_CHAR(a) ((a) ? '1' : '0')
+
+static void spi_print_term_register( spi_t *spi, uint32_t reg)
 {
-  // TODO
-  // basic generic print
-  // query any register
+  // assert(0);
 
-  assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  term_t  term;
+
+  _Static_assert ( sizeof( term) == 4);
+  spi_ice40_reg_read_n( spi, /* REG_SA_TERM_ELT */ reg, &term, sizeof( term));
+
   char buf[ 100];
-  char buf2[ 100];
-  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
 
 
-  /*
-  // Use printf_term() to decompose fields
-
-    see, in decode.c
-    static void printf_term( const term_t *term);
-
-  */
-  assert( 0);
-
-
-
-
-  printf("r %lu   pc:%s   azmux:%s\n",  reg,
-      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
-      // mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
-      str_from_mux( buf2, 100, ret & 0b1111   )    // azmux value
-    );
+  // same as decode.c consider move code
+  printf( "{");
+  // printf( "azmux %2u(%s), ",  term.azmux, str_from_mux( buf, 100, term.azmux));
+  // printf( "azmux %s (%2u), ", str_from_mux( buf, 100, term.azmux), term.azmux);
+  printf( "azmux %s, ",       str_from_mux( buf, 100, term.azmux));
+  printf( "pc_protect %s, ",  str_format_bits( buf, 2, term.pc_protect));
+  printf( "pc_sample %s, ",   str_format_bits( buf, 2, term.pc_sample));
+  printf( "next-idx %u, ",    term.next_idx );
+  printf( "oob %c, ",         BIT_TO_CHAR( term.oob_aperture));
+  printf( "zglc %c, ",        BIT_TO_CHAR( term.zgjc));
+  printf( "dither %c ",       BIT_TO_CHAR( term.cm_dac_dither));
+  printf( "}, ");
 }
 
 
@@ -1202,25 +1199,25 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, environment_t *envi
   // sample acquisition
 
 /*
-  else if( strcmp( cmd, "seqn?") == 0) {
+  else if( strcmp( cmd, "termn?") == 0) {
 
     spi_print_register( spi, REG_SA_P_TERM_N);
   }
 */
 
-  else if( strcmp( cmd, "seq0?") == 0) {
+  else if( strcmp( cmd, "term0?") == 0) {
 
     // TODO consider decode.
-    spi_print_seq_register( spi, REG_SA_P_TERM0);
+    spi_print_term_register( spi, REG_SA_P_TERM0);
   }
-  else if( strcmp( cmd, "seq1?") == 0) {
-    spi_print_seq_register( spi, REG_SA_P_TERM1);
+  else if( strcmp( cmd, "term1?") == 0) {
+    spi_print_term_register( spi, REG_SA_P_TERM1);
   }
-  else if( strcmp( cmd, "seq2?") == 0) {
-    spi_print_seq_register( spi, REG_SA_P_TERM2);
+  else if( strcmp( cmd, "term2?") == 0) {
+    spi_print_term_register( spi, REG_SA_P_TERM2);
   }
-  else if( strcmp( cmd, "seq3?") == 0) {
-    spi_print_seq_register( spi, REG_SA_P_TERM3);
+  else if( strcmp( cmd, "term3?") == 0) {
+    spi_print_term_register( spi, REG_SA_P_TERM3);
   }
 
   /////////////////////
@@ -1238,7 +1235,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, environment_t *envi
 
   else if( strcmp(cmd, "reset?") == 0) {
 
-    spi_print_seq_register( spi, REG_ADC_P_CLK_COUNT_RESET);
+    spi_print_register( spi, REG_ADC_P_CLK_COUNT_RESET);
   }
 
 
@@ -1555,6 +1552,32 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+#if 0
+
+  // spi_mux_ice40( spi);
+  // uint32_t ret = spi_ice40_reg_read32( spi, reg );
+
+
+  char buf2[ 100];
+  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+
+  /*
+  // Use printf_term() to decompose fields
+
+    see, in decode.c
+    static void printf_term( const term_t *term);
+
+  */
+  assert( 0);
+
+
+  printf("r %lu   pc:%s   azmux:%s\n",  reg,
+      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
+      // mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
+      str_from_mux( buf2, 100, ret & 0b1111   )    // azmux value
+    );
+
+#endif
 
 
 

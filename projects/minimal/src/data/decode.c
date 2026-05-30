@@ -320,12 +320,10 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   assert( !status.isr.cmpr );
 
 
-  // read the seq-elt
+  // read the current conversion term
   _Static_assert ( sizeof( data->term) == 4);
   spi_ice40_reg_read_n( spi, REG_SA_TERM_ELT, &data->term, sizeof( data->term));
 
-  // east syntax
-  // const term_t       term = data->term;
 
 
 
