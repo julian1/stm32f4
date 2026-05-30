@@ -110,6 +110,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   // app->range_10Meg = false;
   app->ranging->range_10Meg = false;
 
+  app->ranging->ar = false;
 
   // reset mode
   mode_reset( mode);
@@ -210,17 +211,26 @@ void app_fill_buffer( app_t *app, double *values, double *pos_values, double *ne
 
     // get and compute counts
     decode_update_data( decode, &data);
-    if( data.reading_valid) {
 
-      if( values)
-        values[ i]    = data.count_sum_norm;
-      if( pos_values)
-        pos_values[i] = data.adc_refmux_pos;
-      if( neg_values)
-        neg_values[i] = data.adc_refmux_neg;
 
-      ++i;
-    }
+    if( !data.reading_valid)
+      continue;
+
+    if( data.term.oob_aperture)
+      continue;
+
+
+    assert( data.reading_valid && !data.term.oob_aperture);
+
+
+    if( values)
+      values[ i]    = data.count_sum_norm;
+    if( pos_values)
+      pos_values[i] = data.adc_refmux_pos;
+    if( neg_values)
+      neg_values[i] = data.adc_refmux_neg;
+
+    ++i;
 
     printf("\n");
   }

@@ -13,7 +13,9 @@
 
 #include <cal/transfer.h>
 #include <app.h>
-#include <mode.h>
+#include <ranging.h>
+
+// #include <mode.h>
 #include <data/cal.h>
 
 
@@ -32,6 +34,8 @@ static void step1( app_t *app)
   // Could probably use the range here to set to the REF.
 */
 
+
+#if 0
   // reference range
   sa_set( &app->mode->sa, "ch2" );
 
@@ -40,6 +44,19 @@ static void step1( app_t *app)
   // mode_ch2_set_lts( mode);
   // use the ref as source
   mode_ch2_set( app->mode, "ref");
+
+#endif
+
+  // board reference is always present. nothing to set.
+
+
+  /* may 30. 2026.
+    why not just set the range here....
+    a more generalized way to guarantee correct input setup
+  */
+
+  // reference range
+  ranging_range_set_by_name( app->ranging, "REF", "");
 
 }
 

@@ -169,7 +169,7 @@ static void range_mode_star_lo( const range_t *range, _mode_t *mode, bool range_
 
 
 
-static void range_ref( const range_t *range, _mode_t *mode, bool range_10Meg)
+static void range_mode_ref( const range_t *range, _mode_t *mode, bool range_10Meg)
 {
   UNUSED(range_10Meg);
   assert(range && range->magic == RANGE_MAGIC);
@@ -542,7 +542,7 @@ size_t ranges_init( range_t *ranges, size_t sz)
   const range_t temp[] = {
 
     // magic        name        arg     sentinels             set_mode        convert to reading    format                  autorange predicate
-    { RANGE_MAGIC,  "REF",      "",     true,   true,     11.,    range_ref,            range_reading_normal, range_format,         },
+    { RANGE_MAGIC,  "REF",      "",     true,   true,     11.,    range_mode_ref,       range_reading_normal, range_format,         },
 
     { RANGE_MAGIC,  "REF-LO",   "0.01", true,   false,    0.011,  range_mode_ref_lo,    range_reading_normal, range_format,    },
     { RANGE_MAGIC,  "REF-LO",   "0.1",  false,  false,    0.11,   range_mode_ref_lo,    range_reading_normal, range_format,    },
