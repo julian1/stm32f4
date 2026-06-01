@@ -976,6 +976,23 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
     buffer_update_data( app->buffer, &data);
 
+    if( app->buffer->count == app->buffer->size) {
+      /*
+        - whether to manage the stop policy here?  or in app...
+        - perhaps nicer...
+        - if other modules want to use. then it is fairly easy
+        - we need to pass down the gpio_trigger.
+      */
+      // stop sampling
+      gpio_write( app->gpio_trigger, false);
+
+      // deassert trigger state - when using the repl
+      app->repl_trigger_val = false;
+
+      printf("\ndone\n");
+    }
+
+
 
     // must have ordinary reading available.
     bool result = ranging_update_data( app->ranging, &data);

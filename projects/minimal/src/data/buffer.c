@@ -103,7 +103,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
 
     // record value
-    buffer->values[ buffer->i ] = data->reading;
+    buffer->values[ buffer->i] = data->reading;
 
     // update index and count
     buffer->i     = (buffer->i + 1 ) % buffer->size;
@@ -118,7 +118,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
 
     char buf[100 + 1];
 
-    if(buffer->show) {
+    if( buffer->show) {
 
       printf( "mean %s ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
       // printf( "%s, ", range->unit );
@@ -133,6 +133,18 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
       // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
       // printf( "%s, ", range->unit );
     }
+
+#if 0
+    if( buffer->count == buffer->size) {
+      /*
+        - should we manage stop policy here?  or in app...
+        - we need to pass down the gpio_trigger.
+      */
+      // stop sampling
+      gpio_write( app->gpio_trigger, false);
+    }
+#endif
+
   }
 
 }
