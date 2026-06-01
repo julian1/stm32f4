@@ -125,16 +125,21 @@ typedef struct decode_t
   uint32_t adc_refmux_pos_lo;
   uint32_t adc_refmux_neg_lo;
 
+  // so we can just sum the sigmux
+  // uint32_t adc_sigmux;
+
+  // or else calculate the sigmux divisor and the aggregate count.
 
   /*
     - do we need to maintain all these terms, or should we simplify before weighting here.
     we just have a sum. of weight terms and signs.
   */
 
+/*
   // uint32_t count_aggregate;    // if handle aggregation here
   // uint32_t adc_sigmux ;        // summed across
   // uint32_t adc_sigmux_lo/hi;   // if maintain separate counts.
-
+*/
 } decode_t;
 
 
@@ -151,6 +156,7 @@ static void decode_reset( decode_t *decode)
   // decode_reset()
   decode->adc_refmux_pos_hi = 0;
   decode->adc_refmux_neg_hi = 0;
+
   decode->adc_refmux_pos_lo = 0;
   decode->adc_refmux_neg_lo = 0;
 
@@ -190,6 +196,9 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
         ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg))
       - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
 
+    // normalize count
+    // data->count_sum_norm = data->count_sum  / data->adc_sigmux;  perhaps should be x2. for two samples.
+
     data->reading_valid     = true;
   }
 }
@@ -212,6 +221,20 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
   // this is the recursive case
   // we do not handle the reset/base case here.
 
+#if 0
+  if( !data)  {
+
+    printf( "clear ");
+    // decode_reset()
+    decode->adc_refmux_pos_hi = 0;
+    decode->adc_refmux_neg_hi = 0;
+
+    decode->adc_refmux_pos_lo = 0;
+    decode->adc_refmux_neg_lo = 0;
+
+    return;
+  }
+#endif
 
   if( status.sample.idx % 2 == 0) {
 
@@ -246,6 +269,11 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     data->count_sum =
         ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
       - ((double) lo_pos                    - (cal_w * lo_neg ));
+
+
+    // normalize count
+    // data->count_sum_norm = data->count_sum  / data->adc_sigmux;  perhaps should be x2. for two samples.
+
 
 
     // record/update LO. for next time
@@ -299,7 +327,14 @@ static void decode_x_init( decode_x_t *decode, bool hi_first)
 }
 
 
+/*
+- EXTR.  consider a different
+  - store a separate structure. and function pointer.  for each variation
 
+  - oob
+  - normal
+  - ratio.
+*/
 
 static void decode_x( decode_x_t *decode, data_t *data)
 {
@@ -338,6 +373,14 @@ static void decode_x( decode_x_t *decode, data_t *data)
     decode_az_hi_first( &decode->oob , data);
     return;
   }
+
+
+/*
+  EXTR.
+  This is all wrong.
+  the repl should be setting/controlling the hannders
+
+*/
 
 
   if( decode->hi_first) {

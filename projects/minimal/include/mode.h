@@ -178,7 +178,8 @@ typedef struct sa_state_t
 
 
   /*
-    driver state. used to compile/build the low-level conversion terms, and decode funcs.
+    driving state.
+    used to compile/build the low-level conversion terms, and decode funcs.
 
   */
   char    input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
@@ -195,6 +196,39 @@ typedef struct sa_state_t
   */
   void (*decode_strategy)( void *ctx, data_t *data);
   void *decode_ctx;
+
+/*
+  so long as we can project choice of the mode strategy... into the repl. it is OK.
+    can control the different strategy/handler routines.
+
+  eg.
+
+*/
+
+/*
+- EXTR.  consider a
+  - use a separate ctx and strategy function.  for each variation
+    - oob
+    - normal
+    - ratio.
+
+  we can discriminate. reasonably easily.
+  and then
+
+  void (*decode_normal)( void *ctx, data_t *data);    // NOAZ, AZ, AGGREGATING...
+  void *normal_ctx;
+
+  void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.
+  void *oob_ctx;
+
+  void (*decode_ratio)( void *ctx, data_t *data);     // could be decode_second... or decode_ratio...
+  void *ratio_ctx;
+
+  -----------
+  Ahhh...
+
+*/
+
 
 
 

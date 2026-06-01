@@ -82,6 +82,13 @@ struct data_t
   // decode values... consider drop adc_ prefix
   // these are decoded values, calculated by decode
 
+/*
+  EXTR. may want to completely hide. the count_sum.
+    then the decoder.
+
+    so the decoder handles sigmux.  and raw count_raw.
+
+*/
   // clk count sum, with ref weighting
   double  count_sum;
 

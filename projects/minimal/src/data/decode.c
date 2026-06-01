@@ -110,8 +110,40 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   assert( sa);
   assert( sa->decode_ctx);
   assert( sa->decode_strategy);
-  assert( sa->decode_ctx);
 
+
+  /*
+    IMPORTANT - need to ensure all decoders get a chance to see the
+    first flags.  to reset the state after trigger.
+    just create an entry. entry...
+  */
+
+/*
+  this stuff replaces.  the decode_x structure and handler.
+
+
+ */
+#if 0
+  if( data->first ) {
+
+    // null means first. so clear everything
+    sa->decode_oob(    sa->oob_ctx,    NULL);
+    sa->decode_normal( sa->normal_ctx, NULL);
+    sa->decode_second( sa->second_ctx, NULL);
+  }
+
+
+  if( data->term.oob_aperture) {
+
+    sa->decode_oob( sa->oob_ctx, data);
+  }
+  else {
+    // treat as normal
+
+    sa->decode_normal( sa->oob_ctx, data);
+  }
+
+#endif
 
   // convert counts to count_sum
   sa->decode_strategy( sa->decode_ctx, data );
@@ -128,7 +160,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
     // normalize count
-    data->count_sum_norm = data->count_sum  / data->adc_sigmux;
+    data->count_sum_norm = data->count_sum  / data->adc_sigmux;   // should this be sigmux * 2  for having both a HI and LO.
 
 
     // nominal reading
