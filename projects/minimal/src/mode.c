@@ -147,10 +147,10 @@ static void decode_reset( decode_t *decode)
   decode->hi = 0;
   decode->lo = 0;
 
+  decode->count = 0;
 
   // decode->adc_sigmux  = 0;    // if use
 
-  decode->count = 0;
 }
 
 
@@ -288,7 +288,6 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
       data->reading_valid = true;
 
       decode_reset( decode);
-
     }
   }
 }
@@ -540,7 +539,7 @@ static void sa_compile_terms( sa_state_t *sa)
       sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first_aggregate;
       sa->ctx_normal    = malloc( sizeof( decode_t));
 
-      // sa->ctx_normal.aggregate = sa->aggregate;
+      // sa->ctx_normal.count_n = sa->aggregate;
     }
   }
 
