@@ -171,6 +171,7 @@ void _4094_state_clear_relays( _4094_state_t *state);
 
 typedef struct sa_state_t
 {
+  // just about need a magic.
 
   uint32_t p_trig_delay;
 
@@ -178,24 +179,34 @@ typedef struct sa_state_t
 
 
   /*
-    driver state. used to compile/build the low-level conversion terms, and decode funcs.
+    driving state.
+    used to compile/build the low-level conversion terms, and decode funcs.
 
   */
   char    input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
   bool    noaz;
   // bool oob;       // no_oob.
 
+  unsigned  aggregate;
+
+
+
   // conversion terms. consider name - terms, elts, phases
   term_t  terms[ 4];
 
+
   /*
     not strictly board state.
-    the associated decode strategy for the termss.
-    - managing all in one place localizes.
+    the decode strategy associated with the termss.
+    localizing this in one place, makes it easy to manage aggregation or ratio.
   */
-  void (*decode_strategy)( void *ctx, data_t *data);
-  void *decode_ctx;
 
+  void (*decode_normal)( void *ctx, data_t *data);    // NOAZ, AZ, AGGREGATING, or RATIO...
+  void *normal_ctx;
+
+  // OOB. which is always hi first.
+  void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.
+  void *oob_ctx;
 
 
 } sa_state_t;
@@ -207,8 +218,9 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
 
 void sa_set( sa_state_t *sa, const char *s);
 
-void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
+
+void sa_decode_reading( const sa_state_t *sa, data_t *data );
 
 
 
@@ -238,6 +250,9 @@ void adc_aperture_set( adc_state_t *adc, uint32_t u);
 
 
 
+
+
+void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
 
@@ -297,6 +312,7 @@ typedef struct _mode_t
 
 
 } _mode_t ;
+
 
 
 

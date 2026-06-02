@@ -74,12 +74,23 @@ static void mode_reset_inputs( _mode_t *mode)
   // 1x. S8.  same as - from mode_reset()
   mode_gain_set( mode, 1);
 
+  /////////////
+
   // az, input channel
   // leave precharge, trig_delay
   memset( &mode->sa.terms, 0, sizeof( mode->sa.terms));
 
-  mode->sa.decode_strategy  = NULL;
-  mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
+  // mode->sa.decode_strategy  = NULL;
+  // mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
+
+
+  // mode->sa.decode_normal = NULL;
+  mode->sa.normal_ctx = NULL;
+  // mode->sa.decode_oob = NULL;
+  mode->sa.oob_ctx    = NULL;
+
+
+
 
   // input muxes.  hi/lo and feeder mux
   mode->serial.U409 = SOFF;
