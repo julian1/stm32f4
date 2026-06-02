@@ -49,6 +49,9 @@
 #include <cal/transfer.h>
 
 #include <mode.h>
+#include <sa.h>
+
+
 #include <data/cal.h>
 #include <data/data.h>
 #include <data/decode.h>
@@ -1652,6 +1655,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( app_transfer_repl_statement( app, cmd)) { }
 
   else if( mode_repl_statement( app->mode, cmd, app->environment )) { }
+
+  else if( sa_repl_statement( &app->mode->sa, cmd/*, app->environment*/ )) { }
 
   else if( cal_repl_statement( app->cal, cmd)) { }
 

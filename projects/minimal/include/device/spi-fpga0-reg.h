@@ -72,6 +72,40 @@
 
 
 
+/*
+  for hardware - make enable pin the first bit in representation.
+  that way can use the same encoding for 2x04, and 1x08 muxes.
+*/
+
+// TODO. consider rename M1, M2 etc. although does not distinguish single v dual
+
+// 1of8 muxes
+#define SOFF        0
+#define S1          ((1-1)<<1|0b1)
+#define S2          ((2-1)<<1|0b1)
+#define S3          ((3-1)<<1|0b1)
+#define S4          ((4-1)<<1|0b1)
+#define S5          ((5-1)<<1|0b1)
+#define S6          ((6-1)<<1|0b1)
+#define S7          ((7-1)<<1|0b1)
+#define S8          ((8-1)<<1|0b1)
+
+
+// dual 1 of 4 muxes
+#define DOFF        0
+#define D1          ((1-1)<<1|0b1)
+#define D2          ((2-1)<<1|0b1)
+#define D3          ((3-1)<<1|0b1)
+#define D4          ((4-1)<<1|0b1)
+
+
+
+// relay. consider enum
+#define SR_NONE     0b00
+#define SR_SET      0b01
+#define SR_RESET    0b10
+
+
 
 
 typedef struct __attribute__((__packed__))

@@ -63,7 +63,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
   // may 2026
-  // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
+  // reg_sr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
   assert( 0);
 
   mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.

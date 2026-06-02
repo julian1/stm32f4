@@ -80,11 +80,11 @@ static void test( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  // reg_sr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
 
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
-  sa_set( &mode->sa, "0" );
+  sa_set_input( &mode->sa, "0" );
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
