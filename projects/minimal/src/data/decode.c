@@ -70,100 +70,6 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 
 
   // record for current part of reading
-  // cal w. needs this data
-  data->adc_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  data->adc_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  data->adc_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
-
-
-  // useful for bounds - and to correct asymetry
-  data->ratio_refmux =
-      (data->adc_refmux_pos >= data->adc_refmux_neg)
-      ?  (double) data->adc_refmux_pos / data->adc_refmux_neg
-      :  - (double) data->adc_refmux_neg / data->adc_refmux_pos;
-
-
-
-
-  if( true || decode->show_counts) {
-
-    printf( "{counts pos %7lu neg %7lu sig %7lu}, ",
-      data->adc_refmux_pos,
-      data->adc_refmux_neg,
-      data->adc_sigmux
-    );
-    // printf( "ratio %.2f, ", ratio);
-  }
-
-  // printf(" sigmux %lu ", data->adc_sigmux);
-
-
-  /*
-    delegate decode
-
-    assumes that the current mode has valid sample acquisition handler.
-    potential synchronization issue repl update of mode?
-    but we always write state to the board. after setting  the mode. so should be ok.
-
-  */
-  const sa_state_t *sa = &decode->mode->sa;
-  assert( sa);
-  assert( sa->decode_ctx);
-  assert( sa->decode_strategy);
-  assert( sa->decode_ctx);
-
-
-  // convert counts to count_sum
-  sa->decode_strategy( sa->decode_ctx, data );
-
-
-
-  if( data->reading_valid) {
-
-    // can get an exact zero, due to quantization
-    // assert( data->count_sum);
-
-    if(decode->show_counts)
-      printf("sum %.2f, ", data->count_sum);
-
-
-    // normalize count
-    data->count_sum_norm = data->count_sum  / data->adc_sigmux;
-
-
-    // nominal reading
-    // data->reading_nominal = cal->b * data->count_sum_norm;
-    // double reading_nominal = cal->b * data->count_sum_norm;
-
-
-
-    // range should already be set.
-    const range_t *range = data->range;
-    assert(range && range->magic == RANGE_MAGIC);
-
-    // with range
-    data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
-
-
-    char buf[100 + 1];
-
-    if(decode->show_reading) {
-
-      // printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
-
-      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading));
-
-      if( data->reading > range->fs )
-        printf("OL");
-
-      // printf( "%s-%s, ", range->name, range->arg );
-      // printf( "%s,", data->reading > range->fs ? "OL" : "  ");
-      // printf( "%s, ", range->unit );
-      // printf( "%s, ", range ? range->unit : ""  );
-    }
-
-  } // data->valid
-
 
 }
 
@@ -355,7 +261,94 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
   // adc conversion
-  decode_update_data_conversion( decode,  data);
+  // decode_update_data_conversion( decode,  data);
+
+
+  ///////////////////////////////////////
+
+
+  // cal w. needs this data
+  data->adc_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  data->adc_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  data->adc_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
+
+
+  // useful for bounds - and to correct asymetry
+  data->ratio_refmux =
+      (data->adc_refmux_pos >= data->adc_refmux_neg)
+      ?  (double) data->adc_refmux_pos / data->adc_refmux_neg
+      :  - (double) data->adc_refmux_neg / data->adc_refmux_pos;
+
+
+
+
+  if( true || decode->show_counts) {
+
+    printf( "{counts pos %7lu neg %7lu sig %7lu}, ",
+      data->adc_refmux_pos,
+      data->adc_refmux_neg,
+      data->adc_sigmux
+    );
+    // printf( "ratio %.2f, ", ratio);
+  }
+
+
+  const sa_state_t *sa = &decode->mode->sa;
+  assert( sa);
+
+
+  if( status.sample.first) {
+
+    // null means first. so clear everything
+    sa->decode_oob(    sa->oob_ctx,    NULL);
+    sa->decode_normal( sa->normal_ctx, NULL);
+    // sa->decode_second( sa->second_ctx, NULL);
+  }
+
+
+  if( data->term.oob_aperture) {
+
+
+    // oob . convert counts to an aperture normalized - count_sum
+    if( sa->decode_oob && sa->oob_ctx)
+      sa->decode_oob( sa->oob_ctx, data);
+  }
+  else {
+
+
+    // treat as normal
+    if( sa->decode_normal && sa->normal_ctx)
+      sa->decode_normal( sa->normal_ctx, data);
+  }
+
+
+
+  if( data->reading_valid) {
+
+
+    // with range
+    data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
+
+
+    char buf[100 + 1];
+
+    if(decode->show_reading) {
+
+      // printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
+
+      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading));
+
+      if( data->reading > range->fs )
+        printf("OL");
+
+      // printf( "%s-%s, ", range->name, range->arg );
+      // printf( "%s,", data->reading > range->fs ? "OL" : "  ");
+      // printf( "%s, ", range->unit );
+      // printf( "%s, ", range ? range->unit : ""  );
+    }
+
+  } // data->valid
+
 
 
 }

@@ -125,16 +125,23 @@ typedef struct decode_t
   uint32_t adc_refmux_pos_lo;
   uint32_t adc_refmux_neg_lo;
 
+  // whether to record once. or sum... across all
+  // it is not even expressly needed. since it will be on the data.h
+  // and does not change
+  // uint32_t adc_sigmux;
+
+
 
   /*
     - do we need to maintain all these terms, or should we simplify before weighting here.
     we just have a sum. of weight terms and signs.
   */
 
+/*
   // uint32_t count_aggregate;    // if handle aggregation here
   // uint32_t adc_sigmux ;        // summed across
   // uint32_t adc_sigmux_lo/hi;   // if maintain separate counts.
-
+*/
 } decode_t;
 
 
@@ -151,6 +158,7 @@ static void decode_reset( decode_t *decode)
   // decode_reset()
   decode->adc_refmux_pos_hi = 0;
   decode->adc_refmux_neg_hi = 0;
+
   decode->adc_refmux_pos_lo = 0;
   decode->adc_refmux_neg_lo = 0;
 
@@ -174,6 +182,29 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
   // we do not handle the reset/base case here.
 
 
+    // LO   record counts.
+
+
+  if( !data)  {
+
+    printf( "clear ");
+
+    decode->adc_refmux_pos_hi = 0;
+    decode->adc_refmux_neg_hi = 0;
+
+    decode->adc_refmux_pos_lo = 0;
+    decode->adc_refmux_neg_lo = 0;
+
+    // decode->adc_sigmux  = 0;    // if use
+
+    return;
+  }
+
+
+  // record sigmux
+  // decode->adc_sigmux = /* += */ data->adc_sigmux;
+
+
   if( status.sample.idx % 2 == 0) {
 
     // LO   record counts.
@@ -186,11 +217,21 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
     // HI convert value
     printf( "hi ");
-    data->count_sum =
+
+    double count_sum =
         ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg))
       - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
 
-    data->reading_valid     = true;
+    // normalize count
+    // data->count_sum_norm = data->count_sum  / data->adc_sigmux;  perhaps should be x2. for two samples.
+
+    printf("sum %.2f, ", count_sum);
+
+
+    // normalize count
+    data->count_sum_norm = count_sum  / data->adc_sigmux;   // should this be sigmux * 2  for having both a HI and LO.
+
+    data->reading_valid  = true;
   }
 }
 
@@ -211,6 +252,19 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
   // this is the recursive case
   // we do not handle the reset/base case here.
+
+  if( !data)  {
+
+    printf( "clear ");
+    // decode_reset()
+    decode->adc_refmux_pos_hi = 0;
+    decode->adc_refmux_neg_hi = 0;
+
+    decode->adc_refmux_pos_lo = 0;
+    decode->adc_refmux_neg_lo = 0;
+
+    return;
+  }
 
 
   if( status.sample.idx % 2 == 0) {
@@ -243,9 +297,17 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
       : data->adc_refmux_neg;
 
     // we dont need to organize terms like this
-    data->count_sum =
+    double count_sum =
         ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
       - ((double) lo_pos                    - (cal_w * lo_neg ));
+
+
+    // normalize count
+    // use the sigmux of this reading - rather than the sigmux sum.
+    // we need to use sigmux sum. for aggregate.
+    // actually use   ( aggregate count * data->adc_sigmux ).
+    data->count_sum_norm = count_sum  / data->adc_sigmux;
+
 
 
     // record/update LO. for next time
@@ -256,122 +318,6 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     data->reading_valid     = true;
   }
 }
-
-
-
-
-// still need somewhere to store this memory...
-
-#define DECODE_X_MAGIC 23782191
-
-
-
-typedef struct decode_x_t
-{
-  uint32_t    magic;
-
-  bool        hi_first;
-
-  decode_t    oob;
-
-  decode_t    normal;
-
-  decode_t    second; // second channel for ratio
-
-
-} decode_x_t;
-
-
-
-
-
-static void decode_x_init( decode_x_t *decode, bool hi_first)
-{
-  memset( decode, 0, sizeof( decode_x_t));
-  decode->magic = DECODE_X_MAGIC;
-
-  decode->hi_first = hi_first;
-
-  decode_reset( &decode->oob);
-  decode_reset( &decode->normal);
-  decode_reset( &decode->second);
-
-}
-
-
-
-
-static void decode_x( decode_x_t *decode, data_t *data)
-{
-  /*
-
-    functions localize all behavior for hi/lo/ ratiometric handling, needed to output a reading.
-    (although final reading needs cal).
-
-    probably don't want strategy detail (hi,lo, ratiometric etc)
-    to escape this context.
-
-    note. that az_high_first generalizes decode, without regard to azmux, oob or zgjc.
-  */
-
-  assert( decode && decode->magic == DECODE_X_MAGIC);
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  const reg_sr_t status = data->status;
-  const term_t term     = data->term;
-
-
-  if( status.sample.first) {
-
-    // base case/ re-trigger
-    decode_reset( &decode->oob);
-    decode_reset( &decode->normal);
-    decode_reset( &decode->second);
-  }
-
-
-  if( term.oob_aperture) {
-
-    printf( "(oob)      ");
-    // delegate to oob conversion handler
-    decode_az_hi_first( &decode->oob , data);
-    return;
-  }
-
-
-  if( decode->hi_first) {
-    printf( "(hi first) ");
-    decode_az_hi_first( &decode->normal, data);
-  }
-
-  else {
-    printf( "(lo first) ");
-    decode_noaz_lo_first( &decode->normal, data);
-  }
-
-
-  /*
-    if the type is ratio.  then can use index, to distinguish first or second channel.
-    and delegate appropriately
-
-  */
-
-
-  /*
-    consider if want to handle normalization here.
-
-    Yes. for ratio-metric,  because autoranging/ OV detection needs something sensible to display.
-    And may want to divide by (data->adc_sigmux * 2);
-
-    // normalized count
-    data->count_sum_norm = data->count_sum  / data->adc_sigmux;
-  */
-
-
-}
-
-
 
 
 
@@ -434,13 +380,35 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     memcpy( sa->terms, terms, sizeof( terms));
 
 
+  // if we set this here.
+  // then decode will be the same for oob and normal.
+
+  /*
+
+    - perhaps the handlers - don't need separate strategy handlers here ...
+
+    with a bool hi-first flag - in the sa structure.
+    we can delegate to the correct handler.
+
+    - NO. the policy of behavior wants to be self-contained here. I think.
+    - So. repl. can just set the mode sample acquiistion behavior.
+
+  */
+
+  sa->decode_normal =  (void (*)( void *, data_t *))  decode_az_hi_first;
+  sa->normal_ctx    = malloc( sizeof( decode_t ));
+
+
+
+/*
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_x;
     sa->decode_ctx      = malloc( sizeof( decode_x_t));  // TODO FIXME memory
 
+
     // init and set high first
     decode_x_init( sa->decode_ctx, true );
-
+*/
   }
 
   else if( strcmp( sa->input, "ratio") == 0 ) {
@@ -514,12 +482,18 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
     memcpy( sa->terms, terms, sizeof( terms));
 
 
+    sa->decode_normal =  (void (*)( void *, data_t *))  decode_az_hi_first;
+    sa->normal_ctx    = malloc( sizeof( decode_t ));
+
+
+/*
     // set decode strategy
     sa->decode_strategy = (void (*)( void *, data_t *)) decode_x;
     sa->decode_ctx      = malloc( sizeof( decode_x_t));  // TODO FIXME memory
 
     // init and set lo first
     decode_x_init( sa->decode_ctx, false);
+*/
 
 
   }
