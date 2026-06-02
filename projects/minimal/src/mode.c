@@ -383,35 +383,13 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     memcpy( sa->terms, terms, sizeof( terms));
 
 
-  // if we set this here.
-  // then decode will be the same for oob and normal.
+    /* this is wrong.  if do this here - then have to set both cases.
+      for normal and OOB.
+    */
 
-  /*
+    sa->decode_normal =  (void (*)( void *, data_t *))  decode_az_hi_first;
+    sa->normal_ctx    = malloc( sizeof( decode_t ));
 
-    - perhaps the handlers - don't need separate strategy handlers here ...
-
-    with a bool hi-first flag - in the sa structure.
-    we can delegate to the correct handler.
-
-    - NO. the policy of behavior wants to be self-contained here. I think.
-    - So. repl. can just set the mode sample acquiistion behavior.
-
-  */
-
-  sa->decode_normal =  (void (*)( void *, data_t *))  decode_az_hi_first;
-  sa->normal_ctx    = malloc( sizeof( decode_t ));
-
-
-
-/*
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_x;
-    sa->decode_ctx      = malloc( sizeof( decode_x_t));  // TODO FIXME memory
-
-
-    // init and set high first
-    decode_x_init( sa->decode_ctx, true );
-*/
   }
 
   else if( strcmp( sa->input, "ratio") == 0 ) {
