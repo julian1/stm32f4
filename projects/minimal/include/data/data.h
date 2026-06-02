@@ -56,7 +56,13 @@ struct data_t
 
   // set/stamp environment fields first.
   const range_t *range;
-  const cal_t   *cal;
+
+  /*
+    TODO.  just use double cal_w/
+			decoding does not need the full cal. here.
+  */
+  // const cal_t   *cal;
+  double		cal_w;
   uint32_t      line_freq;
 
   // need 10Meg.
@@ -90,7 +96,7 @@ struct data_t
 
 */
   // clk count sum, with ref weighting
-  double  count_sum;
+  // double  count_sum;
 
   // count normalized by aperture/sigmux
   double count_sum_norm;

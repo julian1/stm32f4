@@ -35,6 +35,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/app.c  \
             src/syscalls.c \
             src/mode.c \
+            src/sa.c \
             src/lzo_test.c \
             src/support.c \
             src/ranging.c \

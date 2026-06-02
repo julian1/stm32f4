@@ -71,7 +71,7 @@ void app_cal_w( app_t *app)
   sa_trig_delay_set( &mode->sa, period_to_aperture(  1.f )); // 1 sec.
 
   // set normal sample acquisition/adc operation
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  // reg_sr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // set nplc
   adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->environment->line_freq ));
@@ -88,7 +88,7 @@ void app_cal_w( app_t *app)
   mode->reg_cr.adc_p_active_sigmux = 0;
 
   // special sample acquisition mode, to sample star-lo directly
-  sa_set( &mode->sa, "0" );
+  sa_set_input( &mode->sa, "0" );
 
   // set ch2 input to LO, to reduce leakage on adc input mux.
   mode_ch2_set( mode, "ref-lo");

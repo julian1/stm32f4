@@ -74,12 +74,24 @@ static void mode_reset_inputs( _mode_t *mode)
   // 1x. S8.  same as - from mode_reset()
   mode_gain_set( mode, 1);
 
+  /////////////
+
   // az, input channel
   // leave precharge, trig_delay
   memset( &mode->sa.terms, 0, sizeof( mode->sa.terms));
 
-  mode->sa.decode_strategy  = NULL;
-  mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
+  // mode->sa.decode_strategy  = NULL;
+  // mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
+
+
+  mode->sa.decode_normal = NULL;
+  mode->sa.ctx_normal = NULL;
+
+  mode->sa.decode_oob = NULL;
+  mode->sa.ctx_oob = NULL;
+
+
+
 
   // input muxes.  hi/lo and feeder mux
   mode->serial.U409 = SOFF;
@@ -120,7 +132,7 @@ static void range_mode_ref_lo( const range_t *range, _mode_t *mode, bool range_1
   assert( strcasecmp( range->name, "REF-LO") == 0);
 
   mode_reset_inputs( mode);
-  sa_set( &mode->sa, "ch2" );
+  sa_set_input( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
   if( strcasecmp( range->arg, "10") == 0)
@@ -150,7 +162,7 @@ static void range_mode_star_lo( const range_t *range, _mode_t *mode, bool range_
   mode_reset_inputs( mode);
 
   // sample A400 gnd directly from the azmux.
-  sa_set( &mode->sa, "0" );
+  sa_set_input( &mode->sa, "0" );
 
   if( strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
@@ -183,7 +195,7 @@ static void range_mode_ref( const range_t *range, _mode_t *mode, bool range_10Me
   assert( strcasecmp( range->name, "ref") == 0);
 
   mode_reset_inputs( mode);
-  sa_set( &mode->sa, "ch2" );
+  sa_set_input( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref");
 }
 
@@ -196,7 +208,7 @@ static void range_mode_temp( const range_t *range, _mode_t *mode, bool range_10M
   assert(mode && mode->magic == MODE_MAGIC);
 
   mode_reset_inputs( mode);
-  sa_set( &mode->sa, "ch2" );
+  sa_set_input( &mode->sa, "ch2" );
   mode_ch2_set( mode, "temp");
 }
 
@@ -210,7 +222,7 @@ static void range_mode_lts( const range_t *range, _mode_t *mode, bool range_10Me
 
   mode_reset_inputs( mode);
 
-  sa_set( &mode->sa, "ch2" );
+  sa_set_input( &mode->sa, "ch2" );
   mode_ch2_set( mode, "lts");
 
 
@@ -244,7 +256,7 @@ static void range_mode_dcv( const range_t *range, _mode_t *mode, bool range_10Me
 
   // TODO remove this as default.
   // it becomes confusing to interpret stdout. when set and reset.
-  sa_set( &mode->sa, "ch1");
+  sa_set_input( &mode->sa, "ch1");
 
   // close external terminal input relay
   mode->serial.K402 = SR_SET;
@@ -256,38 +268,38 @@ static void range_mode_dcv( const range_t *range, _mode_t *mode, bool range_10Me
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 1);
     mode_ch2_set( mode, "div");
-    sa_set( &mode->sa, "ch2" );
+    sa_set_input( &mode->sa, "ch2" );
   }
   else if( strcasecmp( range->arg, "100") == 0) {
 
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 10);
     mode_ch2_set( mode, "div");
-    sa_set( &mode->sa, "ch2" );
+    sa_set_input( &mode->sa, "ch2" );
   }
   else if( strcasecmp( range->arg, "10") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1);
-    sa_set( &mode->sa, "ch1" );
+    sa_set_input( &mode->sa, "ch1" );
   }
   else if( strcasecmp( range->arg, "1") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 10);
-    sa_set( &mode->sa, "ch1" );
+    sa_set_input( &mode->sa, "ch1" );
   }
   else if( strcasecmp( range->arg, "0.1") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
-    sa_set( &mode->sa, "ch1" );
+    sa_set_input( &mode->sa, "ch1" );
   }
   else if( strcasecmp( range->arg, "0.01") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
-    sa_set( &mode->sa, "ch1" );
+    sa_set_input( &mode->sa, "ch1" );
   }
   else
     assert( 0);
@@ -305,7 +317,7 @@ static void range_mode_dcv2( const range_t *range, _mode_t *mode, bool range_10M
   mode->serial.K402 = SR_SET;
 
   mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
-  sa_set( &mode->sa, "ch1" );
+  sa_set_input( &mode->sa, "ch1" );
 
 
   mode->serial.U423 = D1;      // drive com-lc from mdac output

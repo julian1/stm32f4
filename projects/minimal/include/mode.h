@@ -7,44 +7,11 @@
 #include <device/spi-fpga0-reg.h>
 
 
+#include <sa.h>     // for sa_state_t
 
 
 
-/*
-  for hardware - make enable pin the first bit in representation.
-  that way can use the same encoding for 2x04, and 1x08 muxes.
-*/
-
-// TODO. consider rename M1, M2 etc. although does not distinguish single v dual
-
-// 1of8 muxes
-#define SOFF        0
-#define S1          ((1-1)<<1|0b1)
-#define S2          ((2-1)<<1|0b1)
-#define S3          ((3-1)<<1|0b1)
-#define S4          ((4-1)<<1|0b1)
-#define S5          ((5-1)<<1|0b1)
-#define S6          ((6-1)<<1|0b1)
-#define S7          ((7-1)<<1|0b1)
-#define S8          ((8-1)<<1|0b1)
-
-
-// dual 1 of 4 muxes
-#define DOFF        0
-#define D1          ((1-1)<<1|0b1)
-#define D2          ((2-1)<<1|0b1)
-#define D3          ((3-1)<<1|0b1)
-#define D4          ((4-1)<<1|0b1)
-
-
-
-// relay. consider enum
-#define SR_NONE     0b00
-#define SR_SET      0b01
-#define SR_RESET    0b10
-
-
-typedef struct data_t data_t ;
+// typedef struct data_t data_t ;
 typedef struct environment_t environment_t;
 
 
@@ -162,90 +129,6 @@ void _4094_state_clear_relays( _4094_state_t *state);
 
 
 
-/*
-  sample/sequence acquisition
-  control state
-
-  conversion terms.
-*/
-
-typedef struct sa_state_t
-{
-
-  uint32_t p_trig_delay;
-
-  uint32_t p_precharge;
-
-
-  /*
-    driving state.
-    used to compile/build the low-level conversion terms, and decode funcs.
-
-  */
-  char    input[ 10];   // "0", "ch1", "ch2", "ratio"  etc.
-  bool    noaz;
-  // bool oob;       // no_oob.
-
-  // conversion terms. consider name - terms, elts, phases
-  term_t  terms[ 4];
-
-  /*
-    not strictly board state.
-    the associated decode strategy for the termss.
-    - managing all in one place localizes.
-  */
-  void (*decode_strategy)( void *ctx, data_t *data);
-  void *decode_ctx;
-
-/*
-  so long as we can project choice of the mode strategy... into the repl. it is OK.
-    can control the different strategy/handler routines.
-
-  eg.
-
-*/
-
-/*
-- EXTR.  consider a
-  - use a separate ctx and strategy function.  for each variation
-    - oob
-    - normal
-    - ratio.
-
-  we can discriminate. reasonably easily.
-  and then
-
-  void (*decode_normal)( void *ctx, data_t *data);    // NOAZ, AZ, AGGREGATING...
-  void *normal_ctx;
-
-  void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.
-  void *oob_ctx;
-
-  void (*decode_ratio)( void *ctx, data_t *data);     // could be decode_second... or decode_ratio...
-  void *ratio_ctx;
-
-  -----------
-  Ahhh...
-
-*/
-
-
-
-
-} sa_state_t;
-
-
-
-
-void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
-
-void sa_set( sa_state_t *sa, const char *s);
-
-void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
-
-
-
-
 
 
 
@@ -268,9 +151,9 @@ typedef struct adc_state_t
 } adc_state_t;
 
 
+
+
 void adc_aperture_set( adc_state_t *adc, uint32_t u);
-
-
 
 
 
@@ -331,6 +214,17 @@ typedef struct _mode_t
 
 
 } _mode_t ;
+
+
+
+
+// disabled.
+void reg_sr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
+
+
+
+
+
 
 
 

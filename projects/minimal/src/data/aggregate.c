@@ -73,7 +73,7 @@ void aggregate_update_data( aggregate_t *aggregate, /*const */ data_t *data)
     } else {
 
       // clear data for this update
-      data->reading_valid = 0;
+      data->reading_valid = false;
       data->reading       = 0;
 
       ++aggregate->i;

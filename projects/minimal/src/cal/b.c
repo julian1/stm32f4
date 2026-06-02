@@ -37,7 +37,7 @@ static void step1( app_t *app)
 
 #if 0
   // reference range
-  sa_set( &app->mode->sa, "ch2" );
+  sa_set_input( &app->mode->sa, "ch2" );
 
   // alternate calibrate against 10V.
   // mode_lts_source_set( mode, 10 );

@@ -70,7 +70,7 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
   mode_ch2_set( mode, "ref");
   // mode_ch2_set_ref_lo( mode);
 
-  sa_set( &mode->sa, "ch2" );
+  sa_set_input( &mode->sa, "ch2" );
 
   // set 10V.
   // mode_lts_source_set( mode, 10 );
@@ -195,10 +195,10 @@ static void test( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  // reg_sr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // special sample acquisition mode - for adc running standalone.  // REVIEW ME
-  sa_set( &mode->sa, "0" );
+  sa_set_input( &mode->sa, "0" );
 
   // REVIWE should not need this....
   // mode_gain_set(mode, 1);
@@ -330,7 +330,7 @@ static void test( app_t *app)
     // mode_lts_source_set( mode, 10 );
     // mode_ch2_set_lts( mode);
 
-    sa_set( &mode->sa, "ch2" );
+    sa_set_input( &mode->sa, "ch2" );
 
     // sigmux active
     mode->reg_cr.adc_p_active_sigmux = 1;
@@ -416,7 +416,7 @@ static void test( app_t *app)
     // switch back to direct mode operation
 
     // may 2026
-    // cr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
+    // reg_sr_sa_mode_set( &mode->reg_cr, MODE_DIRECT);
     assert( 0);
 
     app_transition_state( app);

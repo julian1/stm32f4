@@ -119,7 +119,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   sa_trig_delay_set( &mode->sa, period_to_aperture(  1.f )); // 1 sec.
 
   // set normal sample acquisition/adc operation
-  // cr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  // reg_sr_sa_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // set nplc
   adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->environment->line_freq ));
