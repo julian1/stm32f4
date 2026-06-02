@@ -47,7 +47,7 @@
 
 
 
-
+#if 0
 
 static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
 {
@@ -72,7 +72,7 @@ static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
   // record for current part of reading
 
 }
-
+#endif
 
 
 /*
