@@ -463,7 +463,7 @@ void mode_ch2_reset(_mode_t *mode)
 
 
 
-bool mode_ch2_set_relax( _mode_t *mode, const char *s0)
+bool mode_ch2_set_( _mode_t *mode, const char *s0)
 {
 
     if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
@@ -563,21 +563,11 @@ bool mode_ch2_set_relax( _mode_t *mode, const char *s0)
 
 void mode_ch2_set( _mode_t *mode, const char *s0)
 {
-  bool ret = mode_ch2_set_relax( mode, s0);
+  bool ret = mode_ch2_set_( mode, s0);
   assert( ret);
 }
 
 
-
-/*
-bool mode_repl_statement(
-  _mode_t     *mode,
-  const char  *cmd,
-
-  // why not pass environmental state.
-  const uint32_t line_freq
-) {
-*/
 
 bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *environment)
 {
@@ -627,10 +617,7 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
       uint32_t aperture = nplc_to_aperture( f0, environment->line_freq);
 
       print_aperture( aperture,  environment->line_freq);
-
-      adc_aperture_set( &mode->adc, aperture );
-
-      // mode->adc.p_aperture = aperture;
+      adc_aperture_set( &mode->adc, aperture);
     }
   }
 
@@ -643,17 +630,15 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
     // printf("set aperture\n");
     uint32_t aperture = period_to_aperture( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
+
     print_aperture( aperture,  environment->line_freq);
-    mode->adc.p_aperture = aperture;
+    adc_aperture_set( &mode->adc, aperture);
   }
 
 
 
-
-
-
 #if 0
-  // channel set
+  // channel 1 set
   else if( sscanf(cmd, "set ch1 %100s", s0) == 1)
   {
     if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {
@@ -681,15 +666,10 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
   }
 
 
-
-
-
   else if( sscanf(cmd, "set lts %lf", &f0) == 1) {
 
     mode_lts_source_set( mode, f0);
   }
-
-
 
 
   else if( sscanf(cmd, "set daq %100s %100s", s0, s1 ) == 2
@@ -767,11 +747,10 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
   {
     // why not manage this argument passing
 
-    bool ret = mode_ch2_set_relax( mode, s0);
+    bool ret = mode_ch2_set_( mode, s0);
     if(!ret) {
-      printf("arg unrecognized\n");
+      printf("arg not recognized\n");
       assert(0);
-      return 0;
     }
 
   }

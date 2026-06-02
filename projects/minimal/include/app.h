@@ -265,6 +265,12 @@ typedef struct app_t
   // not sure belongs here
   // bool verbose;
 
+
+
+  // policy deassert trigger
+  // enum buffer_full_policy
+  bool          buffer_stop_if_full;
+
   // state variable persists
   bool          repl_trigger_val;
 

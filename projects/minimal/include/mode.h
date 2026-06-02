@@ -238,7 +238,7 @@ void mode_gain_set( _mode_t *mode, uint32_t u);
 // ch2
 void mode_ch2_reset(_mode_t *mode);
 
-bool mode_ch2_set_relax( _mode_t *mode, const char *s0);    // for repl.
+bool mode_ch2_set_( _mode_t *mode, const char *s0);    // for repl.
 void mode_ch2_set( _mode_t *mode, const char *s);             // consider rename set input
 
 

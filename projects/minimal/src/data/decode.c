@@ -513,6 +513,9 @@ DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg
 DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198447 neg  203394 sig  400001}, lo read -0.000,000,00(8, 10), mean   0.000,000,63, stddev +570.3n
 missed data interrupt
 DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+
+..may have appended data here...
+
 DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,47(9, 10), mean   0.000,000,68, stddev +530.5n
 missed data interrupt
 DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
@@ -522,6 +525,7 @@ DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg
 DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,93(1, 10), mean   0.000,000,74, stddev +526.6n
 missed data interrupt
 DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198447 neg  203394 sig  400001}, hi
+
 DCV-10, {idx=3, first=0}, {azmux  9(s5), oob 0 zglc 0 }, {counts pos  198408 neg  203354 sig  400001}, lo read 0.000,000,93(2, 10), mean   0.000,000,74, stddev +526.6n
 missed data interrupt
 DCV-10, {idx=2, first=0}, {azmux  1(s1), oob 0 zglc 1 }, {counts pos  198408 neg  203354 sig  400001}, hi

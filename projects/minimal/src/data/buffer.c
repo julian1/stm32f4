@@ -1,20 +1,15 @@
 /*
 
-  buffer to hold data vals.  and calculate basic stats
+  circulr buffer for vals.  and to calc some basic stats
     maintain own size
 
-  should access to data for value.  and flags like first
-  that are used to clear
-
-
-  could just pass the status_register on data update.
 
 */
 
 
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>     // memcmp
+#include <string.h>     // strcmp
 
 
 #include <lib3/util.h>      // MIN
@@ -24,9 +19,9 @@
 
 
 #include <data/data.h>
-#include <data/buffer.h>
-
 #include <support.h>      // str_format
+
+#include <data/buffer.h>
 
 
 
@@ -106,7 +101,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     buffer->values[ buffer->i] = data->reading;
 
     // update index and count
-    buffer->i     = (buffer->i + 1 ) % buffer->size;
+    buffer->i     = ( buffer->i + 1) % buffer->size;
     buffer->count = MIN( buffer->count + 1, buffer->size) ;
 
     // calc some stats
@@ -134,16 +129,6 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
       // printf( "%s, ", range->unit );
     }
 
-#if 0
-    if( buffer->count == buffer->size) {
-      /*
-        - should we manage stop policy here?  or in app...
-        - we need to pass down the gpio_trigger.
-      */
-      // stop sampling
-      gpio_write( app->gpio_trigger, false);
-    }
-#endif
 
   }
 

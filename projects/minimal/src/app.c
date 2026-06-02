@@ -950,46 +950,39 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
     data_t  data;
     data_init( &data);
 
-    /*
-        we can get the current range. and pass it...
-        in the decode_update_data() function.
-    */
+
 
     // EXTR.
-    /* TODO just stamp the active range here??!!!!
-        NO. reason not to.
-        is because we want flexibility to call decode_update()
-        from outside the context of app_update().
+    /* TODO do not stamp the active range here??!!!!
+        because we want flexibility to call decode_update()
+        outside the context of app_update().
+        for cal,  and acal transfer
         for tests etc.
-        and for cal,  and acal transfer
         --------
         This point determines
-        how much app_t state needs to go into decode_t
-        ----
-
+        how much app_t state should go into decode_t
     */
 
-    // data->range = ranging_current_range( ranging );
-    // data.line_freq = app->line_freq;
-    // and same for the line_freq. maybe the provisional cal.
 
-    decode_update_data( app->decode, &data /* range_t *range */);
+    decode_update_data( app->decode, &data);
 
     aggregate_update_data( app->aggregate, &data);
 
     buffer_update_data( app->buffer, &data);
 
-    if( false && app->buffer->count == app->buffer->size) {
+
+    if( app-> buffer_stop_if_full
+      && app->buffer->count == app->buffer->size) {
+
       /*
-        - whether to manage the stop policy here?  or in app...
-        - perhaps nicer...
-        - if other modules want to use. then it is fairly easy
-        - we need to pass down the gpio_trigger.
+        - whether to manage the stop policy here?  or bufferapp...
       */
       // stop sampling
       gpio_write( app->gpio_trigger, false);
 
-      // deassert trigger state - when using the repl
+      /* deassert repl trigger state, if active.
+        eg. if buffer state was changed  while trig active.
+      */
       app->repl_trigger_val = false;
 
       printf("\ndone\n");
@@ -1110,41 +1103,16 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
 */
 
-/*
-typedef struct  data_values_t
-{
-  // struct of arrays. not array of structs.
-  // to reduce mem. and as convenience to caller. because we are normally only interested in one field
-
-  // issue. w.c expects/wants double values for counts, to calc mean().
-
-  double *count_sum_norm;
-  double *reading;
-
-
-  uint32_t *adc_refmux_pos_;
-  uint32_t *adc_refmux_neg_;
-  // sigmux
-
-  // can include uint32_t as well.
-  double *adc_refmux_pos;
-  double *adc_refmux_neg;
-  // double *sigmux;
-
-
-} data_values_t;
-*/
-
-
 
 /*
   if this function can return the reading,
   then it becomes very useful for tests.
 
 
-// void app_fill_buffer( app_t *app, double *values, size_t n)
 */
 
+
+void (*buffer_callback_t)( data_t  *, void *);
 
 void app_fill_buffer( app_t *app,
   double *count_sum_norm,
@@ -1196,6 +1164,14 @@ void app_fill_buffer( app_t *app,
 
     if( reading)
       reading[ i]         = data.reading;
+
+    /*
+      - consider separate functions to manage a (hi-lo) decoded reading distinct ...
+      from low level counts may ake sense.
+      -----
+      they are very distinct types of data. but does it matter?
+      or else use a callback to record what we want out of data.
+    */
 
     // uint32_t convert to double here, as convenience to caller
     if( adc_refmux_pos)
@@ -1489,6 +1465,24 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
     app->repl_trigger_val = false;
+  }
+
+
+
+  /*
+    buffer full policy
+    manage here instead of buffer, because we have to manipulate
+    of other state that must be handled from app.
+    like app.repl_trigger_val
+  */
+
+  else if( strcmp(cmd, "buffer stop")) {
+
+    app->buffer_stop_if_full = true;
+  }
+   else if( strcmp(cmd, "buffer roll")) {
+
+    app->buffer_stop_if_full = false;
   }
 
 

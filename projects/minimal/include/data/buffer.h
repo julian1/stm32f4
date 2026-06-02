@@ -17,17 +17,25 @@ typedef struct buffer_t
 
   // memory dependency, pass on construction
   double *values;
-  size_t max_sz;    // max memory to work size
-                    // change name max_sz or sz_max?
-  size_t i;         // next index/ modulus
-  size_t size;      // limit size of full buffer.  rename sz? consistent with stl.
-  size_t count;     // current count of elements present.
+  size_t max_sz;    // max work size
+  size_t size;      // buffer size
+
+  size_t i;         // index/ modulus
+  size_t count;     // count of elements present.
 
 
   double mean;
   double stddev;
   double min, max;
 
+  /*
+    where to manage the stop policy.
+    we dont want to pass the gpio_trigger from repl_trig_state;
+  */
+  // gpio_t        *gpio_trigger;
+  // bool repl_trig_state.
+
+  // bool  stop_on_full; // policya  hmmmm.... .
 
   bool show;
 

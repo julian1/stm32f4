@@ -77,7 +77,10 @@ typedef struct decode_t
 {
   // uint32_t    magic;
 
-  // sa_state_t   *sa ;   pointer back to sa.
+  /*  consider pointer back to sa_t. for flags. aggregate count limit
+      alternatively. pass sa_t as separate argument.
+      sa_state_t   *sa ;
+  */
 
   // pos - neg counts. weight adjusted. not normalized.
   double hi;
@@ -97,9 +100,29 @@ typedef struct decode_t
 
 
 
-static void decode_reset( decode_t *decode)
+static void decode_init( decode_t *decode /*, sa_state_t *sa */)
 {
+  assert( 0);
   assert( decode);
+
+  // decode->magic = DECODE_MAGIC ;
+  // decode->sa = sa;
+  decode->hi = 0;
+  decode->lo = 0;
+  decode->count = 0;
+}
+
+
+
+
+static void decode_reset( decode_t *decode )
+{
+  /*
+    - calling reset(). more than once is less good. on malloc structure
+        bad. if sets the magic. because possible
+        probably want init() separate from reset() which leaves count_n. or sa_t * pointer untouched.
+  */
+
 
   printf( "clear ");
 
@@ -111,6 +134,8 @@ static void decode_reset( decode_t *decode)
   // decode->adc_sigmux  = 0;    // if use
 
 }
+
+
 
 
 
@@ -503,8 +528,8 @@ static void sa_compile_terms( sa_state_t *sa)
   }
 
   // set the oob handler
-  sa->ctx_oob       = malloc( sizeof( decode_t));
   sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
+  sa->ctx_oob       = malloc( sizeof( decode_t));
 
 
 }
