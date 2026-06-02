@@ -84,9 +84,9 @@ static void mode_reset_inputs( _mode_t *mode)
   // mode->sa.decode_ctx       = NULL;     // FIXME.  memory. leak.
 
 
-  mode->sa.decode_normal = NULL;
+  // mode->sa.decode_normal = NULL;
   mode->sa.normal_ctx = NULL;
-  mode->sa.decode_oob = NULL;
+  // mode->sa.decode_oob = NULL;
   mode->sa.oob_ctx    = NULL;
 
 

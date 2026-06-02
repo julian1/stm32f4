@@ -189,6 +189,8 @@ typedef struct sa_state_t
   // conversion terms. consider name - terms, elts, phases
   term_t  terms[ 4];
 
+
+  // bool first_term_is_hi;   // this is not strong enough. when dealing with reset etc.
   /*
     not strictly board state.
     the associated decode strategy for the termss.
@@ -201,40 +203,6 @@ typedef struct sa_state_t
 
   void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.
   void *oob_ctx;
-
-
-
-
-
-
-  // void (*decode_strategy)( void *ctx, data_t *data);
-  // void *decode_ctx;
-
-/*
-  so long as we can project choice of the mode strategy... into the repl. it is OK.
-    can control the different strategy/handler routines.
-
-  eg.
-
-*/
-
-/*
-- EXTR.  consider a
-  - use a separate ctx and strategy function.  for each variation
-    - oob
-    - normal
-    - ratio.
-
-  we can discriminate. reasonably easily.
-  and then
-
-  void (*decode_ratio)( void *ctx, data_t *data);     // could be decode_second... or decode_ratio...
-  void *ratio_ctx;
-
-  -----------
-  Ahhh...
-
-*/
 
 
 

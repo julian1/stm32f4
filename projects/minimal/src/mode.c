@@ -125,17 +125,10 @@ typedef struct decode_t
   uint32_t adc_refmux_pos_lo;
   uint32_t adc_refmux_neg_lo;
 
-  // whether to record once. or sum... across all
-  // it is not even expressly needed. since it will be on the data.h
-  // and does not change
-  // uint32_t adc_sigmux;
 
 
-
-  /*
-    - do we need to maintain all these terms, or should we simplify before weighting here.
-    we just have a sum. of weight terms and signs.
-  */
+  uint32_t count;   // when aggregating counts
+                    // otherwise unused
 
 /*
   // uint32_t count_aggregate;    // if handle aggregation here
@@ -162,6 +155,8 @@ static void decode_reset( decode_t *decode)
   decode->adc_refmux_pos_lo = 0;
   decode->adc_refmux_neg_lo = 0;
 
+
+  // decode->adc_sigmux  = 0;    // if use
 }
 
 
@@ -173,37 +168,19 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
 
   const reg_sr_t status = data->status;
-  // const term_t term  = data->term;
   double cal_w          = data->cal->w;
   assert( cal_w);
 
 
-  // this is the recursive case
-  // we do not handle the reset/base case here.
-
-
-    // LO   record counts.
-
-
   if( !data)  {
 
-    printf( "clear ");
-
-    decode->adc_refmux_pos_hi = 0;
-    decode->adc_refmux_neg_hi = 0;
-
-    decode->adc_refmux_pos_lo = 0;
-    decode->adc_refmux_neg_lo = 0;
-
-    // decode->adc_sigmux  = 0;    // if use
-
+    // important. can use decode specific structure with decode specific reset.
+    decode_reset( decode);
     return;
   }
 
 
-  // record sigmux
-  // decode->adc_sigmux = /* += */ data->adc_sigmux;
-
+  data->reading_valid  = false;
 
   if( status.sample.idx % 2 == 0) {
 
@@ -222,15 +199,12 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
         ((double) data->adc_refmux_pos      - (cal_w * data->adc_refmux_neg))
       - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
 
-    // normalize count
-    // data->count_sum_norm = data->count_sum  / data->adc_sigmux;  perhaps should be x2. for two samples.
 
-    printf("sum %.2f, ", count_sum);
-
+    // printf("sum %.2f, ", count_sum);
 
     // normalize count
-    data->count_sum_norm = count_sum  / data->adc_sigmux;   // should this be sigmux * 2  for having both a HI and LO.
-
+    data->count_sum_norm = count_sum  / data->adc_sigmux;   // should be sigmux * 2 ? for both a HI and LO.
+                                                            // doesn't matter the normalizing term. just has to be consistent.
     data->reading_valid  = true;
   }
 }
@@ -248,27 +222,19 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 
   const reg_sr_t status = data->status;
-  // const term_t term     = data->term;
   double cal_w          = data->cal->w;
   assert( cal_w);
 
 
-  // this is the recursive case
-  // we do not handle the reset/base case here.
-
   if( !data)  {
 
-    printf( "clear ");
-    // decode_reset()
-    decode->adc_refmux_pos_hi = 0;
-    decode->adc_refmux_neg_hi = 0;
-
-    decode->adc_refmux_pos_lo = 0;
-    decode->adc_refmux_neg_lo = 0;
-
+    // important. can use decode specific structure with decode specific reset.
+    decode_reset( decode );
     return;
   }
 
+
+  data->reading_valid = false;
 
   if( status.sample.idx % 2 == 0) {
 
@@ -306,12 +272,7 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 
     // normalize count
-    // use the sigmux of this reading - rather than the sigmux sum.
-    // we need to use sigmux sum. for aggregate.
-    // actually use   ( aggregate count * data->adc_sigmux ).
     data->count_sum_norm = count_sum  / data->adc_sigmux;
-
-
 
     // record/update LO. for next time
     decode->adc_refmux_pos_lo     = data->adc_refmux_pos;
@@ -321,6 +282,79 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
     data->reading_valid     = true;
   }
 }
+
+
+
+static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
+{
+  assert( decode);
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  const reg_sr_t status = data->status;
+  // const term_t term     = data->term;
+  double cal_w          = data->cal->w;
+  assert( cal_w);
+
+
+  if( !data)  {
+
+    // important. can use decode specific structure with decode specific reset.
+    decode_reset( decode);
+    return;
+  }
+
+
+  data->reading_valid = false;
+
+  if( status.sample.idx % 2 == 0) {
+
+    // HI.  sum counts
+    /*
+      risk of overflow with uin32_t here?????
+        Math.pow(2,32) / 20MHz. = 214 seconds.
+    */
+
+    printf( "hi ");
+    decode->adc_refmux_pos_hi     += data->adc_refmux_pos;
+    decode->adc_refmux_neg_hi     += data->adc_refmux_neg;
+
+  }
+  else {
+
+    // LO convert value
+    printf( "lo ");
+
+    // add to sums
+    decode->adc_refmux_pos_lo     += data->adc_refmux_pos;
+    decode->adc_refmux_neg_lo     += data->adc_refmux_neg;
+
+    // the aggregate count... should count LOs. and His. separately?  as test...
+    ++decode->count;
+
+
+    if( decode->count == 10) {
+
+      // we dont need to organize terms like this
+      double count_sum =
+          ((double) decode->adc_refmux_pos_hi - (cal_w * decode->adc_refmux_neg_hi))
+        - ((double) decode->adc_refmux_pos_lo - (cal_w * decode->adc_refmux_neg_lo));
+
+      data->count_sum_norm = count_sum  / ( data->adc_sigmux * decode->count  );
+
+      data->reading_valid = true;
+    }
+
+
+  }
+}
+
+
+
+
+
+
+
 
 
 
@@ -383,12 +417,20 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
     memcpy( sa->terms, terms, sizeof( terms));
 
 
-    /* this is wrong.  if do this here - then have to set both cases.
-      for normal and OOB.
+
+    /*/ decoders....
+    // we have to set here... because we define the oob policy here
+    // a simple hi first does not work
     */
 
-    sa->decode_normal =  (void (*)( void *, data_t *))  decode_az_hi_first;
+    sa->oob_ctx       = malloc( sizeof( decode_t ));
     sa->normal_ctx    = malloc( sizeof( decode_t ));
+
+    // if( !aggregate) {
+    sa->decode_oob    = (void (*)( void *, data_t *))  decode_az_hi_first;
+    sa->decode_normal = (void (*)( void *, data_t *))  decode_az_hi_first;
+    // }
+    // else
 
   }
 
@@ -463,20 +505,12 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
     memcpy( sa->terms, terms, sizeof( terms));
 
 
-    sa->decode_normal =  (void (*)( void *, data_t *))  decode_az_hi_first;
+    sa->oob_ctx       = malloc( sizeof( decode_t ));
     sa->normal_ctx    = malloc( sizeof( decode_t ));
 
-
-/*
-    // set decode strategy
-    sa->decode_strategy = (void (*)( void *, data_t *)) decode_x;
-    sa->decode_ctx      = malloc( sizeof( decode_x_t));  // TODO FIXME memory
-
-    // init and set lo first
-    decode_x_init( sa->decode_ctx, false);
-*/
-
-
+    // oob is still hi first. normal is lo first
+    sa->decode_oob    = (void (*)( void *, data_t *))  decode_az_hi_first;
+    sa->decode_normal = (void (*)( void *, data_t *))  decode_noaz_lo_first;
   }
   else if( strcmp( sa->input, "ratio") == 0 ) {
 
@@ -508,33 +542,19 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data )
 
   const reg_sr_t  status = data->status;
 
+  assert( sa->oob_ctx);
+  assert( sa->normal_ctx);
+
+
   if( status.sample.first) {
 
-    // null means first. so clear everything
-    sa->decode_oob(    sa->oob_ctx,    NULL);
     sa->decode_normal( sa->normal_ctx, NULL);
-    // sa->decode_second( sa->second_ctx, NULL);
+    sa->decode_oob(    sa->oob_ctx,    NULL);
   }
 
 
-  if( data->term.oob_aperture) {
-
-    // if hi_first.  decode one way.  dont need the strategy pointer.
-
-    // oob . convert counts to an aperture normalized - count_sum
-    if( sa->decode_oob && sa->oob_ctx)
-      sa->decode_oob( sa->oob_ctx, data);
-  }
-  else {
-
-
-    // treat as normal
-    if( sa->decode_normal && sa->normal_ctx)
-      sa->decode_normal( sa->normal_ctx, data);
-  }
-
-
-  assert( 0);
+  sa->decode_normal( sa->normal_ctx, data);
+  sa->decode_oob(    sa->oob_ctx,    data);
 
 }
 
@@ -562,6 +582,8 @@ static void compile_sa( sa_state_t *sa)
     compile_sa_noaz_lo_first( sa);
   else
     compile_sa_az_hi_first( sa);
+
+
 }
 
 
