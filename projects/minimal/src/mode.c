@@ -237,6 +237,9 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
 
 
+////////////////////
+
+
 
 static void decode_az_hi_first( decode_t *decode, data_t *data)
 {
@@ -510,6 +513,52 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
 
 
 
+
+
+/*
+  move all the sa.  stuff into own file.
+
+*/
+
+
+void sa_decode_reading( const sa_state_t *sa, data_t *data )
+{
+
+  // const sa_state_t *sa = &decode->mode->sa;
+  // assert( sa);
+
+
+  const reg_sr_t  status = data->status;
+
+  if( status.sample.first) {
+
+    // null means first. so clear everything
+    sa->decode_oob(    sa->oob_ctx,    NULL);
+    sa->decode_normal( sa->normal_ctx, NULL);
+    // sa->decode_second( sa->second_ctx, NULL);
+  }
+
+
+  if( data->term.oob_aperture) {
+
+    // if hi_first.  decode one way.  dont need the strategy pointer.
+
+    // oob . convert counts to an aperture normalized - count_sum
+    if( sa->decode_oob && sa->oob_ctx)
+      sa->decode_oob( sa->oob_ctx, data);
+  }
+  else {
+
+
+    // treat as normal
+    if( sa->decode_normal && sa->normal_ctx)
+      sa->decode_normal( sa->normal_ctx, data);
+  }
+
+
+  assert( 0);
+
+}
 
 
 

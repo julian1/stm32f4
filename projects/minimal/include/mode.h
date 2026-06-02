@@ -252,6 +252,9 @@ void cr_sa_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
 
+void sa_decode_reading( const sa_state_t *sa, data_t *data );
+
+
 
 
 

@@ -203,7 +203,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   */
 
-
   data->range     = range;
   data->cal       = cal;
 
@@ -293,33 +292,25 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
+
+  /*
+    should this functionality move to the mode_sa.
+    And then delegate.
+    probably because it localizes the behavior.
+
+    AND. mode has the direct pointer to sa.
+
+  or sa.
+  */
+
+
+  assert( decode->mode);
   const sa_state_t *sa = &decode->mode->sa;
   assert( sa);
 
 
-  if( status.sample.first) {
-
-    // null means first. so clear everything
-    sa->decode_oob(    sa->oob_ctx,    NULL);
-    sa->decode_normal( sa->normal_ctx, NULL);
-    // sa->decode_second( sa->second_ctx, NULL);
-  }
-
-
-  if( data->term.oob_aperture) {
-
-
-    // oob . convert counts to an aperture normalized - count_sum
-    if( sa->decode_oob && sa->oob_ctx)
-      sa->decode_oob( sa->oob_ctx, data);
-  }
-  else {
-
-
-    // treat as normal
-    if( sa->decode_normal && sa->normal_ctx)
-      sa->decode_normal( sa->normal_ctx, data);
-  }
+  // do the decode.
+  sa_decode_reading( sa, data );
 
 
 
