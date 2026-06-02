@@ -202,11 +202,11 @@ typedef struct sa_state_t
   */
 
   void (*decode_normal)( void *ctx, data_t *data);    // NOAZ, AZ, AGGREGATING, or RATIO...
-  void *normal_ctx;
+  void *ctx_normal;
 
   // OOB. which is always hi first.
   void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.
-  void *oob_ctx;
+  void *ctx_oob;
 
 
 } sa_state_t;

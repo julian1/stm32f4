@@ -976,7 +976,7 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
     buffer_update_data( app->buffer, &data);
 
-    if( app->buffer->count == app->buffer->size) {
+    if( false && app->buffer->count == app->buffer->size) {
       /*
         - whether to manage the stop policy here?  or in app...
         - perhaps nicer...

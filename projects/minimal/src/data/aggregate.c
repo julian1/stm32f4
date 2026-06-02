@@ -73,7 +73,7 @@ void aggregate_update_data( aggregate_t *aggregate, /*const */ data_t *data)
     } else {
 
       // clear data for this update
-      data->reading_valid = 0;
+      data->reading_valid = false;
       data->reading       = 0;
 
       ++aggregate->i;
@@ -90,7 +90,7 @@ bool aggregate_repl_statement( aggregate_t *aggregate, const char *cmd)
 
   uint32_t u0;
 
-  if( sscanf(cmd, "aggregate %lu", &u0) == 1) {
+  if( sscanf(cmd, "aggregate2 %lu", &u0) == 1) {
 
     assert(u0 < aggregate->max_sz);
 

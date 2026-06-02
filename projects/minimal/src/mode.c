@@ -159,7 +159,6 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 {
   assert( decode);
 
-
   if( !data)  {
 
     // important. can use decode specific structure with decode specific reset.
@@ -170,21 +169,17 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
   const reg_sr_t status = data->status;
 
-  data->reading_valid  = false; // TODO remove. should be false on init..
-
 
   if( status.sample.idx % 2 == 0) {
 
     // LO   record counts.
-    printf( "lo ");
-
+    printf( "lo, ");
     decode->lo = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
   }
   else {
 
     // HI convert value
-    printf( "hi ");
-
+    printf( "hi, ");
     decode->hi = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
 
     double count_sum = decode->hi  - decode->lo;
@@ -199,14 +194,10 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
 
 
-////////////////////
-
-
 
 static void decode_az_hi_first( decode_t *decode, data_t *data)
 {
   assert( decode);
-
 
   if( !data)  {
 
@@ -220,21 +211,16 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
   const reg_sr_t status = data->status;
 
 
-  data->reading_valid = false; // TODO remove. should be false on init..
-
-
   if( status.sample.idx % 2 == 0) {
 
     // HI.  record counts.
-    printf( "hi ");
-
+    printf( "hi, ");
     decode->hi = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
   }
   else {
 
     // LO convert value
-    printf( "lo ");
-
+    printf( "lo, ");
     double lo = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
 
     // if have prior LO if available, use average with this Lo.
@@ -260,7 +246,6 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
 {
   assert( decode);
 
-
   if( !data)  {
 
     // important. can use decode specific structure with decode specific reset.
@@ -273,8 +258,6 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
   // const term_t term     = data->term;
 
 
-  data->reading_valid = false;    // TODO remove. should be false on init..
-
   if( status.sample.idx % 2 == 0) {
 
     // HI.  sum counts
@@ -282,21 +265,19 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
       risk of overflow with uin32_t here?????
         Math.pow(2,32) / 20MHz. = 214 seconds.
     */
-    printf( "hi ");
+    printf( "hi %u, ", decode->count);
     decode->hi += (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
   }
   else {
 
-    printf( "lo ");
 
+    printf( "lo %u, ", decode->count);
     decode->lo += (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
 
     // the aggregate count... should count LOs. and His. separately?  as test...
     ++decode->count;
 
-
     // if use aggregate of 1... then we get normal hi-lo behavior...
-
 
     if( decode->count == 10) {
 
@@ -305,11 +286,12 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
 
       data->count_sum_norm = count_sum  / ( data->adc_sigmux * decode->count);
       data->reading_valid = true;
+
+      decode_reset( decode);
+
     }
   }
 }
-
-
 
 
 
@@ -326,26 +308,26 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
 
   const reg_sr_t  status = data->status;
 
-  assert( sa->oob_ctx);
-  assert( sa->normal_ctx);
+  assert( sa->ctx_oob);
+  assert( sa->ctx_normal);
 
 
   if( status.sample.first) {
 
     // mus reset decode state  for both decoders here
-    sa->decode_normal( sa->normal_ctx, NULL);
-    sa->decode_oob(    sa->oob_ctx,    NULL);
+    sa->decode_normal( sa->ctx_normal, NULL);
+    sa->decode_oob(    sa->ctx_oob,    NULL);
   }
 
 
   if( data->term.oob_aperture) {
 
     printf("oob, ");
-    sa->decode_oob(    sa->oob_ctx,    data);
+    sa->decode_oob(    sa->ctx_oob,    data);
   }
   else {
     printf("normal, ");
-    sa->decode_normal( sa->normal_ctx, data);
+    sa->decode_normal( sa->ctx_normal, data);
 
     /*
       EXTR.
@@ -372,7 +354,7 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
 
 
 
-static void compile_sa_az_hi_first( sa_state_t *sa)
+static void sa_compile_az_hi_first( sa_state_t *sa)
 {
   assert( sa);
 
@@ -429,23 +411,6 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
       },
     };
     memcpy( sa->terms, terms, sizeof( terms));
-
-
-
-    /*/ decoders....
-    // we have to set here... because we define the oob policy here
-    // a simple hi first does not work
-    */
-
-    sa->oob_ctx       = malloc( sizeof( decode_t ));
-    sa->normal_ctx    = malloc( sizeof( decode_t ));
-
-    // if( !aggregate) {
-    sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first;
-    // }
-    // else
-
   }
 
   else if( strcmp( sa->input, "ratio") == 0 ) {
@@ -461,7 +426,7 @@ static void compile_sa_az_hi_first( sa_state_t *sa)
 
 
 
-static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz, bool oob  */)
+static void sa_compile_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz, bool oob  */)
 {
   /*
     could probably just use the az_hi_first.
@@ -517,15 +482,8 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
       },
     };
     memcpy( sa->terms, terms, sizeof( terms));
-
-
-    sa->oob_ctx       = malloc( sizeof( decode_t ));
-    sa->normal_ctx    = malloc( sizeof( decode_t ));
-
-    // oob is still hi first. normal is lo first
-    sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
-    sa->decode_normal = (void (*)( void *, data_t *)) decode_noaz_lo_first;
   }
+
   else if( strcmp( sa->input, "ratio") == 0 ) {
 
     assert( 0);
@@ -549,20 +507,54 @@ static void compile_sa_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
 
 */
 
-static void compile_sa( sa_state_t *sa)
+static void sa_compile( sa_state_t *sa)
 {
+  printf("compile sa\n");
 
   // cannot rebuild sequence terms.
   // unless have all the arguments...
   if( strlen( sa->input) == 0)
     return;
 
-  if( sa->noaz)
-    compile_sa_noaz_lo_first( sa);
-  else
-    compile_sa_az_hi_first( sa);
+  if( sa->noaz) {
+    sa_compile_noaz_lo_first( sa);
 
 
+    sa->ctx_oob       = malloc( sizeof( decode_t));
+    sa->ctx_normal    = malloc( sizeof( decode_t));
+
+    // oob is still hi first. normal is lo first
+    sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
+    sa->decode_normal = (void (*)( void *, data_t *)) decode_noaz_lo_first;
+
+  }
+
+  else {
+    sa_compile_az_hi_first( sa);
+
+    /*
+      decoders can be set here.  or in the specific functions....
+    */
+
+    sa->ctx_oob       = malloc( sizeof( decode_t));
+    sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
+
+    if( sa->aggregate) {
+
+      // somehow we have to pass the aggregate amount to the ctx_decode
+      sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first_aggregate;
+
+      sa->ctx_normal    = malloc( sizeof( decode_t));
+      // sa->ctx_normal.aggregate = 10;
+
+    } else {
+
+      sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first;
+      sa->ctx_normal    = malloc( sizeof( decode_t));
+
+    }
+
+  }
 }
 
 
@@ -579,7 +571,7 @@ void sa_set( sa_state_t *sa, const char *s )
   strncpy( sa->input, s, sizeof( sa->input));
   sa->input[ sizeof( sa->input) - 1] = 0;
 
-  compile_sa( sa);
+  sa_compile( sa);
 }
 
 
@@ -1162,13 +1154,13 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
 
 
     mode->sa.noaz = true;
-    compile_sa( &mode->sa);
+    sa_compile( &mode->sa);
   }
 
   else if(strcmp(cmd, "az") == 0) {
 
     mode->sa.noaz = false;
-    compile_sa( &mode->sa);
+    sa_compile( &mode->sa);
   }
 
 /*
@@ -1184,11 +1176,13 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
 */
 
 
-  else if( sscanf(cmd, "aggregate2 %100s", s0) == 1
+  else if( sscanf(cmd, "aggregate %100s", s0) == 1
     && str_decode_uint( s0, &u0))
   {
 
     mode->sa.aggregate = u0;
+
+    sa_compile( &mode->sa);
   }
 
 
