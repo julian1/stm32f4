@@ -354,7 +354,7 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
 
 
 
-static void sa_compile_az_hi_first( sa_state_t *sa)
+static void sa_compile_terms_az_hi_first( sa_state_t *sa)
 {
   assert( sa);
 
@@ -426,7 +426,7 @@ static void sa_compile_az_hi_first( sa_state_t *sa)
 
 
 
-static void sa_compile_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz, bool oob  */)
+static void sa_compile_terms_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz, bool oob  */)
 {
   /*
     could probably just use the az_hi_first.
@@ -499,7 +499,7 @@ static void sa_compile_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
 
 
 /*
-  - consider if issue around synchronization of state updates from REPL here .
+  - consider if possible issue with synchronization of state updates from REPL here with receiving data.
   - the mode can be modified before it is written to the board.
     so there is potential for the decode handler to be out of synch, with sequencer running on the analog board.
   ----
@@ -507,54 +507,48 @@ static void sa_compile_noaz_lo_first( sa_state_t *sa /* , const char *sbool noaz
 
 */
 
-static void sa_compile( sa_state_t *sa)
+static void sa_compile_terms( sa_state_t *sa)
 {
-  printf("compile sa\n");
+  printf("sa compile terms\n");
 
   // cannot rebuild sequence terms.
   // unless have all the arguments...
   if( strlen( sa->input) == 0)
     return;
 
+
+
   if( sa->noaz) {
-    sa_compile_noaz_lo_first( sa);
 
+    sa_compile_terms_noaz_lo_first( sa);
 
-    sa->ctx_oob       = malloc( sizeof( decode_t));
-    sa->ctx_normal    = malloc( sizeof( decode_t));
-
-    // oob is still hi first. normal is lo first
-    sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
     sa->decode_normal = (void (*)( void *, data_t *)) decode_noaz_lo_first;
-
+    sa->ctx_normal    = malloc( sizeof( decode_t));
   }
-
   else {
-    sa_compile_az_hi_first( sa);
 
-    /*
-      decoders can be set here.  or in the specific functions....
-    */
+    sa_compile_terms_az_hi_first( sa);
 
-    sa->ctx_oob       = malloc( sizeof( decode_t));
-    sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
-
-    if( sa->aggregate) {
-
-      // somehow we have to pass the aggregate amount to the ctx_decode
-      sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first_aggregate;
-
-      sa->ctx_normal    = malloc( sizeof( decode_t));
-      // sa->ctx_normal.aggregate = 10;
-
-    } else {
+    if( !sa->aggregate) {
 
       sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first;
       sa->ctx_normal    = malloc( sizeof( decode_t));
 
-    }
+    } else {
 
+      // somehow we have to pass the aggregate amount to the ctx_decode
+      sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first_aggregate;
+      sa->ctx_normal    = malloc( sizeof( decode_t));
+
+      // sa->ctx_normal.aggregate = sa->aggregate;
+    }
   }
+
+  // set the oob handler
+  sa->ctx_oob       = malloc( sizeof( decode_t));
+  sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
+
+
 }
 
 
@@ -571,7 +565,7 @@ void sa_set( sa_state_t *sa, const char *s )
   strncpy( sa->input, s, sizeof( sa->input));
   sa->input[ sizeof( sa->input) - 1] = 0;
 
-  sa_compile( sa);
+  sa_compile_terms( sa);
 }
 
 
@@ -654,7 +648,8 @@ void mode_reset(_mode_t *mode)
 
   /*
     TODO FIXME memory leak. here
-    mode->sa->decode_ctx = malloc( sizeof( decode_t));
+
+    the init will overwrite to pointers pointing at malloc'd memory
   */
 
 
@@ -1154,13 +1149,13 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
 
 
     mode->sa.noaz = true;
-    sa_compile( &mode->sa);
+    sa_compile_terms( &mode->sa);
   }
 
   else if(strcmp(cmd, "az") == 0) {
 
     mode->sa.noaz = false;
-    sa_compile( &mode->sa);
+    sa_compile_terms( &mode->sa);
   }
 
 /*
@@ -1182,7 +1177,7 @@ bool mode_repl_statement( _mode_t *mode, const char  *cmd, const environment_t *
 
     mode->sa.aggregate = u0;
 
-    sa_compile( &mode->sa);
+    sa_compile_terms( &mode->sa);
   }
 
 

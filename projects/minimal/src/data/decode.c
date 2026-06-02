@@ -33,46 +33,12 @@
 
 #include <mode.h>   // sa_state_t
 
-#include <support.h>  // char * str_from_mux( char *buf, size_t n, unsigned val);
-
-
-
-/*
-  EXTR.
-  can pass data_t to the update() function.
-  rather than static injecting on construction.
-  --------------
-*/
+#include <support.h>  // char * str_from_mux();
 
 
 
 
-#if 0
 
-static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
-{
-
-  // consider change name data_conversion()...
-
-  assert( decode && decode->magic == DECODE_MAGIC);
-
-
-  spi_t *spi = decode->spi;
-  assert( spi);
-
-
-  reg_sr_t  status = data->status;
-
-  assert( status.isr.adc) ;
-
-  const cal_t *cal = data->cal;
-  assert( cal && cal->magic == CAL_MAGIC);
-
-
-  // record for current part of reading
-
-}
-#endif
 
 
 /*
@@ -259,10 +225,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  // adc conversion
-  // decode_update_data_conversion( decode,  data);
-
-
   ///////////////////////////////////////
 
 
@@ -293,16 +255,6 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  /*
-    should this functionality move to the mode_sa.
-    And then delegate.
-    probably because it localizes the behavior.
-
-    AND. mode has the direct pointer to sa.
-
-  or sa.
-  */
-
 
   assert( decode->mode);
   const sa_state_t *sa = &decode->mode->sa;
@@ -316,6 +268,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   if( data->reading_valid) {
 
+    /* may be an OOB reading.
+    */
 
     // with range
     data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
