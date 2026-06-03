@@ -1476,11 +1476,11 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     like app.repl_trigger_val
   */
 
-  else if( strcmp(cmd, "buffer stop")) {
+  else if( strcmp(cmd, "buffer stop") == 0) {
 
     app->buffer_stop_if_full = true;
   }
-   else if( strcmp(cmd, "buffer roll")) {
+   else if( strcmp(cmd, "buffer roll") == 0) {
 
     app->buffer_stop_if_full = false;
   }
