@@ -93,7 +93,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
     return;
 
 
-  assert( data.reading_valid && !data.term.oob_aperture);
+  assert( data->reading_valid && !data->term.oob_aperture);
 
 
   // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
