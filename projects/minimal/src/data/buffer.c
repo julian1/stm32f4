@@ -1,6 +1,7 @@
 /*
 
-  circulr buffer for vals.  and to calc some basic stats
+  very simple circular buffer for vals.
+  use to calc some basic stats
     maintain own size
 
 
@@ -87,49 +88,46 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
   }
 
 
-  if( data->term.oob_aperture)
+  if( !data->reading_valid
+    || data->term.oob_aperture)
     return;
 
 
+  assert( data.reading_valid && !data.term.oob_aperture);
 
 
-  if( data->reading_valid) {
+  // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
 
-    // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
+  // record value
+  buffer->values[ buffer->i] = data->reading;
 
-    // record value
-    buffer->values[ buffer->i] = data->reading;
+  // update index and count
+  buffer->i     = ( buffer->i + 1) % buffer->size;
+  buffer->count = MIN( buffer->count + 1, buffer->size) ;
 
-    // update index and count
-    buffer->i     = ( buffer->i + 1) % buffer->size;
-    buffer->count = MIN( buffer->count + 1, buffer->size) ;
+  // calc some stats
+  buffer->mean   = mean(   buffer->values, buffer->count);
+  buffer->stddev = stddev( buffer->values, buffer->count);
 
-    // calc some stats
-    buffer->mean   = mean(   buffer->values, buffer->count);
-    buffer->stddev = stddev( buffer->values, buffer->count);
+  const range_t *range = data->range;
+  assert(range);
 
-    const range_t *range = data->range;
-    assert(range);
+  char buf[100 + 1];
 
-    char buf[100 + 1];
+  if( buffer->show) {
 
-    if( buffer->show) {
+    printf( "mean %s ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
+    // printf( "%s, ", range->unit );
 
-      printf( "mean %s ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
-      // printf( "%s, ", range->unit );
+    printf("(n=%u/%u), ", buffer->count, buffer->size);
 
-      printf("(n=%u/%u), ", buffer->count, buffer->size);
-
-      // this includes the unit
-      printf( "stddev %s", str_format_value_dynamic( buf, 100, buffer->stddev, 4 ));
+    // this includes the unit
+    printf( "stddev %s", str_format_value_dynamic( buf, 100, buffer->stddev, 4 ));
 
 
-      // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
-      // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
-      // printf( "%s, ", range->unit );
-    }
-
-
+    // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
+    // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
+    // printf( "%s, ", range->unit );
   }
 
 }
@@ -157,7 +155,11 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
   else if( sscanf(cmd, "buffer %lu", &u0 ) == 1) {
 
-    assert(u0 < buffer->max_sz);
+    if( u0 >= buffer->max_sz) {
+      printf("exceeds buffer max_sz!\n");
+      return 1;
+    }
+
 
     buffer->size  = u0;
 
