@@ -368,6 +368,94 @@ void decode_init(
 
 
 
+
+
+
+#if 0
+
+jun 3.
+
+before change resistor
+
+test cal.
+id      0
+w       0.975,650,649,
+b       -14.349409
+b10     -1.434662
+b100    -0.143490
+b1000   -0.014347
+div100  -143.470577
+div1000 -1434.985642
+
+
+could variation nplc 1.
+note the DNL variation. as there is
+eg. pos goes 198405 to 198444
+
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198405 neg  203351 sig  400001}, normal, lo, read 0.000,001,81, mean 0.000,001,81 (n=1/10), stddev +0.000a
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198404 neg  203350 sig  400001}, normal, lo, read 0.000,001,37, mean 0.000,001,59 (n=2/10), stddev +218.4n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198442 neg  203389 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198405 neg  203351 sig  400001}, normal, lo, read 0.000,002,25, mean 0.000,001,81 (n=3/10), stddev +356.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198405 neg  203351 sig  400001}, normal, lo, read 0.000,001,81, mean 0.000,001,81 (n=4/10), stddev +308.8n
+missed data interrupt
+
+
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+
+<change in RU/RD sequence here for lo  eg. 198405,203351 ->  198444,203391
+but more resoluton with slower slope may improve this
+one of the comparator tests in RU, changes. and this changes the sequence - with a small amount of DNL.
+
+
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read 0.000,001,34, mean 0.000,001,71 (n=5/10), stddev +333.5n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198444 neg  203391 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198404 neg  203350 sig  400001}, normal, lo, read 0.000,000,03, mean 0.000,001,43 (n=6/10), stddev +697.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read 0.000,000,90, mean 0.000,001,36 (n=7/10), stddev +671.9n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198444 neg  203391 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read -0.000,000,00, mean 0.000,001,19 (n=8/10), stddev +772.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read 0.000,000,87, mean 0.000,001,15 (n=9/10), stddev +735.1n
+missed data interrupt
+
+198442,203389 -> 198443,203390   => 1.75 to  0.87.  resolution is 0.87uV.  at 1nplc  resolution.
+  eg.  1 / 400001 / 3    * 1000000 = 0.83.
+
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198442 neg  203389 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read 0.000,001,75, mean 0.000,001,21 (n=10/10), stddev +719.7n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read 0.000,000,87, mean 0.000,001,12 (n=10/10), stddev +696.7n
+missed data interrupt
+
+
+
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198405 neg  203351 sig  400001}, normal, lo, read 0.000,001,34, mean 0.000,001,12 (n=10/10), stddev +695.6n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198442 neg  203389 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198444 neg  203391 sig  400001}, normal, lo, read 0.000,002,21, mean 0.000,001,11 (n=10/10), stddev +690.7n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198443 neg  203390 sig  400001}, normal, lo, read 0.000,000,44, mean 0.000,000,98 (n=10/10), stddev +675.1n
+missed data interrupt
+DCV-10, {idx=2, first=0}, {azmux s1, oob 0, zglc 1 }, {counts pos  198443 neg  203390 sig  400001}, normal, hi,
+DCV-10, {idx=3, first=0}, {azmux s5, oob 0, zglc 0 }, {counts pos  198405 neg  203351 sig  400001}, normal, lo, read 0.000,000,90, mean 0.000,000,93 (n=10/10), stddev +664.1n
+missed data interrupt
+
+#endif
+
+
 #if 0
 
 nplc 1/ aggregate 10  - actually worse. interesting
