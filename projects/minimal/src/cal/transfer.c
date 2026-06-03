@@ -134,7 +134,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   app_transition_state( app);
 
   // countsum norm...
-  double values[ 2 ];
+  double values[ 10 ];
   memset(values, 0, sizeof( values));
 
   decode ->show_reading = true;
