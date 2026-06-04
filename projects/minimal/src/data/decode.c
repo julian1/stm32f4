@@ -373,6 +373,127 @@ void decode_init(
 
 #if 0
 
+
+# not a lot of variation in counts...  when do sa aggregation.
+reset ; star-lo 10; nplc 1; sa aggregate 10; buffer 20; buffer stop;   trig ;
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199545 neg  201899 sig  400001}, normal, hi 0,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199545 neg  201899 sig  400001}, normal, lo 0,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199547 neg  201901 sig  400001}, normal, hi 1,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199546 neg  201900 sig  400001}, normal, lo 1,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199546 neg  201900 sig  400001}, normal, hi 2,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199544 neg  201898 sig  400001}, normal, lo 2,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199546 neg  201900 sig  400001}, normal, hi 3,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199547 neg  201901 sig  400001}, normal, lo 3,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199547 neg  201901 sig  400001}, normal, hi 4,
+
+
+
+jun 4
+
+  // nplc 1 with LO  averaging.
+  reset ; star-lo 10; nplc 1;  buffer 100; buffer stop;   trig
+  And with LO avarging.
+  stddev +477.1n
+   stddev +464.2n
+    stddev +567.5n
+  stddev +459.3n
+
+
+// nplc 10, aggregate 1
+// reset ; star-lo 10; nplc 10; sa aggregate 1; buffer 20; buffer stop;   trig ;
+stddev +209.9n
+ stddev +180.0n
+stddev +209.1n
+stddev +241.8n
+stddev +193.7n
+  -----------
+    stddev 206nV.
+
+
+// nplc 1, aggregate 10
+// reset ; star-lo 10; nplc 1; sa aggregate 10; buffer 20; buffer stop;   trig ;
+stddev +123.8n
+ stddev +135.1n
+ stddev +175.3n
+stddev +187.1n
+stddev +161.7n
+ stddev +156.1n
+ stddev +157.2n
+   ----
+  stddev 156nV.
+
+
+
+-------------------------
+after change to 475R.  rundown
+41nV.  resolution.
+
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199548 neg  201902 sig  400001}, normal, hi 0,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199549 neg  201903 sig  400001}, normal, lo 0,  read 0.000,000,41,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199549 neg  201903 sig  400001}, normal, hi 0,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199549 neg  201903 sig  400001}, normal, lo 0,  read -0.000,000,00,
+
+
+id      0
+w       0.988,311,727,
+b       -14.165614
+b10     -1.416285
+b100    -0.141652
+b1000   -0.014163
+div100  -141.632915
+div1000 -1416.601945
+
+-------------------------
+
+
+// nplc 1, aggregate 10
+// reset ; star-lo 10; nplc 1; sa aggregate 10; buffer 20; buffer stop;   trig ;
+stddev +278.2n
+stddev +251.5n
+stddev +231.0n
+stddev +231.9n
+stddev +197.5n
+stddev +168.3n
+stddev +158.3n
+stddev +181.4n
+stddev +205.3n
+--------
+ stddev 211nV.
+
+
+// nplc 10, aggregate 1
+reset ; star-lo 10; nplc 10; sa aggregate 1; buffer 20; buffer stop;   trig ;
++179.9n
+stddev +225.1n
+stddev +286.9n
+stddev +178.7n
+stddev +214.4n
+------------
+stddev +225n
+
+
+==============================================
+
+
+reset ; star-lo 10; nplc 1; sa aggregate 1; buffer 100; buffer stop;   trig ;
+stddev +743.1n
+stddev +751.7n
+stddev +682.6n
+stddev +703.6n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 jun 3.
 
 before change resistor

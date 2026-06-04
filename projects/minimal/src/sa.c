@@ -72,15 +72,22 @@
 
 
 
+#define DECODE_MAGIC 987234987
+
+
 
 typedef struct decode_t
 {
-  // uint32_t    magic;
+  uint32_t    magic;
 
-  /*  consider pointer back to sa_t. for flags. aggregate count limit
-      alternatively. pass sa_t as separate argument.
-      sa_state_t   *sa ;
+  /*
+    for low level aggregation. we need the count limit
+    so either have to pass the variable.
+    or inject the sa structure.
+    - passing sa. means we have access to other flags.
   */
+
+  const sa_state_t *sa;
 
   // pos - neg counts. weight adjusted. not normalized.
   double hi;
@@ -100,13 +107,14 @@ typedef struct decode_t
 
 
 
-static void decode_init( decode_t *decode /*, sa_state_t *sa */)
+static void decode_init( decode_t *decode, const sa_state_t *sa)
 {
-  assert( 0);
   assert( decode);
 
-  // decode->magic = DECODE_MAGIC ;
-  // decode->sa = sa;
+  decode->magic = DECODE_MAGIC ;
+
+  decode->sa = sa;
+
   decode->hi = 0;
   decode->lo = 0;
   decode->count = 0;
@@ -117,6 +125,8 @@ static void decode_init( decode_t *decode /*, sa_state_t *sa */)
 
 static void decode_reset( decode_t *decode )
 {
+
+  assert( decode && decode->magic == DECODE_MAGIC );
   /*
     - calling reset(). more than once is less good. on malloc structure
         bad. if sets the magic. because possible
@@ -141,7 +151,7 @@ static void decode_reset( decode_t *decode )
 
 static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 {
-  assert( decode);
+  assert( decode && decode->magic == DECODE_MAGIC );
 
   if( !data)  {
 
@@ -181,7 +191,7 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
 
 static void decode_az_hi_first( decode_t *decode, data_t *data)
 {
-  assert( decode);
+  assert( decode && decode->magic == DECODE_MAGIC );
 
   if( !data)  {
 
@@ -228,7 +238,14 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
 {
-  assert( decode);
+  assert( decode && decode->magic == DECODE_MAGIC );
+  /*
+    sum the counts rather than record.
+
+    We want to be able to use this strategy. even with aggregate = 1;
+    in order to suppress the consequeive lo averaging of normal  decode_az_hi_first
+  */
+
 
   if( !data)  {
 
@@ -263,13 +280,21 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
 
     // if use aggregate of 1... then we get normal hi-lo behavior...
 
-    if( decode->count == 10) {
+    // OK. we want to be able tif we can set decode.   we want to support aggregate
+
+    // support one or more
+    assert( decode->sa->aggregate != 0);
+
+    if( decode->count == decode->sa->aggregate /* 10 */) {
 
       // convert value
       double count_sum = decode->hi - decode->lo;
 
       data->count_sum_norm = count_sum  / ( data->adc_sigmux * decode->count);
       data->reading_valid = true;
+
+      // printf( "sum %g, ", count_sum);
+      // printf( "norm %g, ", data->count_sum_norm);
 
       decode_reset( decode);
     }
@@ -295,9 +320,17 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
   assert( sa->ctx_normal);
 
 
+  /* this is a bit complicated.
+    beccause both oob and normal need to see the first flag.
+    to reset the data counts after re/trigger.
+    but we only get the first flag in context of oob.
+    so use a null data argument instead. to communicate first
+    and the need to reset.
+  */
+
   if( status.sample.first) {
 
-    // mus reset decode state  for both decoders here
+    // use NULL data argument to indicate first
     sa->decode_normal( sa->ctx_normal, NULL);
     sa->decode_oob(    sa->ctx_oob,    NULL);
   }
@@ -494,19 +527,36 @@ static void sa_compile_terms( sa_state_t *sa)
 {
   printf("sa compile terms\n");
 
+  /*
+    with sa_t injected into decode_t on init()...
+    - we could use the  flags { noaz, aggregate } to correctly
+      decode values.
+    - instead of using strategy function pointers
+    - not clear how we should do this.
+  */
+
   // cannot rebuild sequence terms.
-  // unless have all the arguments...
+  // unless know all the arguments...
   if( strlen( sa->input) == 0)
     return;
 
 
+  // set the oob handler
+  sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
+  sa->ctx_oob       = malloc( sizeof( decode_t));
+  decode_init( sa->ctx_oob, sa);
 
+
+  // the normal handler ctx
+  sa->ctx_normal    = malloc( sizeof( decode_t));
+  decode_init( sa->ctx_normal, sa);
+
+  //
   if( sa->noaz) {
 
     sa_compile_terms_noaz_lo_first( sa);
 
     sa->decode_normal = (void (*)( void *, data_t *)) decode_noaz_lo_first;
-    sa->ctx_normal    = malloc( sizeof( decode_t));
   }
   else {
 
@@ -515,21 +565,13 @@ static void sa_compile_terms( sa_state_t *sa)
     if( !sa->aggregate) {
 
       sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first;
-      sa->ctx_normal    = malloc( sizeof( decode_t));
 
     } else {
 
-      // somehow we have to pass the aggregate amount to the ctx_decode
       sa->decode_normal = (void (*)( void *, data_t *)) decode_az_hi_first_aggregate;
-      sa->ctx_normal    = malloc( sizeof( decode_t));
 
-      // sa->ctx_normal.count_n = sa->aggregate;
     }
   }
-
-  // set the oob handler
-  sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
-  sa->ctx_oob       = malloc( sizeof( decode_t));
 
 
 }

@@ -39,6 +39,8 @@ typedef struct sa_state_t
   bool    noaz;
   // bool oob;       // no_oob.
 
+  // aggregate counts
+  // consider rename p_aggregate to indicatea parameter
   unsigned  aggregate;
 
 
