@@ -1026,8 +1026,10 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
     // should do this last.
     // and take a yield()  that calls  app->update() recursively. to process more data..
     */
+#if 0
     display_vfd_update_data( app->display_vfd, &data);
     display_tft_update_data( app->display_tft, &data);
+#endif
 
   }
 
@@ -1042,13 +1044,13 @@ void app_update( app_t *app /* ,  is_yield_context, is_recursive */)
 
 
 
-
+#if 0
   // vfd and tft update
   // do nothing for the moment
   // use to flip display page - synchronized with display update.
   display_vfd_update( app->display_vfd);
   display_tft_update( app->display_tft);
-
+#endif
 
 
   // handle console

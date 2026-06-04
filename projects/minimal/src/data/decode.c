@@ -375,8 +375,6 @@ void decode_init(
 
 
 
-
-
 reset ; star-lo 10; nplc 1; buffer 100; buffer stop;   trig ;
 +471.8n
 +468.7n
