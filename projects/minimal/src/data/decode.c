@@ -374,17 +374,73 @@ void decode_init(
 #if 0
 
 
-# not a lot of variation in counts...  when do sa aggregation.
-reset ; star-lo 10; nplc 1; sa aggregate 10; buffer 20; buffer stop;   trig ;
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199545 neg  201899 sig  400001}, normal, hi 0,
-STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199545 neg  201899 sig  400001}, normal, lo 0,
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199547 neg  201901 sig  400001}, normal, hi 1,
-STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199546 neg  201900 sig  400001}, normal, lo 1,
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199546 neg  201900 sig  400001}, normal, hi 2,
-STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199544 neg  201898 sig  400001}, normal, lo 2,
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199546 neg  201900 sig  400001}, normal, hi 3,
-STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199547 neg  201901 sig  400001}, normal, lo 3,
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199547 neg  201901 sig  400001}, normal, hi 4,
+
+
+
+reset ; star-lo 10; nplc 1; buffer 100; buffer stop;   trig ;
++471.8n
++468.7n
++454.5n
+
+reset ; star-lo 10; nplc 10; buffer 100; buffer stop;   trig ;
++178.3n
+
+reset ; star-lo 10; nplc 1; sa aggregate 10; buffer 100; buffer stop;   trig ;
+ +183.3n
+
+id      0
+w       0.993,861,183,
+b       -14.086497
+b10     -1.408376
+b100    -0.140861
+b1000   -0.014084
+div100  -140.842022
+div1000 -1408.692697
+
+--------------
+
+reset ; star-lo 10; nplc 1; sa aggregate 10; buffer 100; buffer stop;   trig ;
+stddev +183.9
+stddev +164.4n   move 1m. laptop/usb away.
+stddev +196.9n
+
+reset ; star-lo 10; nplc 1; buffer 100; buffer stop;   trig ;
+stddev +496.0n
+stddev +500.5n
+
+reset ; star-lo 10; nplc 10 ; buffer 100; buffer stop;   trig ;
+stddev +173.6n
+
+
+change to 250R.
+should be around 210nV. resolution.
+
+id      0
+w       0.993,861,806,
+b       -14.086497
+b10     -1.408376
+b100    -0.140861
+b1000   -0.014084
+div100  -140.842071
+div1000 -1408.692825
+
+more reasonable distribution of counts.
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202068 neg  203310 sig  400001}, normal, hi 2,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202075 neg  203317 sig  400001}, normal, lo 2,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202073 neg  203315 sig  400001}, normal, hi 3,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202070 neg  203312 sig  400001}, normal, lo 3,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202075 neg  203317 sig  400001}, normal, hi 4,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202074 neg  203316 sig  400001}, normal, lo 4,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202074 neg  203316 sig  400001}, normal, hi 5,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202075 neg  203317 sig  400001}, normal, lo 5,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202073 neg  203315 sig  400001}, normal, hi 6,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202073 neg  203315 sig  400001}, normal, lo 6,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202073 neg  203315 sig  400001}, normal, hi 7,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202070 neg  203312 sig  400001}, normal, lo 7,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  202074 neg  203316 sig  400001}, normal, hi 8,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  202074 neg  203316 sig  400001}, normal, lo 8,
+
+
 
 
 
@@ -425,13 +481,29 @@ stddev +161.7n
 
 
 -------------------------
+From  1k / 0.87uV.
 after change to 475R.  rundown
-41nV.  resolution.
+410nV.  resolution.
 
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199548 neg  201902 sig  400001}, normal, hi 0,
-STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199549 neg  201903 sig  400001}, normal, lo 0,  read 0.000,000,41,
-STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199549 neg  201903 sig  400001}, normal, hi 0,
-STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199549 neg  201903 sig  400001}, normal, lo 0,  read -0.000,000,00,
+# still quantitzation at 475R.
+
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199577 neg  201932 sig  400001}, normal, hi 1,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199577 neg  201932 sig  400001}, normal, lo 1,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199577 neg  201932 sig  400001}, normal, hi 2,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199578 neg  201933 sig  400001}, normal, lo 2,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199578 neg  201933 sig  400001}, normal, hi 3,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199577 neg  201932 sig  400001}, normal, lo 3,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199577 neg  201932 sig  400001}, normal, hi 4,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199577 neg  201932 sig  400001}, normal, lo 4,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199575 neg  201930 sig  400001}, normal, hi 5,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199578 neg  201933 sig  400001}, normal, lo 5,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199577 neg  201932 sig  400001}, normal, hi 6,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199578 neg  201933 sig  400001}, normal, lo 6,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199578 neg  201933 sig  400001}, normal, hi 7,
+STAR-LO-10, {idx=3, first=0}, {azmux s6, oob 0, zglc 0 }, {counts pos  199578 neg  201933 sig  400001}, normal, lo 7,
+STAR-LO-10, {idx=2, first=0}, {azmux s6, oob 0, zglc 1 }, {counts pos  199578 neg  201933 sig  400001}, normal, hi 8,
+
+
 
 
 id      0
