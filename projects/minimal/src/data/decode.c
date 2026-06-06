@@ -212,7 +212,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     );
   */
 
-  printf( "{idx=%u, first=%c}, ",
+  printf( "{idx %u, first %c}, ",
     status.sample.idx,
     BIT_TO_CHAR( status.sample.first)
   );
@@ -245,7 +245,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   if( true || decode->show_counts) {
 
-    printf( "{counts pos %7lu neg %7lu sig %7lu}, ",
+    printf( "{counts pos %7lu, neg %7lu, sig %7lu}, ",
       data->adc_refmux_pos,
       data->adc_refmux_neg,
       data->adc_sigmux
@@ -373,6 +373,8 @@ void decode_init(
 
 #if 0
 
+
+jun 6.
 
 
 reset ; star-lo 10; nplc 1; buffer 100; buffer stop;   trig ;
