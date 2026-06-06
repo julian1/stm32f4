@@ -9,32 +9,36 @@
 
 
 /*
+../../lib/libopencm3/include/libopencm3/stm32/common/exti_common_all.h:#define EXTI3                            (1 << 3)
+  ../../lib/libopencm3/include/libopencm3/stm32/l4/nvic.h:#define NVIC_EXTI3_IRQ 9
+*/
+
+
+/*
+
 
   note. the NVIC interrupt number (often referred to as IRQn in ARM Cortex-M
   microcontrollers) corresponds directly with the vector table
 
-  can pass the cb table in the init/constructor.
-  use separate tables - for NVIC versus internal system/core exceptions that are negatively indexed.
+  just pass array the init/constructor.
+  use separate vectors - for NVIC versus internal system/core exceptions that are negatively indexed.
 
-  struct cb_table_t {
-    void                *ctx;
-    interrupt_handler_t *handler;
-    void                (*isr)( void);   // used as check.
-  }
+  No. need for a struct to manage both - since we already know ahead of time -
+  for each interrupt source (normal or core) which array is needed.
 
+  like this,
 
   void isr_x( void)
   {
-    cb_table_t *cb = cb_a [ NVIC_EXTI3_IRQ ];
+    void *ctx = glb_ctx_irq_vector[ NVIC_EXTI_X_IRQ];
+    cb_t *cb  = glb_cb_irq_vector[ NVIC_EXTI_X_IRQ] ;
 
-    assert( cb->isr == exti3_isr);
-
-    if( cb->ctx && cb->handler)
-      cb->handler( cb->ctx, NULL );
+    if( ctx && cb)
+      cb( ctx, NULL );
 
   }
 
-  can then remove the ctx, and func. from the specific handler
+  still not that clean - since it need globals for ctx. and the handler function.
 
 */
 
@@ -44,27 +48,15 @@
 
 typedef struct interrupt_t  interrupt_t;
 
+// TODO consider change typename to something simpler eg.   cb_t
 typedef void (*interrupt_handler_t)( void *ctx, void *arg);
 
-
-
-typedef struct cb_table_t
-{
-
-  void                *ctx;
-  interrupt_handler_t *handler;
-  // void                (*isr)( void);   // used as check.
-} cb_table_t;
 
 
 
 struct interrupt_t
 {
   uint32_t magic;
-
-  // cb_table_t  *cb_table;
-  // size_t       cb_table_sz;
-
 
   /*
     remove these fields if use array/table

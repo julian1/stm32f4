@@ -34,6 +34,10 @@ void exti3_isr(void) // called by runtime
 
 
   // void *ctx = glb_nvic_ctx_table[ NVIC_EXTI3_IRQ ];
+  //   void *ctx = glb_ctx_irq_vector[ NVIC_EXTI_X_IRQ];
+  //   cb_t *cb  = glb_cb_irq_vector[ NVIC_EXTI_X_IRQ] ;
+
+
 
   assert(x);
   assert(x->magic == FPGA0_MAGIC);
@@ -89,11 +93,5 @@ void interrupt_fpga0_init( interrupt_t *i /* cb_table_t * */ )
 }
 
 
-
-
-/*
-../../lib/libopencm3/include/libopencm3/stm32/common/exti_common_all.h:#define EXTI3                            (1 << 3)
-  ../../lib/libopencm3/include/libopencm3/stm32/l4/nvic.h:#define NVIC_EXTI3_IRQ 9
-*/
 
 
