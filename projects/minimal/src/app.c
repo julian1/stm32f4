@@ -580,7 +580,7 @@ void app_configure( app_t *app )
 
 static void spi_print_register( spi_t *spi, uint32_t reg );
 
-static void spi_print_term_register( spi_t *spi, uint32_t reg );
+static void spi_term_print_register( spi_t *spi, uint32_t reg );
 
 
 
@@ -1274,7 +1274,7 @@ static void spi_print_register( spi_t *spi, uint32_t reg)
 
 #define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
-static void spi_print_term_register( spi_t *spi, uint32_t reg)
+static void spi_term_print_register( spi_t *spi, uint32_t reg)
 {
   // assert(0);
 
@@ -1289,7 +1289,7 @@ static void spi_print_term_register( spi_t *spi, uint32_t reg)
     this is crappy. function defined in fpga-reg.h.
     but implemented in decode.c
   */
-  print_term( &term);
+  term_print( &term);
 }
 
 
@@ -1365,16 +1365,16 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, environment_t *envi
   else if( strcmp( cmd, "term0?") == 0) {
 
     // TODO consider decode.
-    spi_print_term_register( spi, REG_SA_P_TERM0);
+    spi_term_print_register( spi, REG_SA_P_TERM0);
   }
   else if( strcmp( cmd, "term1?") == 0) {
-    spi_print_term_register( spi, REG_SA_P_TERM1);
+    spi_term_print_register( spi, REG_SA_P_TERM1);
   }
   else if( strcmp( cmd, "term2?") == 0) {
-    spi_print_term_register( spi, REG_SA_P_TERM2);
+    spi_term_print_register( spi, REG_SA_P_TERM2);
   }
   else if( strcmp( cmd, "term3?") == 0) {
-    spi_print_term_register( spi, REG_SA_P_TERM3);
+    spi_term_print_register( spi, REG_SA_P_TERM3);
   }
 
   /////////////////////

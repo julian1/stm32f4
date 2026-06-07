@@ -208,7 +208,7 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 
-void print_status_cmpr( const reg_sr_t status);
+void status_cmpr_print( const reg_sr_t status);
 
 
 /*
@@ -296,8 +296,8 @@ _Static_assert (sizeof(term_t) == 4, "bad typedef size");
 
 // really not sure these belong here.
 
-void print_term( const term_t *term);
-void print_term_brief( const term_t *term);
+void term_print( const term_t *term);
+void term_print_brief( const term_t *term);
 
 
 

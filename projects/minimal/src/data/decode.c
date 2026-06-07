@@ -61,7 +61,7 @@
     also used in app.c
   */
 
-void print_term( const term_t *term)
+void term_print( const term_t *term)
 {
   assert( term);
 
@@ -86,7 +86,7 @@ void print_term( const term_t *term)
 
 
 
-void print_term_brief( const term_t *term)
+void term_print_brief( const term_t *term)
 {
   assert( term);
 
@@ -103,7 +103,7 @@ void print_term_brief( const term_t *term)
 
 
 
-void print_status_cmpr( const reg_sr_t status)
+void status_cmpr_print( const reg_sr_t status)
 {
 
   char buf[100];
@@ -228,11 +228,11 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     BIT_TO_CHAR( status.sample.first)
   );
 
-  // print_status_cmpr( status );
+  // status_cmpr_print( status );
 
-  // print_term( &data->term );
+  // term_print( &data->term );
 
-  print_term_brief( &data->term );
+  term_print_brief( &data->term );
 
 
 
