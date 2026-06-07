@@ -78,7 +78,8 @@ static void cal_set_value( cal_t *cal, double mean0, double mean1)
   UNUSED(mean1);
   // could also reset the mode for the print data
 
-  cal->b = 7.0 / mean0;
+  // cal->b = 7.0 / mean0;  // lt1021/7
+  cal->b = 7.1 / mean0;   // ltz1000
   printf("cal->b %f\n", cal->b);
 }
 
