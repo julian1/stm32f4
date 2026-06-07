@@ -51,12 +51,15 @@ typedef struct sa_state_t
 
   /*
     not strictly board state.
-    the decode strategy associated with the termss.
-    localizing this in one place, makes it easy to manage aggregation or ratio.
+
+    keeping the decode strategy associated with the conversion terms
+    and localizing in one place, makes things simpler.
+    but consider move to app_t.
   */
 
   void (*decode_normal)( void *ctx, data_t *data);    // NOAZ, AZ, AGGREGATING, or RATIO...
   void *ctx_normal;
+  void *ctx_second;     // uses decode_normal also.
 
   // OOB. which is always hi first.
   void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.

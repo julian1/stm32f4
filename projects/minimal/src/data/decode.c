@@ -52,7 +52,16 @@
 #define BIT_TO_CHAR(a) ((a) ? '1' : '0')
 
 
-static void print_term( const term_t *term)
+
+  /*
+    FIXME. TODO
+    this is crappy. defined in fpga-reg.h.
+    but implemented in decode.c
+    ----
+    also used in app.c
+  */
+
+void print_term( const term_t *term)
 {
   assert( term);
 
@@ -65,8 +74,9 @@ static void print_term( const term_t *term)
   printf( "pc_protect %s, ",  str_format_bits( buf, 2, term->pc_protect));
   printf( "pc_sample %s, ",   str_format_bits( buf, 2, term->pc_sample));
   printf( "next-idx %u, ",    term->next_idx );
-  printf( "oob %c, ",         BIT_TO_CHAR( term->oob_aperture));
-  printf( "zglc %c, ",        BIT_TO_CHAR( term->zgjc));
+  printf( "oob %c, ",         BIT_TO_CHAR( term->oob));
+  printf( "second %c, ",      BIT_TO_CHAR( term->second));
+  printf( "zgjc %c, ",        BIT_TO_CHAR( term->zgjc));
   printf( "dither %c ",       BIT_TO_CHAR( term->cm_dac_dither));
   printf( "}, ");
 
@@ -76,7 +86,7 @@ static void print_term( const term_t *term)
 
 
 
-static void print_term_brief( const term_t *term)
+void print_term_brief( const term_t *term)
 {
   assert( term);
 
@@ -85,14 +95,15 @@ static void print_term_brief( const term_t *term)
   printf( "{");
   // printf( "azmux %2u(%s), ",  term->azmux, str_from_mux( buf, 100, term->azmux));
   printf( "azmux %s, ",       str_from_mux( buf, 100, term->azmux));
-  printf( "oob %c, ",         BIT_TO_CHAR( term->oob_aperture));
-  printf( "zglc %c ",         BIT_TO_CHAR( term->zgjc));
+  printf( "oob %c, ",         BIT_TO_CHAR( term->oob));
+  printf( "second %c, ",      BIT_TO_CHAR( term->second));
+  printf( "zgjc %c ",         BIT_TO_CHAR( term->zgjc));
   printf( "}, ");
 }
 
 
 
-static void print_status_cmpr( const reg_sr_t status)
+void print_status_cmpr( const reg_sr_t status)
 {
 
   char buf[100];

@@ -1150,7 +1150,7 @@ void app_fill_buffer( app_t *app,
 
 
     if( !data.reading_valid
-      || data.term.oob_aperture) {
+      || data.term.oob) {
 
       printf( "ignore");
       printf( "\n");
@@ -1158,7 +1158,7 @@ void app_fill_buffer( app_t *app,
     }
 
 
-    assert( data.reading_valid && !data.term.oob_aperture);
+    assert( data.reading_valid && !data.term.oob);
 
 
     if( count_sum_norm)
@@ -1283,21 +1283,13 @@ static void spi_print_term_register( spi_t *spi, uint32_t reg)
   _Static_assert ( sizeof( term) == 4);
   spi_ice40_reg_read_n( spi, /* REG_SA_TERM_ELT */ reg, &term, sizeof( term));
 
-  char buf[ 100];
 
-
-  // same as decode.c consider move code
-  printf( "{");
-  // printf( "azmux %2u(%s), ",  term.azmux, str_from_mux( buf, 100, term.azmux));
-  // printf( "azmux %s (%2u), ", str_from_mux( buf, 100, term.azmux), term.azmux);
-  printf( "azmux %s, ",       str_from_mux( buf, 100, term.azmux));
-  printf( "pc_protect %s, ",  str_format_bits( buf, 2, term.pc_protect));
-  printf( "pc_sample %s, ",   str_format_bits( buf, 2, term.pc_sample));
-  printf( "next-idx %u, ",    term.next_idx );
-  printf( "oob %c, ",         BIT_TO_CHAR( term.oob_aperture));
-  printf( "zglc %c, ",        BIT_TO_CHAR( term.zgjc));
-  printf( "dither %c ",       BIT_TO_CHAR( term.cm_dac_dither));
-  printf( "}, ");
+  /*
+    FIXME. TODO
+    this is crappy. function defined in fpga-reg.h.
+    but implemented in decode.c
+  */
+  print_term( &term);
 }
 
 

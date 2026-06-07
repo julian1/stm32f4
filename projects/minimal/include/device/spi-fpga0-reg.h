@@ -208,6 +208,7 @@ _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
 
 
 
+void print_status_cmpr( const reg_sr_t status);
 
 
 /*
@@ -268,23 +269,23 @@ term_t
     state. to compute a separate independent reading.
 
   */
-  uint32_t    oob_aperture  : 1;  // 24     // use oob aperture for conversion
-                                            // TODO rename to just oob.
+  uint32_t    oob           : 1;  // 24     // an oob reading. (because of changed aperture.  but could also be some other factor).
 
-  // uint32_t    second        : 1;
+
+  uint32_t    second        : 1;  // 25
 
 
   //////
 
-  uint32_t    zgjc          : 1;  // 25     // apply zgjc.
+  uint32_t    zgjc          : 1;  // 26     // apply zgjc.
                                             // probably cm_dither,
                                             // generally do the reading convert when flag  not active
 
-  uint32_t    cm_dac_dither : 1;  // 26     // apply dac dither
+  uint32_t    cm_dac_dither : 1;  // 27     // apply dac dither
 
-  // uint32_t active_sigmux : 1;            //  can be moved here, if need to control for different conversions
+  // uint32_t active_sigmux : 1;            // could be moved here, but would probably complicate.
 
-  uint32_t                  : 5;  // 27 + 5 = 32
+  uint32_t                  : 4;  // 28 + 4 = 32
 
 
 
@@ -293,7 +294,10 @@ term_t
 _Static_assert (sizeof(term_t) == 4, "bad typedef size");
 
 
+// really not sure these belong here.
 
+void print_term( const term_t *term);
+void print_term_brief( const term_t *term);
 
 
 

@@ -162,6 +162,7 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
   assert( data && data->magic == DATA_MAGIC);
 
   const reg_sr_t status = data->status;
+  const term_t term     = data->term;
 
 
   if( status.sample.idx % 2 == 0) {
@@ -183,6 +184,8 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
     data->count_sum_norm = count_sum  / data->adc_sigmux;   // should be sigmux * 2 ? for both a HI and LO.
                                                             // doesn't matter the normalizing term. just has to be consistent.
     data->reading_valid  = true;
+
+    assert( !term.second);
   }
 }
 
@@ -203,6 +206,7 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
 
 
   const reg_sr_t status = data->status;
+  const term_t term     = data->term;
 
 
   if( status.sample.idx % 2 == 0) {
@@ -224,6 +228,9 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
       : lo;
 
     double count_sum = decode->hi - av_lo;
+
+    assert( !term.second);
+
 
     // normalize count
     data->count_sum_norm = count_sum  / data->adc_sigmux;
@@ -256,7 +263,7 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
   assert( data && data->magic == DATA_MAGIC);
 
   const reg_sr_t status = data->status;
-  // const term_t term     = data->term;
+  const term_t term     = data->term;
 
 
   if( status.sample.idx % 2 == 0) {
@@ -293,6 +300,13 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
       data->count_sum_norm = count_sum  / ( data->adc_sigmux * decode->count);
       data->reading_valid = true;
 
+      assert( !term.second);
+/*
+      if( term.second)
+        data->count_sum_norm2 = ...
+      else
+        data->count_sum_norm = ...
+*/
       // printf( "sum %g, ", count_sum);
       // printf( "norm %g, ", data->count_sum_norm);
 
@@ -332,17 +346,18 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
 
     // use NULL data argument to indicate first
     sa->decode_oob(    sa->ctx_oob,    NULL);
+
+    // both normal and second context. use normal handler
     sa->decode_normal( sa->ctx_normal, NULL);
-    // sa->decode_second( sa->ctx_second, NULL);
+    sa->decode_normal( sa->ctx_second, NULL);
   }
 
 
-  if( data->term.oob_aperture) {
+  if( data->term.oob) {
 
     printf("oob, ");
-    sa->decode_oob(    sa->ctx_oob,    data);
+    sa->decode_oob( sa->ctx_oob,    data);
   }
-/*
   else if( data->term.second) {
     // use a separate decode_t state.
     // EXTR.
@@ -356,7 +371,6 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
 
     sa->decode_normal( sa->ctx_second, data);
   }
-*/
   else {
     printf("normal, ");
     sa->decode_normal( sa->ctx_normal, data);
@@ -420,13 +434,13 @@ static void sa_compile_terms_az_hi_first( sa_state_t *sa)
       { // 0
       .azmux        = hi,
       .pc_sample    = pc,
-      .oob_aperture = true,                   // use fast/constant aperture
+      .oob          = true,                   // use fast/constant aperture
       .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 1,
       },
       { // 1
       .azmux        = lo,
-      .oob_aperture = true,
+      .oob          = true,
       .next_idx     = 2,
       },
 
@@ -491,13 +505,13 @@ static void sa_compile_terms_noaz_lo_first( sa_state_t *sa /* , const char *sboo
       { // 0
       .azmux        = hi,
       .pc_sample    = pc,
-      .oob_aperture = true,                     // use fast/constant aperture
+      .oob          = true,                     // use fast/constant aperture
       .zgjc         = true,                     // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 1,
       },
       { // 1
       .azmux        = lo,
-      .oob_aperture = true,
+      .oob          = true,
       .next_idx     = 2
       },
 
@@ -530,6 +544,24 @@ static void sa_compile_terms_noaz_lo_first( sa_state_t *sa /* , const char *sboo
 
 
 
+static decode_t *decode_singleton_create( uint32_t id)
+{
+  /*
+    this is a bit ugly.
+    - but declaring as a struct in sa_t means we loses constness for sa. and for the mode.
+    also the local decode_t definition must be exposed in the sa.h. header .
+    also name clashes with the deocode_t module.
+    --
+    most important - we lose ability to vary the type to specialize the strategy/policy handling.
+  */
+
+  UNUSED( id);
+
+  decode_t *p =  malloc( sizeof( decode_t));
+  assert( p);
+  return p;
+}
+
 /*
   - consider if possible issue with synchronization of state updates from REPL here with receiving data.
   - the mode can be modified before it is written to the board.
@@ -557,15 +589,25 @@ static void sa_compile_terms( sa_state_t *sa)
     return;
 
 
-  // set the oob handler
-  sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
-  sa->ctx_oob       = malloc( sizeof( decode_t));
+
+  // the oob ctx
+  sa->ctx_oob       = decode_singleton_create( 0);
   decode_init( sa->ctx_oob, sa);
 
-
-  // the normal handler ctx
-  sa->ctx_normal    = malloc( sizeof( decode_t));
+  // the normal ctx
+  sa->ctx_normal    = decode_singleton_create( 1);
   decode_init( sa->ctx_normal, sa);
+
+  // the second ctx
+  sa->ctx_second    = decode_singleton_create( 2);
+  decode_init( sa->ctx_second, sa);
+
+  // note how normal and second, both use normal function
+
+
+  // set the oob handler
+  sa->decode_oob    = (void (*)( void *, data_t *)) decode_az_hi_first;
+
 
   //
   if( sa->noaz) {

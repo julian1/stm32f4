@@ -101,6 +101,9 @@ struct data_t
   // count normalized by aperture/sigmux
   double count_sum_norm;
 
+
+  double count_sum_norm2;
+
   ///////////////////
   // these are readings. after decode
   // not adc

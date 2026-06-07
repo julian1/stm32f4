@@ -38,7 +38,7 @@ void aggregate_update_data( aggregate_t *aggregate, /*const */ data_t *data)
   }
 
 
-  if( data->term.oob_aperture)
+  if( data->term.oob)
     return;
 
 
