@@ -263,7 +263,18 @@ term_t
       eg. 'zgjc' instead of 'first_in_sequence'.
   */
 
+  /*
+    the effect of oob, second flags is to force the use of separate
+    state. to compute a separate independent reading.
+
+  */
   uint32_t    oob_aperture  : 1;  // 24     // use oob aperture for conversion
+                                            // TODO rename to just oob.
+
+  // uint32_t    second        : 1;
+
+
+  //////
 
   uint32_t    zgjc          : 1;  // 25     // apply zgjc.
                                             // probably cm_dither,

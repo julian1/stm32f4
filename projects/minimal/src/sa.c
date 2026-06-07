@@ -331,8 +331,9 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
   if( status.sample.first) {
 
     // use NULL data argument to indicate first
-    sa->decode_normal( sa->ctx_normal, NULL);
     sa->decode_oob(    sa->ctx_oob,    NULL);
+    sa->decode_normal( sa->ctx_normal, NULL);
+    // sa->decode_second( sa->ctx_second, NULL);
   }
 
 
@@ -341,6 +342,21 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
     printf("oob, ");
     sa->decode_oob(    sa->ctx_oob,    data);
   }
+/*
+  else if( data->term.second) {
+    // use a separate decode_t state.
+    // EXTR.
+    // behavior is similar to oob.
+    // indicates we need separate state to manage az,noaz cases and count aggregation,
+    // an independent reading is needed for downstream OL detection, and perhaps AR. on second input etc.
+    // so in this context - treat as a separate independent reading, rather than jump to calculating the ratio.
+    // EXTR.
+    // using this flag means we do not have to resort to checking the index.
+    // to determine a second channel.
+
+    sa->decode_normal( sa->ctx_second, data);
+  }
+*/
   else {
     printf("normal, ");
     sa->decode_normal( sa->ctx_normal, data);
