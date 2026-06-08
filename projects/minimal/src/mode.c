@@ -170,6 +170,9 @@ void mode_reset(_mode_t *mode)
     .sa.p_trig_delay  = CLK_FREQ * 100e-3,         // 100ms
     .sa.p_precharge   = CLK_FREQ * 500e-6,          //  500us.
 
+    // expressing this here a bit weird.
+    // .sa.verbose       = 0,
+
 
     .trigger_source   = 1,   // set internal trigger active
 

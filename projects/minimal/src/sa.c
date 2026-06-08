@@ -307,8 +307,11 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
       else
         data->count_sum_norm = ...
 */
-      // printf( "sum %g, ", count_sum);
-      // printf( "norm %g, ", data->count_sum_norm);
+
+      if( decode->sa->verbose) {
+        printf( "count_sum %g, ", count_sum);
+        printf( "norm %g, ",      data->count_sum_norm);
+      }
 
       decode_reset( decode);
     }
@@ -685,7 +688,7 @@ bool sa_repl_statement( sa_state_t *sa, const char  *cmd)
 
 
 
-  if(strcmp(cmd, "noaz") == 0) {
+  if( strcmp(cmd, "noaz") == 0) {
 
     sa->noaz = true;
     sa_compile_terms( sa);
@@ -696,6 +699,14 @@ bool sa_repl_statement( sa_state_t *sa, const char  *cmd)
     sa->noaz = false;
     sa_compile_terms( sa);
   }
+  else if( strcmp(cmd, "azero %100s") == 0
+    && str_decode_uint( s0, &u0))  {
+
+    // support 3458a. syntax, AZERO ON/OFF
+    sa->noaz = !u0;
+    sa_compile_terms( sa);
+  }
+
 
   else if(
     strcmp(cmd, "sa 0") == 0
@@ -737,6 +748,11 @@ bool sa_repl_statement( sa_state_t *sa, const char  *cmd)
   }
 
 
+
+  // buffer verbosity
+  if( sscanf(cmd, "sa verbose %u", &sa->verbose) == 1) {
+
+  }
 
   else
     return false;

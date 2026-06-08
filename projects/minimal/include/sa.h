@@ -50,7 +50,7 @@ typedef struct sa_state_t
 
 
   /*
-    not strictly board state.
+    not strict board state.
 
     keeping the decode strategy associated with the conversion terms
     and localizing in one place, makes things simpler.
@@ -65,6 +65,7 @@ typedef struct sa_state_t
   void (*decode_oob)( void *ctx, data_t *data);       // use when havve .oob flag.
   void *ctx_oob;
 
+  unsigned verbose;
 
 } sa_state_t;
 

@@ -214,12 +214,12 @@ unsigned str_decode_uint( const char *s, uint32_t *val)
   // reset == default position in the schematic.
 
   if (strcmp(s, "on") == 0
-    || strcmp(s, "set") == 0
+//    || strcmp(s, "set") == 0
     || strcmp(s, "true") == 0)
     *val = 1;
 
   else if(strcmp(s, "off") == 0
-    || strcmp(s, "reset") == 0
+//    || strcmp(s, "reset") == 0
     || strcmp(s, "false") == 0)
     *val = 0;
 
