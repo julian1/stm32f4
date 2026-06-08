@@ -397,6 +397,47 @@ void decode_init(
 #if 0
 
 
+
+
+jun 8.
+
+      -------
+
+
+  // dcv 10. - short- measured at terminal input
+  // dcv 10; nplc 10; buffer 100 ; buffer stop ; trig
+  normal, lo, mean -0.000,000,14 (n=100/100), stddev +131.1n
+  normal, lo, mean 0.000,000,03 (n=100/100), stddev +163.9n
+  normal, lo, mean 0.000,000,09 (n=100/100), stddev +154.5n
+  normal, lo, mean 0.000,000,19 (n=100/100), stddev +126.1n
+  normal, lo, mean 0.000,000,25 (n=100/100), stddev +156.5n
+  normal, lo, mean 0.000,000,26 (n=100/100), stddev +135.8n
+
+
+  // star-lo bypassing pre-charge switching
+  // star-lo 10; nplc 10; buffer 100 ; buffer stop ; trig
+  normal, lo, mean 0.000,000,00 (n=100/100), stddev +143.3n
+  normal, lo, mean -0.000,000,00 (n=100/100), stddev +128.7n
+  normal, lo, mean 0.000,000,03 (n=100/100), stddev +143.7n
+  normal, lo, mean 0.000,000,02 (n=100/100), stddev +141.5n
+
+  (bottle top over ltz1000)
+  star-lo 10; 10 nplc.
+  normal, lo, mean -0.000,000,00 (n=100/100), stddev +124.0
+  normal, lo, mean 0.000,000,02 (n=100/100), stddev +141.5n
+  normal, lo, mean 0.000,000,02 (n=100/100), stddev +163.1n
+  normal, lo, mean 0.000,000,02 (n=100/100), stddev +135.5n
+  normal, lo, mean 0.000,000,01 (n=100/100), stddev +137.9n
+
+
+
+
+
+
+
+
+
+
 jun 6.
 
 
