@@ -71,15 +71,11 @@ typedef struct sa_state_t
 
 
 
-
 void sa_set_input( sa_state_t *sa, const char *s);
-
 
 void sa_decode_reading( const sa_state_t *sa, data_t *data );
 
-
 void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
-
 
 bool sa_repl_statement( sa_state_t *sa, const char  *cmd /*, const environment_t *environment */);
 

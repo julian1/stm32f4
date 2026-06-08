@@ -322,12 +322,9 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);
 
-  char s0[ 100 + 1];
 
-  if( sscanf(cmd, "decode verbose %100s", s0) == 1
-    && str_decode_uint( s0, & decode->verbose )
-  ) {
-
+  // decode verbosity
+  if( sscanf(cmd, "decode verbose %u", &decode->verbose) == 1) {
 
   }
 /*

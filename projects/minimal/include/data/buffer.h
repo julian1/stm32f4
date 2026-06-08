@@ -12,21 +12,21 @@ typedef struct decode_t decode_t;
 
 typedef struct buffer_t
 {
-  uint32_t magic;
+  uint32_t  magic;
 
 
   // memory dependency, pass on construction
-  double *values;
-  size_t max_sz;    // max work size
-  size_t size;      // buffer size
+  double    *values;
+  size_t    max_sz;    // max work size
+  size_t    size;      // buffer size
 
-  size_t i;         // index/ modulus
-  size_t count;     // count of elements present.
+  size_t    i;         // index/ modulus
+  size_t    count;     // count of elements present.
 
 
-  double mean;
-  double stddev;
-  double min, max;
+  double    mean;
+  double    stddev;
+  double    min, max;
 
   /*
     where to manage the stop policy.
@@ -34,10 +34,10 @@ typedef struct buffer_t
   */
   // gpio_t        *gpio_trigger;
   // bool repl_trig_state.
-
   // bool  stop_on_full; // policya  hmmmm.... .
+  // bool show;
 
-  bool show;
+  unsigned  verbose;
 
 } buffer_t;
 

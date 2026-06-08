@@ -53,11 +53,11 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
 
   *buffer = (const buffer_t) {
 
-    .magic  = BUFFER_MAGIC,
-    .values = values,
-    .max_sz = max_sz,
-    .size   = 10,
-    .show   = true,
+    .magic    = BUFFER_MAGIC,
+    .values   = values,
+    .max_sz   = max_sz,
+    .size     = 10,
+    .verbose  = 1,
   };
 
 }
@@ -114,7 +114,7 @@ void buffer_update_data( buffer_t *buffer, const data_t *data)
 
   char buf[100 + 1];
 
-  if( buffer->show) {
+  if( buffer->verbose) {
 
     printf( "mean %s ", str_format_float_with_commas(buf, 100, 8, buffer->mean));
     // printf( "%s, ", range->unit );
@@ -144,14 +144,18 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
   uint32_t u0;
 
+  // buffer verbosity
+  if( sscanf(cmd, "buffer verbose %u", &buffer->verbose) == 1) {
 
+  }
 
+/*
   if( strcmp(cmd, "buffer show") == 0)
     buffer->show = true;
 
   else if( strcmp(cmd, "buffer unshow") == 0)
     buffer->show = false;
-
+*/
 
   else if( sscanf(cmd, "buffer %lu", &u0 ) == 1) {
 
