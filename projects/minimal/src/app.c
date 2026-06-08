@@ -562,7 +562,7 @@ void app_configure( app_t *app )
 
   // set start configuration
   // need a cbuf_push_str( ) function
-  const char *cmd = "cal flash load; dcv 10; decode unshow; t;\r";
+  const char *cmd = "cal flash load; dcv 10; decode verbose 1; t;\r";
 
 
   /* TODO

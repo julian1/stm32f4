@@ -257,7 +257,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  if( decode->verbose > 1) {
+  if( decode->verbose > 2) {
 
     printf( "{counts pos %7lu, neg %7lu, sig %7lu}, ",
       data->adc_refmux_pos,
@@ -380,7 +380,7 @@ void decode_init(
 
     // .line_freq    = line_freq,
 
-    .verbose      = 2,
+    .verbose      = 1,
     // show_counts  = true,
     // .show_reading = true,
   };
@@ -406,7 +406,7 @@ jun 8.
 
   // dcv 10. - short- measured at terminal input
   // dcv 10; nplc 10; buffer 100 ; buffer stop ; trig
-  normal, lo, mean -0.000,000,14 (n=100/100), stddev +131.1n
+  normal, lo, mean-0.000,000,14 (n=100/100), stddev +131.1n
   normal, lo, mean 0.000,000,03 (n=100/100), stddev +163.9n
   normal, lo, mean 0.000,000,09 (n=100/100), stddev +154.5n
   normal, lo, mean 0.000,000,19 (n=100/100), stddev +126.1n
@@ -430,10 +430,18 @@ jun 8.
   normal, lo, mean 0.000,000,01 (n=100/100), stddev +137.9n
 
 
+  connect lower analog guard - to LO/COM.
 
+  DCV-10.000,000,40 (n=100/100), stddev +161.8n
+  DCV-10, 00,000,68 (n=100/100), stddev +194.2n
+  DCV-10                  /100), stddev +161.0n
+  DCV-10, 00,000,80 (n=100/100), stddev +155.2n
+  DCV-10, 00,000,84 (n=100/100), stddev +146.5n
 
-
-
+  star-lo 10; nplc 10; buffer 100 ; buffer stop ; trig
+  STAR-LO-10,000,01 (n=100/100), stddev +150.1n
+  STAR-LO-10,000,04 (n=100/100), stddev +176.7n
+  STAR-LO-10, 00,01 (n=100/100), stddev +181.1n
 
 
 

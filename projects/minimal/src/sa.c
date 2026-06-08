@@ -753,7 +753,7 @@ bool sa_repl_statement( sa_state_t *sa, const char  *cmd)
 
 
   // buffer verbosity
-  if( sscanf(cmd, "sa verbose %u", &sa->verbose) == 1) {
+  else if( sscanf(cmd, "sa verbose %u", &sa->verbose) == 1) {
 
   }
 
