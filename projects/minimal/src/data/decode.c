@@ -210,11 +210,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
+  if( decode->verbose > 0) {
+
+    printf( "%s-%s, ", range->name, range->arg );
+  }
 
 
   if( decode->verbose > 1) {
-
-    printf( "%s-%s, ", range->name, range->arg );
 
     /*
       printf( "{isr %c%c}, ",

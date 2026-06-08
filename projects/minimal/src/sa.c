@@ -168,13 +168,13 @@ static void decode_noaz_lo_first( decode_t *decode, data_t *data)
   if( status.sample.idx % 2 == 0) {
 
     // LO   record counts.
-    printf( "lo, ");
+    printf( "noaz lo, ");
     decode->lo = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
   }
   else {
 
     // HI convert value
-    printf( "hi, ");
+    printf( "noaz hi, ");
     decode->hi = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
 
     double count_sum = decode->hi  - decode->lo;
@@ -212,13 +212,13 @@ static void decode_az_hi_first( decode_t *decode, data_t *data)
   if( status.sample.idx % 2 == 0) {
 
     // HI.  record counts.
-    printf( "hi, ");
+    printf( "az hi, ");
     decode->hi = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
   }
   else {
 
     // LO convert value
-    printf( "lo, ");
+    printf( "az lo, ");
     double lo = (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
 
     // if have prior LO if available, use average with this Lo.
@@ -273,13 +273,13 @@ static void decode_az_hi_first_aggregate( decode_t *decode, data_t *data)
       risk of overflow with uin32_t here?????
         Math.pow(2,32) / 20MHz. = 214 seconds.
     */
-    printf( "hi %u, ", decode->count);
+    printf( "az hi %u, ", decode->count);
     decode->hi += (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
   }
   else {
 
 
-    printf( "lo %u, ", decode->count);
+    printf( "az lo %u, ", decode->count);
     decode->lo += (double) data->adc_refmux_pos  - (data->cal_w * data->adc_refmux_neg);     // we could even normalize here...
 
     // the aggregate count... should count LOs. and His. separately?  as test...
@@ -358,6 +358,7 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
 
   if( data->term.oob) {
 
+    // if( sa->verbose)
     printf("oob, ");
     sa->decode_oob( sa->ctx_oob,    data);
   }
@@ -375,6 +376,8 @@ void sa_decode_reading( const sa_state_t *sa, data_t *data)
     sa->decode_normal( sa->ctx_second, data);
   }
   else {
+
+    // if( sa->verbose)
     printf("normal, ");
     sa->decode_normal( sa->ctx_normal, data);
 
