@@ -441,12 +441,14 @@ static void sa_compile_terms_az_hi_first( sa_state_t *sa)
       .azmux        = hi,
       .pc_sample    = pc,
       .oob          = true,                   // use fast/constant aperture
-      .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
+      .aperture2    = true,
+      // .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 1,
       },
       { // 1
       .azmux        = lo,
       .oob          = true,
+      .aperture2    = true,
       .next_idx     = 2,
       },
 
@@ -454,7 +456,7 @@ static void sa_compile_terms_az_hi_first( sa_state_t *sa)
       { // 2
       .azmux        = hi,
       .pc_sample    = pc,
-      .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
+      // .zgjc         = true,                   // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 3,
       },
       { // 3
@@ -512,19 +514,21 @@ static void sa_compile_terms_noaz_lo_first( sa_state_t *sa /* , const char *sboo
       .azmux        = hi,
       .pc_sample    = pc,
       .oob          = true,                     // use fast/constant aperture
-      .zgjc         = true,                     // set zgjc here, also cm-dither, zero for noaz.
+      .aperture2    = true,
+      // .zgjc         = true,                     // set zgjc here, also cm-dither, zero for noaz.
       .next_idx     = 1,
       },
       { // 1
       .azmux        = lo,
       .oob          = true,
+      .aperture2    = true,
       .next_idx     = 2
       },
 
       // normal reading, noaz mode, lo first
       { // 2
       .azmux        = lo,
-      .zgjc         = true,
+      // .zgjc         = true,
       .next_idx     = 3,
       },
       { // 3

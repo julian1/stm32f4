@@ -76,8 +76,9 @@ void term_print( const term_t *term)
   printf( "next-idx %u, ",    term->next_idx );
   printf( "oob %c, ",         BIT_TO_CHAR( term->oob));
   printf( "second %c, ",      BIT_TO_CHAR( term->second));
-  printf( "zgjc %c, ",        BIT_TO_CHAR( term->zgjc));
-  printf( "dither %c ",       BIT_TO_CHAR( term->cm_dac_dither));
+  printf( "a2 %c, ",          BIT_TO_CHAR( term->aperture2));
+  // printf( "zgjc %c, ",        BIT_TO_CHAR( term->zgjc));
+  // printf( "dither %c ",       BIT_TO_CHAR( term->cm_dac_dither));
   printf( "}, ");
 
   // printf( "hi %c ",           BIT_TO_CHAR( term->hi));
@@ -97,7 +98,8 @@ void term_print_brief( const term_t *term)
   printf( "azmux %s, ",       str_from_mux( buf, 100, term->azmux));
   printf( "oob %c, ",         BIT_TO_CHAR( term->oob));
   printf( "second %c, ",      BIT_TO_CHAR( term->second));
-  printf( "zgjc %c ",         BIT_TO_CHAR( term->zgjc));
+  // printf( "zgjc %c ",         BIT_TO_CHAR( term->zgjc));
+  printf( "a2 %c, ",          BIT_TO_CHAR( term->aperture2));
   printf( "}, ");
 }
 

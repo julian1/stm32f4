@@ -265,31 +265,37 @@ term_t
   */
 
   /*
-    the effect of oob, second flags is to force the use of separate
-    state. to compute a separate independent reading.
+    these are pass-through flags.
+    the effect of oob, second flags is to force separate
+    decode state. for independent readings.
 
   */
-  uint32_t    oob           : 1;  // 24     // an oob reading. (because of changed aperture.  but perhaps some other reason).
+  uint32_t    oob           : 1;  // 24     // an oob reading. (changed aperture.  but perhaps some other reason).
                                             // eg. for periodic. auto-gain cycle.
 
   uint32_t    second        : 1;  // 25
 
+    //////////////
+
+
+  uint32_t    aperture2     : 1;  // 26          // use aperture2.  is conversion term specific..
 
   //////
-
-  uint32_t    zgjc          : 1;  // 26     // apply zgjc.
-                                            // probably cm_dither,
-                                            // generally do the reading convert when flag  not active
-
-  // uint32_t    aperture2    : 1;            // use aperture2.  distinguish from general oob.
-
-
+  /*
+    NOT clear flags should apply for specific conversion terms.
+    rather general properties.
+    and should move to sa_t  or adc_state_t.
+  */
+/*
+  uint32_t    zgjc          : 1;  // 26     // whether to use zgjc - should be property of sa_t..
 
   uint32_t    cm_dac_dither : 1;  // 27     // apply dac dither
 
   // uint32_t active_sigmux : 1;            // could be moved here, but would probably complicate.
+*/
 
-  uint32_t                  : 4;  // 28 + 4 = 32
+
+  uint32_t                  : 5;  // 27 + 5  = 32
 
 
 
