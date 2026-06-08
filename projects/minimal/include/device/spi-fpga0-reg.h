@@ -269,8 +269,8 @@ term_t
     state. to compute a separate independent reading.
 
   */
-  uint32_t    oob           : 1;  // 24     // an oob reading. (because of changed aperture.  but could also be some other factor).
-
+  uint32_t    oob           : 1;  // 24     // an oob reading. (because of changed aperture.  but perhaps some other reason).
+                                            // eg. for periodic. auto-gain cycle.
 
   uint32_t    second        : 1;  // 25
 
@@ -280,6 +280,10 @@ term_t
   uint32_t    zgjc          : 1;  // 26     // apply zgjc.
                                             // probably cm_dither,
                                             // generally do the reading convert when flag  not active
+
+  // uint32_t    aperture2    : 1;            // use aperture2.  distinguish from general oob.
+
+
 
   uint32_t    cm_dac_dither : 1;  // 27     // apply dac dither
 
