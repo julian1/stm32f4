@@ -1497,6 +1497,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( sscanf(cmd, "sleep %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
+    // support m,u,n. suffic etc.
     // this isn't great
     // update the current state
     app_transition_state( app);

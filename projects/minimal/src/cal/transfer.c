@@ -137,7 +137,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   double values[ 10 ];
   memset(values, 0, sizeof( values));
 
-  decode ->show_reading = true;
+  decode ->verbose = 2;
 
   app_fill_buffer( app, values, NULL, NULL, NULL, ARRAY_SIZE(values));
 
@@ -154,7 +154,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   app_transition_state( app);
 
   //
-  decode->show_reading = false;
+  // decode->show_reading = false;
   app_fill_buffer( app, values, NULL, NULL, NULL, ARRAY_SIZE(values));
   double mean1    = mean( values, ARRAY_SIZE(values));
   double stddev1  = stddev( values, ARRAY_SIZE(values));
@@ -167,7 +167,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
 
   // print some values using cal to confirm
-  decode->show_reading = true;
+  // decode->show_reading = true;
   app_fill_buffer( app, values, NULL, NULL, NULL, ARRAY_SIZE(values));
 
   // app_cal_finish( app);

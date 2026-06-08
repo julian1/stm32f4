@@ -210,30 +210,31 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  printf( "%s-%s, ", range->name, range->arg );
-
-  ////////////////
 
 
+  if( decode->verbose > 1) {
 
-  /*
-    printf( "{isr %c%c}, ",
-      BIT_TO_CHAR( status.isr.cmpr),
-      BIT_TO_CHAR( status.isr.adc)
+    printf( "%s-%s, ", range->name, range->arg );
+
+    /*
+      printf( "{isr %c%c}, ",
+        BIT_TO_CHAR( status.isr.cmpr),
+        BIT_TO_CHAR( status.isr.adc)
+      );
+    */
+
+    printf( "{idx %u, first %c}, ",
+      status.sample.idx,
+      BIT_TO_CHAR( status.sample.first)
     );
-  */
 
-  printf( "{idx %u, first %c}, ",
-    status.sample.idx,
-    BIT_TO_CHAR( status.sample.first)
-  );
 
-  // status_cmpr_print( status );
+    term_print_brief( &data->term );
 
-  // term_print( &data->term );
-
-  term_print_brief( &data->term );
-
+    // status_cmpr_print( status );
+    // status_cmpr_print( status );
+    // term_print( &data->term );
+  }
 
 
   ///////////////////////////////////////
@@ -254,7 +255,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  if( true || decode->show_counts) {
+  if( decode->verbose > 1) {
 
     printf( "{counts pos %7lu, neg %7lu, sig %7lu}, ",
       data->adc_refmux_pos,
@@ -285,10 +286,15 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     // with range
     data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
 
+    /*
+      how to handle this.
+      show reading if verbose == 1
 
-    char buf[100 + 1];
+      the lowest level?
+    */
+    if( decode->verbose > 0) {
 
-    if(decode->show_reading) {
+      char buf[100 + 1];
 
       // printf( "norm %s, ", str_format_float_with_commas(buf, 100, 8, data->reading_nominal));
 
@@ -305,11 +311,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   } // data->valid
 
-
-
 }
-
-
 
 
 
@@ -320,6 +322,15 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);
 
+  char s0[ 100 + 1];
+
+  if( sscanf(cmd, "decode verbose %100s", s0) == 1
+    && str_decode_uint( s0, & decode->verbose )
+  ) {
+
+
+  }
+/*
 
   if(strcmp(cmd, "decode show") == 0
     || strcmp(cmd, "decode show") == 0)
@@ -328,6 +339,7 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
   else if(strcmp(cmd, "decode unshow") == 0
     || strcmp(cmd, "decode unshow") == 0)
     decode->show_counts = false;
+*/
 
   else
     return 0;
@@ -365,12 +377,13 @@ void decode_init(
     .mode         = mode,
 
     .ranging      = ranging,
-    .environment = environment,
+    .environment  = environment,
 
     // .line_freq    = line_freq,
 
-    .show_counts  = true,
-    .show_reading = true,
+    .verbose      = 2,
+    // show_counts  = true,
+    // .show_reading = true,
   };
 
 }

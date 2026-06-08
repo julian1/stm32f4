@@ -55,8 +55,10 @@ typedef struct decode_t
 
   ///////////////////////
 
-  bool show_counts;
-  bool show_reading;
+  uint32_t verbose;   // unsigned long
+
+  // bool show_counts;
+  // bool show_reading;
   // bool show_sum;
   // bool show_ratio;
 

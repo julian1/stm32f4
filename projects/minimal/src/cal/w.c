@@ -108,8 +108,13 @@ void app_cal_w( app_t *app)
   _Static_assert(ARRAY_SIZE(adc_refmux_pos) == ARRAY_SIZE(adc_refmux_neg), "array sizes do not match");
 
 
-  decode->show_counts  = true;
-  decode->show_reading = false;
+  /* suppress readings.
+        because cal->w is wrongt.
+      better way is to set cal-w to zero first...
+     */
+
+  // decode->show_counts  = true;
+  // decode->show_reading = false;
 
   // fill decode
   app_fill_buffer( app, NULL, NULL, adc_refmux_pos, adc_refmux_neg, ARRAY_SIZE( adc_refmux_pos));
